@@ -1,0 +1,20 @@
+RewriteEngine On
+RewriteBase /
+
+# Allow access to the base domain (homepage)
+RewriteRule ^$ - [L]
+
+# Allow access to index.php
+RewriteRule ^index\.php$ - [L]
+
+# Allow access to builder.php
+RewriteRule ^builder\.php$ - [L]
+
+# Allow access to form.php with or without query parameters (wildcards)
+RewriteRule ^form\.php(.*)?$ - [L]
+
+# **Allow access to ajax.php**
+RewriteRule ^ajax\.php$ - [L]
+
+# Deny access to everything else
+RewriteRule .* - [F,L]
