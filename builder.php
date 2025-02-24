@@ -106,7 +106,7 @@
             let builderInstance;
 
             Formio.builder(builderElement, {}, {
-                builder: { resource: false, advanced: false, premium: false },
+                builder: { resource: false, advanced: false, premium: false, disabled: ['password'] },
                 editForm: { '*': [{ key: 'api', ignore: true }] }
             }).then(builder => {
                 builderInstance = builder;
