@@ -87,7 +87,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
         </div>
 
         <div id='template-container'>
-            <div id='wildcard-container'>
+           <div id='wildcard-container'>
                 <h3>Available Wildcards:</h3>
                 <div id='wildcard-list'></div>
             </div>
@@ -112,7 +112,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
     </div>
 
     <footer class="footer">
-        <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
+       <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
         <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
     </footer>
 
@@ -130,20 +130,108 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             let existingFormNamePHP = "<?php echo $existingFormName; ?>";
             let existingTemplatePHP = <?php echo json_encode($existingTemplate, JSON_UNESCAPED_SLASHES); ?>;
 
+            async function registerCustomComponents(builderOptions) {
+                try {
+                    // Fetch the components.json file
+                    const response = await fetch('components.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const componentData = await response.json();
 
-            Formio.builder(builderElement, existingFormData, {
-                builder: { resource: false, advanced: false, premium: false },
-                editForm: { '*': [{ key: 'api', ignore: true }] }
-            }).then(builder => {
-                builderInstance = builder;
-                initializeBuilder();
-                if (existingFormNamePHP) {
-                    formNameInput.value = existingFormNamePHP;
+
+                  componentData.forEach(groupData => {
+                    // Create the Builder Group
+                    builderOptions.builder[groupData.groupKey] = {
+                      title: groupData.groupTitle,
+                      default: false,
+                      weight: groupData.groupWeight,
+                      components: {}
+                    };
+
+                    groupData.components.forEach(componentDef => {
+                      // Add component definition to the builder
+                        builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
+                            title: componentDef.title,
+                            group: groupData.groupKey,
+                            icon: componentDef.icon,
+                            schema: componentDef.schema
+                        };
+
+                        const isContainer = componentDef.schema.components && Array.isArray(componentDef.schema.components);
+                        const baseComponent = isContainer 
+                            ? Formio.Components.components.container 
+                            : Formio.Components.components.component;
+
+                        Formio.Components.addComponent(
+                            componentDef.schema.type,
+                            class extends baseComponent {
+                                static schema(...extend) {
+                                    return baseComponent.schema(
+                                        componentDef.schema,
+                                        ...extend
+                                    );
+                                }
+
+                                static get builderInfo() {
+                                    return {
+                                        title: componentDef.title,
+                                        group: groupData.groupKey,
+                                        icon: componentDef.icon,
+                                        weight: 10,
+                                        schema: this.schema()
+                                    };
+                                }
+                            },
+                            {
+                                template: isContainer 
+                                    ? `<div class="${componentDef.schema.type}-component"><div ref="components"></div></div>`
+                                    : `<div class="${componentDef.schema.type}-component">{{ view }}</div>`
+                            }
+                        );
+                    });
+                  });
+                } catch (error) {
+                    console.error("Error loading custom components:", error);
+                    alert("Failed to load custom components.  Check the console for details.");
                 }
-                 if (existingTemplatePHP) {
-                    templateInput.value = existingTemplatePHP;
+                return builderOptions;
+            }
+
+
+
+            // Initial Builder Options
+            let builderOptions = {
+                builder: {
+                    resource: false,
+                    advanced: false,
+                    premium: false,
+                    basic: {
+                        components: {
+                            password: false,
+                            number: false
+                        }
+                    }
                 }
-            });
+            };
+
+            // Async function to initialize the builder *after* fetching components
+            async function initializeFormio() {
+                builderOptions = await registerCustomComponents(builderOptions); // Await the registration
+                Formio.builder(builderElement, existingFormData, builderOptions).then(builder => {
+                    builderInstance = builder;
+                    initializeBuilder();
+                    if (existingFormNamePHP) {
+                        formNameInput.value = existingFormNamePHP;
+                    }
+                    if (existingTemplatePHP) {
+                        templateInput.value = existingTemplatePHP;
+                    }
+                });
+            }
+
+            initializeFormio(); // Call the async initialization function
+
 
             function initializeBuilder() {
                 builderInstance.on('change', updateWildcards);
@@ -189,7 +277,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 }
             }
 
-            async function saveForm() {
+             async function saveForm() {
                 const formSchema = builderInstance?.form;
                 if (!formSchema) return alert('No form schema found');
 

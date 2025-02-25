@@ -16,5 +16,8 @@ RewriteRule ^form\.php(.*)?$ - [L]
 # **Allow access to ajax.php**
 RewriteRule ^ajax\.php$ - [L]
 
+# **Allow access to components.json**
+RewriteRule ^components\.json$ - [L]
+
 # Deny access to everything else
 RewriteRule .* - [F,L]

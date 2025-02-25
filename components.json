@@ -1,0 +1,68 @@
+[
+    {
+        "groupKey": "gtaw",
+        "groupTitle": "GTA:W",
+        "groupWeight": 50,
+        "components": [
+            {
+                "key": "unitSection",
+                "title": "Unit Section",
+                "icon": "users",
+                "schema": {
+                    "label": "Unit Section",
+                    "type": "unitSection",
+                    "key": "unitSection",
+                    "input": true,
+                    "tableView": true,
+                    "components": [
+                        {
+                            "type": "fieldset",
+                            "label": "Unit Information",
+                            "key": "unitInfo",
+                            "input": false,
+                            "components": [
+                                { "label": "Callsign", "key": "callsign", "type": "textfield", "input": true, "tableView": true },
+                                { "label": "Name", "key": "name", "type": "textfield", "input": true, "tableView": true },
+                                { "label": "Badge Number", "key": "badgeNumber", "type": "textfield", "input": true, "tableView": true }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
+                "key": "anotherComponent",
+                "title": "Another Component",
+                "icon": "cog",
+                "schema": {
+                  "label": "Another Component",
+                  "type": "anotherComponent",
+                  "key": "anotherComponent",
+                  "input": true,
+                  "components": [
+                      {"type": "textfield", "label": "Some Field", "key": "someField", "input": true}
+                    ]
+                }
+            }
+
+        ]
+    },
+    {
+        "groupKey": "otherGroup",
+        "groupTitle": "Other Group",
+        "groupWeight": 60,
+        "components": [
+            {
+                "key": "yetAnotherComponent",
+                "title": "Yet Another Component",
+                "icon": "check",
+                 "schema": {
+                    "label": "Yet Another Component",
+                    "type": "yetAnotherComponent",
+                    "key": "yetAnotherComponent",
+                    "input": true,
+                    "components": []
+                }
+            }
+        ]
+    }
+]
