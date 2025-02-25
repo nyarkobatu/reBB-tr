@@ -1,20 +1,83 @@
 <?php
 require_once 'site.php';
-header('Content-Type: text/html');
-$formSchema = null;
-$formTemplate = '';
-$formNameDisplay = '';
+
+$isJsonRequest = false;
+$formName = '';
 
 if (isset($_GET['f'])) {
-    $formName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['f']);
-    $filename = 'forms/' . $formName . '_schema.json';
+    $formName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $_GET['f']); // Allow slash for /json
 
+    if (str_ends_with($formName, '/json')) {
+        $isJsonRequest = true;
+        $formName = substr($formName, 0, -5); // Remove "/json" to get the base form name
+    }
+}
+
+if ($isJsonRequest) {
+    $filename = 'forms/' . $formName . '_schema.json';
     if (file_exists($filename)) {
+        header('Content-Type: application/json');
         $fileContents = file_get_contents($filename);
-        $formData = json_decode($fileContents, true);
-        $formSchema = $formData['schema'] ?? null;
-        $formTemplate = $formData['template'] ?? '';
-        $formNameDisplay = $formData['formName'] ?? '';
+        echo $fileContents;
+        exit(); // Stop further HTML rendering
+    } else {
+        header('Content-Type: text/plain');
+        echo "Form JSON not found for form: " . htmlspecialchars($formName);
+        exit();
+    }
+} else {
+    header('Content-Type: text/html');
+    $formSchema = null;
+    $formTemplate = '';
+    $formNameDisplay = '';
+    $showAlert = false; // Flag to control banner display
+
+
+    if (isset($_GET['f'])) {
+        $formName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['f']);
+        $filename = 'forms/' . $formName . '_schema.json';
+
+        if (file_exists($filename)) {
+            $fileContents = file_get_contents($filename);
+            $formData = json_decode($fileContents, true);
+            $formSchema = $formData['schema'] ?? null;
+            $formTemplate = $formData['template'] ?? '';
+            $formNameDisplay = $formData['formName'] ?? '';
+
+            // Check for sensitive keywords in formSchema
+            $sensitiveKeywords = ["password", "passcode", "secret", "pin"];
+            if ($formSchema) {
+                function searchKeywords($array, $keywords) {
+                    foreach ($array as $key => $value) {
+                        if (is_array($value)) {
+                            if (searchKeywords($value, $keywords)) {
+                                return true;
+                            }
+                        } else if (is_string($value)) {
+                            $lowerValue = strtolower($value);
+                            foreach ($keywords as $keyword) {
+                                if (strpos($lowerValue, $keyword) !== false) {
+                                    return true;
+                                }
+                            }
+                        }
+                        if (is_string($key)) {
+                            $lowerKey = strtolower($key);
+                            foreach ($keywords as $keyword) {
+                                if (strpos($lowerKey, $keyword) !== false) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                    return false;
+                }
+
+                if (searchKeywords($formSchema, $sensitiveKeywords)) {
+                    $showAlert = true;
+                }
+            }
+        }
     }
 }
 ?>
@@ -77,6 +140,13 @@ if (isset($_GET['f'])) {
     </style>
   </head>
   <body>
+
+    <?php if ($showAlert): ?>
+    <div class="alert alert-warning">
+        <strong>Warning:</strong> This form appears to be requesting sensitive information such as passwords or passcodes. For your security, please do not enter your personal passwords or passcodes into this form unless you are absolutely certain it is legitimate and secure. Be cautious of phishing attempts.
+    </div>
+    <?php endif; ?>
+
     <?php if (!$formSchema): ?>
       <div class="alert alert-danger">
         <?php if (!isset($_GET['f'])): ?>
@@ -137,6 +207,9 @@ if (isset($_GET['f'])) {
     <?php endif; ?>
     <footer class="footer">
         <p>Made using <a href="<?php echo SITE_URL; ?>"><?php echo SITE_NAME; ?></a></br>
+        <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
+            <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a><br/>
+        <?php endif; ?>
         <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
     </footer>
   </body>

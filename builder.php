@@ -1,4 +1,25 @@
-<?php require_once 'site.php'; ?>
+<?php
+require_once 'site.php';
+
+$existingSchema = null;
+$existingFormName = '';
+$existingTemplate = '';
+
+if (isset($_GET['f']) && !empty($_GET['f'])) {
+    $formId = $_GET['f'];
+    $filename = 'forms/' . $formId . '_schema.json';
+
+    if (file_exists($filename)) {
+        $fileContent = file_get_contents($filename);
+        $formData = json_decode($fileContent, true);
+        if ($formData && isset($formData['schema'])) {
+            $existingSchema = json_encode($formData['schema']);
+            $existingFormName = isset($formData['formName']) ? $formData['formName'] : '';
+            $existingTemplate = isset($formData['template']) ? $formData['template'] : '';
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -62,7 +83,7 @@
 
         <div id='form-name-container' style="margin-top: 20px;">
             <h3>Form Name:</h3>
-            <input type='text' id='formName' class='form-control' placeholder='Enter form name'>
+            <input type='text' id='formName' class='form-control' placeholder='Enter form name' value="<?php echo htmlspecialchars($existingFormName); ?>">
         </div>
 
         <div id='template-container'>
@@ -72,7 +93,7 @@
             </div>
             <h3>Form Template:</h3>
             <textarea id='formTemplate' class='form-control' rows='5'
-                      placeholder='Paste your BBCode / HTML / Template here, use the wildcards above, example: [b]Name:[/b] {NAME_ABC1}.'></textarea>
+                      placeholder='Paste your BBCode / HTML / Template here, use the wildcards above, example: [b]Name:[/b] {NAME_ABC1}.'><?php echo htmlspecialchars($existingTemplate); ?></textarea>
         </div>
 
         <div id='button-container'>
@@ -105,12 +126,23 @@
             let componentCounter = 0;
             let builderInstance;
 
-            Formio.builder(builderElement, {}, {
+            let existingFormData = <?php echo $existingSchema ? $existingSchema : 'null'; ?>;
+            let existingFormNamePHP = "<?php echo $existingFormName; ?>";
+            let existingTemplatePHP = "<?php echo $existingTemplate; ?>";
+
+
+            Formio.builder(builderElement, existingFormData, {
                 builder: { resource: false, advanced: false, premium: false },
                 editForm: { '*': [{ key: 'api', ignore: true }] }
             }).then(builder => {
                 builderInstance = builder;
                 initializeBuilder();
+                if (existingFormNamePHP) {
+                    formNameInput.value = existingFormNamePHP;
+                }
+                 if (existingTemplatePHP) {
+                    templateInput.value = existingTemplatePHP;
+                }
             });
 
             function initializeBuilder() {

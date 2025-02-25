@@ -8,7 +8,7 @@ RewriteRule ^$ - [L]
 RewriteRule ^index\.php$ - [L]
 
 # Allow access to builder.php
-RewriteRule ^builder\.php$ - [L]
+RewriteRule ^builder\.php?$ - [L]
 
 # Allow access to form.php with or without query parameters (wildcards)
 RewriteRule ^form\.php(.*)?$ - [L]
