@@ -74,7 +74,8 @@ require_once 'site.php';
 
     <footer class="footer">
         <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
+        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></br>
+        <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
     </footer>
 
     <script>

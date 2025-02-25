@@ -113,7 +113,8 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
 
     <footer class="footer">
        <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
+        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></br>
+        <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
     </footer>
 
     <script>
@@ -125,10 +126,27 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             const formNameInput = document.getElementById('formName');
             let componentCounter = 0;
             let builderInstance;
+            let predefinedKeys = new Set();
 
             let existingFormData = <?php echo $existingSchema ? $existingSchema : 'null'; ?>;
             let existingFormNamePHP = "<?php echo $existingFormName; ?>";
             let existingTemplatePHP = <?php echo json_encode($existingTemplate, JSON_UNESCAPED_SLASHES); ?>;
+
+            function collectKeys(schema, keysSet) {
+                if (schema.key) {
+                    keysSet.add(schema.key);
+                }
+                if (schema.components) {
+                    schema.components.forEach(c => collectKeys(c, keysSet));
+                }
+                if (schema.columns) {
+                    schema.columns.forEach(col => {
+                        if (col.components) {
+                            col.components.forEach(c => collectKeys(c, keysSet));
+                        }
+                    });
+                }
+            }
 
             async function registerCustomComponents(builderOptions) {
                 try {
@@ -150,7 +168,9 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     };
 
                     groupData.components.forEach(componentDef => {
-                      // Add component definition to the builder
+                        collectKeys(componentDef.schema, predefinedKeys);
+
+                        // Add component definition to the builder
                         builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
                             title: componentDef.title,
                             group: groupData.groupKey,
@@ -207,6 +227,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     advanced: false,
                     premium: false,
                     basic: {
+                        weight: 10,
                         components: {
                             password: false,
                             number: false
@@ -259,16 +280,40 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     .join('');
             }
 
+            function updateWildcards() {
+                const components = builderInstance?.form?.components || [];
+                wildcardList.innerHTML = components
+                    .flatMap(getComponentKeys)
+                    .map(key => `<span class="wildcard">{${key}}</span>`)
+                    .join('');
+            }
+
             function getComponentKeys(component) {
                 if (component.type === 'button' && component.action === 'submit') return [];
-                const keys = component.key ? [component.key] : [];
+                let keys = [];
+
+                if (['textfield', 'textarea', 'checkbox', 'select', 'radio'].includes(component.type)) {
+                    if (component.key) {
+                        keys.push(component.key);
+                    }
+                }
+
+                // Recursively process components and columns, regardless of the current component's type
                 if (component.components) keys.push(...component.components.flatMap(getComponentKeys));
                 if (component.columns) keys.push(...component.columns.flatMap(col => col.components?.flatMap(getComponentKeys) || []));
+
                 return keys;
             }
 
+            // Modified handleComponentUpdate function
             function handleComponentUpdate(component) {
                 if (component.action === 'submit') return;
+                
+                // Check if component key is in predefined set
+                if (predefinedKeys.has(component.key)) {
+                    return; // Skip key generation for predefined components
+                }
+
                 const newKey = generateKey(component.label, component);
                 if (component.key !== newKey) {
                     component.key = newKey;

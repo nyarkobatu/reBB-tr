@@ -203,10 +203,29 @@ if ($isJsonRequest) {
               </div>
             `;
           });
+
+        function setCookie(name, value, daysToLive = 7) {
+            const date = new Date();
+            date.setTime(date.getTime() + (daysToLive * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
+        }
+
+        function getCookie(name) {
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + "=")) {
+                return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
       </script>
     <?php endif; ?>
     <footer class="footer">
-        <p>Made using <a href="<?php echo SITE_URL; ?>"><?php echo SITE_NAME; ?></a></br>
+        <p>Made using <a href="<?php echo SITE_URL; ?>"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
         <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
             <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a><br/>
         <?php endif; ?>

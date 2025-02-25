@@ -2,12 +2,12 @@
     {
         "groupKey": "gtaw",
         "groupTitle": "GTA:W",
-        "groupWeight": 50,
+        "groupWeight": 0,
         "components": [
             {
                 "key": "unitSection",
-                "title": "Unit Section",
-                "icon": "users",
+                "title": "Unit Section (with Browser Cookies)",
+                "icon": "person",
                 "schema": {
                     "label": "Unit Section",
                     "type": "unitSection",
@@ -21,46 +21,42 @@
                             "key": "unitInfo",
                             "input": false,
                             "components": [
-                                { "label": "Callsign", "key": "callsign", "type": "textfield", "input": true, "tableView": true },
-                                { "label": "Name", "key": "name", "type": "textfield", "input": true, "tableView": true },
-                                { "label": "Badge Number", "key": "badgeNumber", "type": "textfield", "input": true, "tableView": true }
+                                {
+                                    "label": "Unit Columns",
+                                    "columns": [
+                                        {
+                                            "components": [{ "label": "Callsign", "key": "callsign", "type": "textfield", "input": true, "tableView": true, "customDefaultValue": "value = getCookie(component.key);", "customConditional": "setCookie(component.key, value, 30);" }],
+                                            "width": 4,
+                                            "offset": 0,
+                                            "push": 0,
+                                            "pull": 0,
+                                            "size": "md",
+                                            "currentWidth": 4
+                                        },
+                                        {
+                                            "components": [{ "label": "Name", "key": "name", "type": "textfield", "input": true, "tableView": true, "customDefaultValue": "value = getCookie(component.key);", "customConditional": "setCookie(component.key, value, 30);" }],
+                                            "width": 4,
+                                            "offset": 0,
+                                            "push": 0,
+                                            "pull": 0,
+                                            "size": "md",
+                                            "currentWidth": 4
+                                        },
+                                        {
+                                            "components": [{ "label": "Badge Number", "key": "badgeNumber", "type": "textfield", "input": true, "tableView": true, "customDefaultValue": "value = getCookie(component.key);", "customConditional": "setCookie(component.key, value, 30);" }],
+                                            "size": "md",
+                                            "width": 4,
+                                            "currentWidth": 4
+                                        }
+                                    ],
+                                    "key": "unitColumns",
+                                    "type": "columns",
+                                    "input": false,
+                                    "tableView": false
+                                }
                             ]
                         }
                     ]
-                }
-            },
-            {
-                "key": "anotherComponent",
-                "title": "Another Component",
-                "icon": "cog",
-                "schema": {
-                  "label": "Another Component",
-                  "type": "anotherComponent",
-                  "key": "anotherComponent",
-                  "input": true,
-                  "components": [
-                      {"type": "textfield", "label": "Some Field", "key": "someField", "input": true}
-                    ]
-                }
-            }
-
-        ]
-    },
-    {
-        "groupKey": "otherGroup",
-        "groupTitle": "Other Group",
-        "groupWeight": 60,
-        "components": [
-            {
-                "key": "yetAnotherComponent",
-                "title": "Yet Another Component",
-                "icon": "check",
-                 "schema": {
-                    "label": "Yet Another Component",
-                    "type": "yetAnotherComponent",
-                    "key": "yetAnotherComponent",
-                    "input": true,
-                    "components": []
                 }
             }
         ]
