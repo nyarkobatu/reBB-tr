@@ -128,7 +128,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
 
             let existingFormData = <?php echo $existingSchema ? $existingSchema : 'null'; ?>;
             let existingFormNamePHP = "<?php echo $existingFormName; ?>";
-            let existingTemplatePHP = "<?php echo $existingTemplate; ?>";
+            let existingTemplatePHP = <?php echo json_encode($existingTemplate, JSON_UNESCAPED_SLASHES); ?>;
 
 
             Formio.builder(builderElement, existingFormData, {
