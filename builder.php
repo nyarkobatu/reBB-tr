@@ -121,6 +121,26 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
         .dark-mode-toggle {
             cursor: pointer;
         }
+
+        /* Danger styling for unused dataset wildcards */
+        .wildcard-danger {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            border-width: 2px;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            font-weight: bold;
+        }
+
+        /* Copy button styling within danger wildcards */
+        .wildcard-danger .copy-btn {
+            color: #721c24;
+        }
+
+        .wildcard-danger .copy-btn:hover {
+            color: #dc3545;
+            background-color: rgba(220, 53, 69, 0.1);
+        }
     </style>
     
     <!-- Dark Mode Styles -->
@@ -146,7 +166,8 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
         body.dark-mode #form-container,
         body.dark-mode #output-container,
         body.dark-mode #content-wrapper,
-        body.dark-mode .card {
+        body.dark-mode .card,
+        body.dark-mode .table {
             background-color: #1e1e1e;
             color: #e0e0e0;
         }
@@ -234,6 +255,78 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             background-color: #1e462d;
             color: #e0e0e0;
             border-color: #285e3b;
+        }
+
+        /* Dark mode for danger wildcard state */
+        body.dark-mode .wildcard-danger {
+            background-color: #2c1315;
+            border-color: #dc3545;
+            color: #f8d7da;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+            font-weight: bold;
+        }
+
+        body.dark-mode .wildcard-danger .copy-btn {
+            color: #f8d7da;
+        }
+
+        body.dark-mode .wildcard-danger .copy-btn:hover {
+            color: #ff6b70;
+            background-color: rgba(220, 53, 69, 0.2);
+        }
+
+        /* Table component dark mode styles */
+        body.dark-mode .table-responsive,
+        body.dark-mode table.table,
+        body.dark-mode .formio-component-table,
+        body.dark-mode .formio-component-table .table,
+        body.dark-mode .formio-component-table .table tbody,
+        body.dark-mode .formio-component-table .table tr,
+        body.dark-mode .formio-component-table .table td,
+        body.dark-mode .formio-component-table .table th {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        /* Additional fixes for form.io builder specific tables */
+        body.dark-mode .formbuilder .table,
+        body.dark-mode .formbuilder .table thead,
+        body.dark-mode .formbuilder .table tbody,
+        body.dark-mode .formbuilder .table tr,
+        body.dark-mode .formbuilder .table th,
+        body.dark-mode .formbuilder .table td,
+        body.dark-mode div[ref="element"] table {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+
+        /* Handle striped tables */
+        body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #2a2a2a;
+        }
+
+        /* Handle hover effect */
+        body.dark-mode .table-hover tbody tr:hover {
+            background-color: #333;
+        }
+
+        /* Fix any remaining white backgrounds in form.io components */
+        body.dark-mode .formio-component,
+        body.dark-mode .formio-container,
+        body.dark-mode .formio-form,
+        body.dark-mode .formio-component-table .formio-table {
+            background-color: #1e1e1e;
+        }
+
+        /* Fix table cell inputs in dark mode */
+        body.dark-mode .formio-component-table input,
+        body.dark-mode .formio-component-table select,
+        body.dark-mode .formio-component-table textarea {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #444;
         }
     </style>
 </head>
@@ -417,6 +510,15 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 saveButton.addEventListener('click', saveForm);
                 setupTemplateListener();
                 updateWildcards();
+                
+                // Create a help text element that we'll show/hide as needed
+                const wildcardContainer = document.getElementById('wildcard-container');
+                const helpText = document.createElement('div');
+                helpText.id = 'dataset-help-text';
+                helpText.className = 'alert alert-info mt-2';
+                helpText.style.display = 'none'; // Hidden by default
+                helpText.innerHTML = '<small><strong>Note:</strong> Dataset wildcards (highlighted in red) must be included in your template before saving. They define where repeating content will appear.</small>';
+                wildcardContainer.appendChild(helpText);
             }
 
             function generateUniqueId() {
@@ -434,11 +536,26 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 const components = builderInstance?.form?.components || [];
                 const wildcardArray = components.flatMap(getComponentKeys);
                 
+                // Check if there are any dataset wildcards
+                const hasDatasetWildcards = wildcardArray.some(key => 
+                    key.startsWith('@START_') || key.startsWith('@END_')
+                );
+                
+                // Show or hide help text based on whether we have dataset wildcards
+                const helpText = document.getElementById('dataset-help-text');
+                if (helpText) {
+                    helpText.style.display = hasDatasetWildcards ? 'block' : 'none';
+                }
+                
                 wildcardList.innerHTML = wildcardArray
                     .map(key => {
                         const wildcardText = `{${key}}`;
+                        const isDatasetWildcard = key.startsWith('@START_') || key.startsWith('@END_');
+                        const datasetClass = isDatasetWildcard ? 'wildcard-dataset' : '';
+                        const dangerClass = isDatasetWildcard ? 'wildcard-danger' : '';
+                        
                         return `
-                            <span class="wildcard" data-wildcard="${key}">
+                            <span class="wildcard ${datasetClass} ${dangerClass}" data-wildcard="${key}">
                                 ${wildcardText}
                                 <button class="copy-btn" data-clipboard="${wildcardText}" title="Copy to clipboard">
                                     <i class="bi bi-clipboard"></i>
@@ -491,6 +608,35 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 return keys;
             }
             
+            // Function to check if all dataset wildcards are used
+            function checkAllDatasetWildcardsUsed() {
+                const datasetWildcards = document.querySelectorAll('.wildcard-dataset');
+                
+                // If there are no dataset wildcards, return true (no blocking)
+                if (datasetWildcards.length === 0) return true;
+                
+                // Check if all dataset wildcards are used
+                for (const wildcard of datasetWildcards) {
+                    if (!wildcard.classList.contains('wildcard-used')) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+
+            // Update the save button state based on dataset wildcards
+            function updateSaveButtonState() {
+                const allDatasetWildcardsUsed = checkAllDatasetWildcardsUsed();
+                saveButton.disabled = !allDatasetWildcardsUsed;
+                
+                if (!allDatasetWildcardsUsed) {
+                    saveButton.title = 'All dataset wildcards must be used in the template before saving';
+                } else {
+                    saveButton.title = 'Save form';
+                }
+            }
+
             // Function to check which wildcards are being used in the template
             function checkUsedWildcards() {
                 const templateText = templateInput.value;
@@ -503,16 +649,27 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     if (wildcardPattern.test(templateText)) {
                         // Wildcard is being used in the template
                         element.classList.add('wildcard-used');
+                        if(element.classList.contains('wildcard-dataset')) {
+                            element.classList.remove('wildcard-danger');
+                        }
                     } else {
                         // Wildcard is not being used
                         element.classList.remove('wildcard-used');
+                        if(element.classList.contains('wildcard-dataset')) {
+                            element.classList.add('wildcard-danger');
+                        }
                     }
                 });
+                
+                // Update save button state
+                updateSaveButtonState();
             }
 
             // Add event listener to the template textarea to detect changes
             function setupTemplateListener() {
                 templateInput.addEventListener('input', checkUsedWildcards);
+                // Initial check for save button state
+                setTimeout(updateSaveButtonState, 500);
             }
 
             // Modified handleComponentUpdate function
