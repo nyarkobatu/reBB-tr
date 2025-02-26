@@ -328,6 +328,111 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             color: #e0e0e0;
             border-color: #444;
         }
+
+      /* Dropdown option styling for dark mode */
+      body.dark-mode select option {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+      }
+
+      /* Handle optgroup if used */
+      body.dark-mode select optgroup {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+      }
+
+      /* Form.io specific dropdown components */
+      body.dark-mode .choices__list--dropdown .choices__item {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+      }
+
+      body.dark-mode .choices__list--dropdown {
+          background-color: #2d2d2d !important;
+          border-color: #444 !important;
+      }
+
+      /* Dropdown search input styling */
+      body.dark-mode .choices__input,
+      body.dark-mode .choices__input--cloned {
+          background-color: #383838 !important;
+          color: #e0e0e0 !important;
+          border-color: #555 !important;
+      }
+
+      body.dark-mode .choices__input::placeholder {
+          color: #aaa !important;
+      }
+
+      /* Search container styling */
+      body.dark-mode .choices__list--dropdown .choices__list {
+          background-color: #2d2d2d !important;
+      }
+
+      /* Select2 search field if used */
+      body.dark-mode .select2-search, 
+      body.dark-mode .select2-search--dropdown {
+          background-color: #2d2d2d !important;
+      }
+
+      body.dark-mode .select2-search__field {
+          background-color: #383838 !important;
+          color: #e0e0e0 !important;
+          border-color: #555 !important;
+      }
+
+      body.dark-mode .select2-search--dropdown .select2-search__field::placeholder {
+          color: #aaa !important;
+      }
+
+      /* Generic search inputs in dropdowns */
+      body.dark-mode .dropdown-menu input[type="search"],
+      body.dark-mode .dropdown-menu input[type="text"] {
+          background-color: #383838 !important;
+          color: #e0e0e0 !important;
+          border-color: #555 !important;
+      }
+
+      /* Active/highlighted state */
+      body.dark-mode .choices__list--dropdown .choices__item--selectable.is-highlighted {
+          background-color: #444 !important;
+      }
+
+      /* Select2 component if used */
+      body.dark-mode .select2-dropdown,
+      body.dark-mode .select2-dropdown--below,
+      body.dark-mode .select2-dropdown--above {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+          border-color: #444 !important;
+      }
+
+      body.dark-mode .select2-results__option {
+          background-color: #2d2d2d !important;
+          color: #e0e0e0 !important;
+      }
+
+      body.dark-mode .select2-results__option--highlighted,
+      body.dark-mode .select2-results__option[aria-selected=true] {
+          background-color: #444 !important;
+          color: #ffffff !important;
+      }
+
+      /* Bootstrap dropdown menus if used */
+      body.dark-mode .dropdown-menu {
+          background-color: #2d2d2d !important;
+          border-color: #444 !important;
+      }
+
+      body.dark-mode .dropdown-item {
+          color: #e0e0e0 !important;
+      }
+
+      body.dark-mode .dropdown-item:hover,
+      body.dark-mode .dropdown-item:focus {
+          background-color: #444 !important;
+          color: #ffffff !important;
+      }
     </style>
 </head>
 <body>
