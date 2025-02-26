@@ -280,17 +280,13 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     .join('');
             }
 
-            function updateWildcards() {
-                const components = builderInstance?.form?.components || [];
-                wildcardList.innerHTML = components
-                    .flatMap(getComponentKeys)
-                    .map(key => `<span class="wildcard">{${key}}</span>`)
-                    .join('');
-            }
-
             function getComponentKeys(component) {
                 if (component.type === 'button' && component.action === 'submit') return [];
                 let keys = [];
+
+                if (component.type === 'datagrid' && component.key) {
+                    keys.push(`@START_${component.key}@`, `@END_${component.key}@`);
+                }
 
                 if (['textfield', 'textarea', 'checkbox', 'select', 'radio'].includes(component.type)) {
                     if (component.key) {
