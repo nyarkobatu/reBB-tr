@@ -148,6 +148,76 @@ if ($isJsonRequest) {
         padding: 5px;
         margin-top: 10px;
       }
+      
+      /* Dark Mode toggle link */
+      .dark-mode-toggle {
+        cursor: pointer;
+      }
+    </style>
+    
+    <!-- Dark Mode Styles -->
+    <style>
+      /* Dark Mode Styles */
+      body.dark-mode {
+        background-color: #121212;
+        color: #e0e0e0;
+      }
+      
+      /* Header/Title styles */
+      body.dark-mode h1, 
+      body.dark-mode h2, 
+      body.dark-mode h3, 
+      body.dark-mode h4, 
+      body.dark-mode h5, 
+      body.dark-mode h6 {
+        color: #ffffff;
+      }
+      
+      /* Container/Form styles */
+      body.dark-mode .form-box,
+      body.dark-mode #form-container,
+      body.dark-mode #output-container,
+      body.dark-mode #content-wrapper,
+      body.dark-mode .card {
+        color: #e0e0e0;
+      }
+      
+      /* Form controls */
+      body.dark-mode .form-control,
+      body.dark-mode input,
+      body.dark-mode textarea,
+      body.dark-mode select {
+        background-color: #2d2d2d;
+        color: #e0e0e0;
+        border-color: #444;
+      }
+      
+      /* Formio specific elements */
+      body.dark-mode .formio-component,
+      body.dark-mode .formio-form,
+      body.dark-mode .formio-dialog .formio-dialog-content {
+        color: #e0e0e0;
+      }
+      
+      body.dark-mode .formio-component-datagrid .datagrid-add {
+        background-color: #2d2d2d;
+      }
+      
+      body.dark-mode table,
+      body.dark-mode th,
+      body.dark-mode td {
+        border-color: #444;
+      }
+      
+      /* Footer */
+      body.dark-mode .footer {
+        background-color: #1e1e1e;
+        color: #aaa;
+      }
+      
+      body.dark-mode .footer a {
+        color: #4da3ff;
+      }
     </style>
   </head>
   <body>
@@ -185,7 +255,7 @@ if ($isJsonRequest) {
         const formTemplate = <?= json_encode($formTemplate, JSON_UNESCAPED_SLASHES) ?>;
 
         function processTemplate(template, data) {
-            
+            // Template processing code unchanged...
             let processedTemplate = '';
             let currentIndex = 0;
             const customEntryRegex = /\{@START_(\w+)@\}([\s\S]*?)\{@END_\1@\}/g;
@@ -320,9 +390,78 @@ if ($isJsonRequest) {
     <footer class="footer">
         <p>Made using <a href="<?php echo SITE_URL; ?>"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
         <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
-            <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a><br/>
+            <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
+        <?php else: ?>
+            <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
         <?php endif; ?>
         <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
     </footer>
+    
+    <!-- Dark Mode JavaScript -->
+    <script>
+        // Function to set a cookie
+        function setDarkModeCookie(darkMode) {
+            const date = new Date();
+            date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 year
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = `darkMode=${darkMode};${expires};path=/`;
+        }
+        
+        // Function to get a cookie value
+        function getDarkModeCookie() {
+            const name = "darkMode=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name)) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return null;
+        }
+        
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDarkMode = body.classList.toggle('dark-mode');
+            setDarkModeCookie(isDarkMode ? 'true' : 'false');
+            
+            // Update toggle text
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            toggleLinks.forEach(link => {
+                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            });
+        }
+        
+        // Function to initialize dark mode based on cookie
+        function initDarkMode() {
+            const darkModeSetting = getDarkModeCookie();
+            if (darkModeSetting === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Set initial toggle text
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            toggleLinks.forEach(link => {
+                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            });
+        }
+        
+        // Add event listeners to dark mode toggles
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            toggleLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleDarkMode();
+                });
+            });
+            
+            // Initialize dark mode from cookie
+            initDarkMode();
+        });
+    </script>
   </body>
 </html>

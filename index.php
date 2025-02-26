@@ -53,6 +53,59 @@ require_once 'site.php';
             text-decoration: underline;
         }
     </style>
+    <!-- Dark Mode Styles -->
+    <style>
+        /* Dark Mode Styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+        
+        /* Header/Title styles */
+        body.dark-mode h1, 
+        body.dark-mode h2, 
+        body.dark-mode h3, 
+        body.dark-mode h4, 
+        body.dark-mode h5, 
+        body.dark-mode h6 {
+            color: #ffffff;
+        }
+        
+        /* Container/Form styles */
+        body.dark-mode .form-box,
+        body.dark-mode #form-container,
+        body.dark-mode #output-container,
+        body.dark-mode #content-wrapper,
+        body.dark-mode .card {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+        
+        /* Form controls */
+        body.dark-mode .form-control,
+        body.dark-mode input,
+        body.dark-mode textarea,
+        body.dark-mode select {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            border-color: #444;
+        }
+        
+        /* Footer */
+        body.dark-mode .footer {
+            background-color: #1e1e1e;
+            color: #aaa;
+        }
+        
+        body.dark-mode .footer a {
+            color: #4da3ff;
+        }
+        
+        /* Dark mode toggle link */
+        .dark-mode-toggle {
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
@@ -74,7 +127,7 @@ require_once 'site.php';
 
     <footer class="footer">
         <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></br>
+        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
         <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
     </footer>
 
@@ -94,6 +147,71 @@ require_once 'site.php';
             } else {
                 alert('Please enter a shareable hash.');
             }
+        });
+        
+        // Dark Mode Functions
+        // Function to set a cookie
+        function setDarkModeCookie(darkMode) {
+            const date = new Date();
+            date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 year
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = `darkMode=${darkMode};${expires};path=/`;
+        }
+        
+        // Function to get a cookie value
+        function getDarkModeCookie() {
+            const name = "darkMode=";
+            const decodedCookie = decodeURIComponent(document.cookie);
+            const cookies = decodedCookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name)) {
+                    return cookie.substring(name.length, cookie.length);
+                }
+            }
+            return null;
+        }
+        
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            const isDarkMode = body.classList.toggle('dark-mode');
+            setDarkModeCookie(isDarkMode ? 'true' : 'false');
+            
+            // Update toggle text
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            toggleLinks.forEach(link => {
+                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            });
+        }
+        
+        // Function to initialize dark mode based on cookie
+        function initDarkMode() {
+            const darkModeSetting = getDarkModeCookie();
+            if (darkModeSetting === 'true') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            // Set initial toggle text
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            toggleLinks.forEach(link => {
+                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+            });
+        }
+        
+        // Add event listeners to dark mode toggles
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
+            toggleLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    toggleDarkMode();
+                });
+            });
+            
+            // Initialize dark mode from cookie
+            initDarkMode();
         });
     </script>
 
