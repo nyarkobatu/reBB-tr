@@ -50,15 +50,58 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
         #template-container { margin-top: 20px; }
         #wildcard-container { margin-bottom: 10px; }
         #wildcard-list { display: inline-block; }
+        
+        /* Wildcard styling */
         .wildcard {
-            display: inline-block;
-            margin-right: 5px;
+            display: inline-flex;
+            align-items: center;
+            margin-right: 8px;
+            margin-bottom: 8px;
             padding: 5px 10px;
             background-color: #f0f0f0;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 0.9em;
+            transition: all 0.3s ease;
+            cursor: default;
+            position: relative;
         }
+
+        /* Copy button styling */
+        .copy-btn {
+            margin-left: 6px;
+            background: none;
+            border: none;
+            color: #6c757d;
+            padding: 2px 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            color: #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* Used wildcard styling */
+        .wildcard-used {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+            text-decoration: line-through;
+        }
+
+        .wildcard-used .copy-btn {
+            color: #155724;
+        }
+
+        .wildcard-used .copy-btn:hover {
+            color: #0b2e13;
+            background-color: rgba(21, 87, 36, 0.1);
+        }
+        
         #success-message { margin-top: 20px; display: none; }
         #shareable-link { word-break: break-all; display: inline-block; margin: 10px 0; }
         .footer {
@@ -145,9 +188,35 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             color: #ffffff;
         }
         
+        /* Wildcard dark mode adjustments */
         body.dark-mode .wildcard {
             background-color: #2d2d2d;
             border-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .copy-btn {
+            color: #aaa;
+        }
+
+        body.dark-mode .copy-btn:hover {
+            color: #4da3ff;
+            background-color: rgba(77, 163, 255, 0.1);
+        }
+
+        body.dark-mode .wildcard-used {
+            background-color: #1e462d;
+            border-color: #285e3b;
+            color: #a3d7b5;
+        }
+
+        body.dark-mode .wildcard-used .copy-btn {
+            color: #a3d7b5;
+        }
+
+        body.dark-mode .wildcard-used .copy-btn:hover {
+            color: #c3e6cb;
+            background-color: rgba(163, 215, 181, 0.1);
         }
         
         /* Footer */
@@ -342,11 +411,11 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
 
             initializeFormio(); // Call the async initialization function
 
-
             function initializeBuilder() {
                 builderInstance.on('change', updateWildcards);
                 builderInstance.on('updateComponent', handleComponentUpdate);
                 saveButton.addEventListener('click', saveForm);
+                setupTemplateListener();
                 updateWildcards();
             }
 
@@ -363,10 +432,42 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
 
             function updateWildcards() {
                 const components = builderInstance?.form?.components || [];
-                wildcardList.innerHTML = components
-                    .flatMap(getComponentKeys)
-                    .map(key => `<span class="wildcard">{${key}}</span>`)
+                const wildcardArray = components.flatMap(getComponentKeys);
+                
+                wildcardList.innerHTML = wildcardArray
+                    .map(key => {
+                        const wildcardText = `{${key}}`;
+                        return `
+                            <span class="wildcard" data-wildcard="${key}">
+                                ${wildcardText}
+                                <button class="copy-btn" data-clipboard="${wildcardText}" title="Copy to clipboard">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </span>
+                        `;
+                    })
                     .join('');
+                
+                // Add event listeners to the copy buttons
+                document.querySelectorAll('.copy-btn').forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const textToCopy = this.getAttribute('data-clipboard');
+                        navigator.clipboard.writeText(textToCopy)
+                            .then(() => {
+                                // Show feedback that copy was successful
+                                const originalIcon = this.innerHTML;
+                                this.innerHTML = '<i class="bi bi-check-lg"></i>';
+                                setTimeout(() => {
+                                    this.innerHTML = originalIcon;
+                                }, 1000);
+                            })
+                            .catch(err => console.error('Copy failed:', err));
+                    });
+                });
+                
+                // Check for used wildcards in the template
+                checkUsedWildcards();
             }
 
             function getComponentKeys(component) {
@@ -388,6 +489,30 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 if (component.columns) keys.push(...component.columns.flatMap(col => col.components?.flatMap(getComponentKeys) || []));
 
                 return keys;
+            }
+            
+            // Function to check which wildcards are being used in the template
+            function checkUsedWildcards() {
+                const templateText = templateInput.value;
+                const wildcardElements = document.querySelectorAll('.wildcard');
+                
+                wildcardElements.forEach(element => {
+                    const key = element.getAttribute('data-wildcard');
+                    const wildcardPattern = new RegExp(`\\{${key}\\}`, 'g');
+                    
+                    if (wildcardPattern.test(templateText)) {
+                        // Wildcard is being used in the template
+                        element.classList.add('wildcard-used');
+                    } else {
+                        // Wildcard is not being used
+                        element.classList.remove('wildcard-used');
+                    }
+                });
+            }
+
+            // Add event listener to the template textarea to detect changes
+            function setupTemplateListener() {
+                templateInput.addEventListener('input', checkUsedWildcards);
             }
 
             // Modified handleComponentUpdate function
