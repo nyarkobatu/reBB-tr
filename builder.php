@@ -700,7 +700,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     keys.push(`@START_${component.key}@`, `@END_${component.key}@`);
                 }
 
-                if (['textfield', 'textarea', 'checkbox', 'select', 'radio'].includes(component.type)) {
+                if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden'].includes(component.type)) {
                     if (component.key) {
                         keys.push(component.key);
                     }
