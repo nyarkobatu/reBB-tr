@@ -828,14 +828,17 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     setTimeout(updateWildcards, 0);
                 }
             }
-
-             async function saveForm() {
+            
+            async function saveForm() {
                 const formSchema = builderInstance?.form;
                 if (!formSchema) return alert('No form schema found');
 
                 const formName = formNameInput.value;
 
                 try {
+                    // Get the last returned CSRF token if it exists
+                    const csrfToken = window.lastCsrfToken || '';
+
                     const response = await fetch('ajax.php', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -843,12 +846,18 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                             type: 'schema',
                             schema: formSchema,
                             template: templateInput.value,
-                            formName: formName
+                            formName: formName,
+                            csrf_token: csrfToken // Include CSRF token
                         })
                     });
 
                     const data = await response.json();
                     if (!data.success) throw new Error(data.error);
+
+                    // Store the new CSRF token for next request
+                    if (data.csrf_token) {
+                        window.lastCsrfToken = data.csrf_token;
+                    }
 
                     const formId = data.filename.replace('forms/', '').replace('_schema.json', '');
                     const shareUrl = `<?php echo SITE_URL; ?>/form.php?f=${formId}`;
@@ -859,7 +868,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     document.getElementById('success-message').style.display = 'block';
                 } catch (error) {
                     console.error('Save error:', error);
-                    alert('Error saving form. Check console.');
+                    alert('Error saving form: ' + (error.message || 'Unknown error'));
                 }
             }
         })();

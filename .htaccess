@@ -1,23 +1,36 @@
+# Enable rewrite engine
 RewriteEngine On
-RewriteBase /
 
-# Allow access to the base domain (homepage)
-RewriteRule ^$ - [L]
+# Allow specific files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|components\.json)$ - [L]
 
-# Allow access to index.php
-RewriteRule ^index\.php$ - [L]
+# Allow access to resources directory
+RewriteCond %{REQUEST_URI} ^/resources/
+RewriteRule ^ - [L]
 
-# Allow access to builder.php
-RewriteRule ^builder\.php?$ - [L]
+# Protect .htpasswd file
+<Files ~ "^\.htpasswd">
+  Order allow,deny
+  Deny from all
+</Files>
 
-# Allow access to form.php with or without query parameters (wildcards)
-RewriteRule ^form\.php(.*)?$ - [L]
+# Protect log files
+<Files ~ "\.(log)$">
+  Order allow,deny
+  Deny from all
+</Files>
 
-# **Allow access to ajax.php**
-RewriteRule ^ajax\.php$ - [L]
+# Deny access to sensitive directories via a simple method
+RewriteRule ^logs/.* - [F,L]
 
-# **Allow access to components.json**
-RewriteRule ^components\.json$ - [L]
-
-# Deny access to everything else
+# Default deny rule for everything else that wasn't allowed above
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !^/index\.php
+RewriteCond %{REQUEST_URI} !^/builder\.php
+RewriteCond %{REQUEST_URI} !^/form\.php
+RewriteCond %{REQUEST_URI} !^/ajax\.php
+RewriteCond %{REQUEST_URI} !^/admin\.php
+RewriteCond %{REQUEST_URI} !^/components\.json
+RewriteCond %{REQUEST_URI} !^/resources/
 RewriteRule .* - [F,L]
