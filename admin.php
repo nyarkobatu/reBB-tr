@@ -116,6 +116,38 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout' && $isLoggedIn) {
     exit;
 }
 
+// NEW FEATURE: Log viewing functionality
+$viewingLogs = false;
+$logContent = '';
+$logType = '';
+
+if ($isLoggedIn && isset($_GET['logs'])) {
+    $viewingLogs = true;
+    $logType = $_GET['logs'];
+    
+    // Determine which log file to show
+    $logFile = '';
+    if ($logType === 'admin') {
+        $logFile = $authConfig['log_file']; // Admin access logs
+        logAdminAction("Viewed admin access logs");
+    } elseif ($logType === 'forms') {
+        $logFile = 'logs/form_submissions.log'; // Form submission logs
+        logAdminAction("Viewed form submission logs");
+    }
+    
+    // Read and display log content if file exists
+    if (!empty($logFile) && file_exists($logFile)) {
+        $logContent = file_get_contents($logFile);
+    } else {
+        $logContent = "Log file not found.";
+    }
+    
+    // Output log content as plain text
+    header('Content-Type: text/plain');
+    echo $logContent;
+    exit;
+}
+
 // Handle form deletion
 if ($isLoggedIn && isset($_POST['delete_form']) && isset($_POST['form_id'])) {
     $formId = $_POST['form_id'];
@@ -326,6 +358,13 @@ if (!file_exists($authConfig['htpasswd_file']) && isset($_POST['create_admin']) 
             text-overflow: ellipsis;
             max-width: 200px;
         }
+        /* New styles for log viewing */
+        .log-actions {
+            margin-top: 1rem;
+        }
+        .log-button {
+            margin-right: 0.5rem;
+        }
     </style>
     
     <!-- Dark Mode Styles -->
@@ -530,6 +569,24 @@ if (!file_exists($authConfig['htpasswd_file']) && isset($_POST['create_admin']) 
             <?php if ($actionMessage): ?>
                 <div class="alert alert-info"><?php echo htmlspecialchars($actionMessage); ?></div>
             <?php endif; ?>
+            
+            <!-- Log Viewing Buttons -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0">View System Logs</h3>
+                </div>
+                <div class="card-body">
+                    <p>Access system logs to monitor activity:</p>
+                    <div class="log-actions">
+                        <a href="?logs=admin" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> View Admin Logs
+                        </a>
+                        <a href="?logs=forms" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> View Form Submission Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
             
             <!-- Stats Row -->
             <div class="row mb-4">
