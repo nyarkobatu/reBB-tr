@@ -491,7 +491,8 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             let existingTemplatePHP = <?php echo json_encode($existingTemplate, JSON_UNESCAPED_SLASHES); ?>;
 
             function collectKeys(schema, keysSet) {
-                if (schema.key) {
+                // Only add key to predefinedKeys if uniqueKey is true
+                if (schema.key && schema.uniqueKey === true) {
                     keysSet.add(schema.key);
                 }
                 if (schema.components) {
@@ -580,13 +581,32 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             let builderOptions = {
                 builder: {
                     resource: false,
-                    advanced: false,
                     premium: false,
+                    advanced: {
+                        weight: 20,
+                        components: {
+                            email: false,
+                            url: false,
+                            phoneNumber: false,
+                            tags: false,
+                            address: false,
+                            currency: false,
+                            survey: false,
+                            signature: false
+                        }
+                    },
                     basic: {
                         weight: 10,
                         components: {
                             password: false,
                             number: false
+                        }
+                    },
+                    data: {
+                        components: {
+                            container: false,
+                            datamap: false,
+                            editgrid: false
                         }
                     }
                 }
@@ -700,7 +720,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     keys.push(`@START_${component.key}@`, `@END_${component.key}@`);
                 }
 
-                if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden'].includes(component.type)) {
+                if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden', 'datetime', 'day', 'time'].includes(component.type)) {
                     if (component.key) {
                         keys.push(component.key);
                     }
@@ -777,11 +797,26 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                 setTimeout(updateSaveButtonState, 500);
             }
 
-            // Modified handleComponentUpdate function
             function handleComponentUpdate(component) {
                 if (component.action === 'submit') return;
                 
-                // Check if component key is in predefined set
+                // Skip key generation for components with uniqueKey=true
+                if (component.uniqueKey === true) {
+                    return;
+                }
+                
+                // Also check if component has uniqueKey=false explicitly set (force key generation)
+                if (component.uniqueKey === false) {
+                    const newKey = generateKey(component.label, component);
+                    if (component.key !== newKey) {
+                        component.key = newKey;
+                        builderInstance.redraw();
+                        setTimeout(updateWildcards, 0);
+                    }
+                    return;
+                }
+                
+                // Check predefined keys for backward compatibility
                 if (predefinedKeys.has(component.key)) {
                     return; // Skip key generation for predefined components
                 }

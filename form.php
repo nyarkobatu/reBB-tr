@@ -191,6 +191,14 @@ if ($isJsonRequest) {
         color: #e0e0e0;
         border-color: #444;
       }
+
+      /* Placeholder text in dark mode */
+      body.dark-mode ::placeholder,
+      body.dark-mode input::placeholder,
+      body.dark-mode textarea::placeholder {
+          color: #aaaaaa;
+          opacity: 1;
+      }
       
       /* Formio specific elements */
       body.dark-mode .formio-component,
