@@ -37,16 +37,29 @@ if (in_array($ip, $config['ip_blacklist'])) {
     exit;
 }
 
-// Check CSRF token (if set in session)
+// Process the JSON data
+$jsonData = file_get_contents('php://input');
+$requestData = json_decode($jsonData, true);
+
+if ($requestData === null && json_last_error() !== JSON_ERROR_NONE) {
+    logAttempt('Invalid JSON data received');
+    echo json_encode(['success' => false, 'error' => 'Invalid JSON data received.']);
+    exit;
+}
+
+// Modified CSRF token check - if token is expired/invalid, generate new one instead of rejecting
+$tokenExpired = false;
 if (isset($_SESSION['csrf_token'])) {
-    $jsonData = file_get_contents('php://input');
-    $requestData = json_decode($jsonData, true);
-    
     if (!isset($requestData['csrf_token']) || $requestData['csrf_token'] !== $_SESSION['csrf_token']) {
-        logAttempt('Invalid CSRF token');
-        echo json_encode(['success' => false, 'error' => 'Invalid or missing security token.']);
-        exit;
+        // Log the invalid token but continue processing
+        logAttempt('CSRF token expired or invalid, generating new one');
+        $tokenExpired = true;
     }
+}
+
+// Generate a new CSRF token if it doesn't exist or was expired
+if (!isset($_SESSION['csrf_token']) || $tokenExpired) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // Rate limiting: Check submission cooldown
@@ -80,16 +93,6 @@ if ($_SESSION['hourly_submissions']['count'] >= $config['max_requests_per_hour']
         'success' => false, 
         'error' => 'You have reached the maximum submissions per hour. Please try again after ' . $resetTimeFormatted
     ]);
-    exit;
-}
-
-// Process the JSON data
-$jsonData = file_get_contents('php://input');
-$requestData = json_decode($jsonData, true);
-
-if ($requestData === null && json_last_error() !== JSON_ERROR_NONE) {
-    logAttempt('Invalid JSON data received');
-    echo json_encode(['success' => false, 'error' => 'Invalid JSON data received.']);
     exit;
 }
 
@@ -151,10 +154,7 @@ if ($requestType === 'schema') {
     // Log successful submission with form ID
     logAttempt("Successful form schema submission - Form ID: $randomString", false);
     
-    // Generate new CSRF token for next request
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    
-    // Include CSRF token in successful response
+    // Include the new or current CSRF token in successful response
     $responseData = json_decode($fileContent, true);
     $responseData['csrf_token'] = $_SESSION['csrf_token'];
     
