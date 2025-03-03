@@ -370,7 +370,16 @@ if ($isJsonRequest) {
         const formTemplate = <?= json_encode($formTemplate, JSON_UNESCAPED_SLASHES) ?>;
 
         function processTemplate(template, data) {
-            // Template processing code unchanged...
+            // First, create a decode function to convert HTML entities back to characters
+            function decodeHTMLEntities(text) {
+                const textArea = document.createElement('textarea');
+                textArea.innerHTML = text;
+                return textArea.value;
+            }
+
+            // Decode the template before processing it
+            template = decodeHTMLEntities(template);
+            
             let processedTemplate = '';
             let currentIndex = 0;
             const customEntryRegex = /\{@START_(\w+)@\}([\s\S]*?)\{@END_\1@\}/g;
@@ -436,7 +445,7 @@ if ($isJsonRequest) {
                 
                 currentIndex = match.index + match[0].length;
             }
-    
+
             processedTemplate += template.substring(currentIndex);
             
             // Process regular placeholders outside of START/END blocks
