@@ -370,11 +370,18 @@ if ($isJsonRequest) {
         const formTemplate = <?= json_encode($formTemplate, JSON_UNESCAPED_SLASHES) ?>;
 
         function processTemplate(template, data) {
-            // First, create a decode function to convert HTML entities back to characters
+            // Create a recursive decode function to handle multiple levels of HTML entity encoding
             function decodeHTMLEntities(text) {
                 const textArea = document.createElement('textarea');
                 textArea.innerHTML = text;
-                return textArea.value;
+                const decoded = textArea.value;
+                
+                // If the decoded text is different from the input, it might have more entities to decode
+                if (decoded !== text && decoded.includes('&')) {
+                    // Recursively decode until no more changes
+                    return decodeHTMLEntities(decoded);
+                }
+                return decoded;
             }
 
             // Decode the template before processing it
