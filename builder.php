@@ -516,63 +516,94 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                     }
                     const componentData = await response.json();
 
+                    // Track registered component types to prevent duplicates
+                    const registeredTypes = new Set();
 
-                  componentData.forEach(groupData => {
-                    // Create the Builder Group
-                    builderOptions.builder[groupData.groupKey] = {
-                      title: groupData.groupTitle,
-                      default: false,
-                      weight: groupData.groupWeight,
-                      components: {}
-                    };
-
-                    groupData.components.forEach(componentDef => {
-                        collectKeys(componentDef.schema, predefinedKeys);
-
-                        // Add component definition to the builder
-                        builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
-                            title: componentDef.title,
-                            group: groupData.groupKey,
-                            icon: componentDef.icon,
-                            schema: componentDef.schema
+                    componentData.forEach(groupData => {
+                        // Create the Builder Group
+                        builderOptions.builder[groupData.groupKey] = {
+                            title: groupData.groupTitle,
+                            default: false,
+                            weight: groupData.groupWeight,
+                            components: {}
                         };
 
-                        const isContainer = componentDef.schema.components && Array.isArray(componentDef.schema.components);
-                        const baseComponent = isContainer 
-                            ? Formio.Components.components.container 
-                            : Formio.Components.components.component;
+                        groupData.components.forEach(componentDef => {
+                            // Check if this is a direct component or a section wrapper
+                            const isDirectComponent = componentDef.direct === true;
+                            
+                            if (isDirectComponent) {
+                                // For direct components, the schema IS the component
+                                const componentSchema = componentDef.schema;
+                                collectKeys(componentSchema, predefinedKeys);
+                                
+                                // Add the direct component to the builder panel
+                                builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
+                                    title: componentDef.title,
+                                    group: groupData.groupKey,
+                                    icon: componentDef.icon,
+                                    schema: componentSchema
+                                };
+                                
+                                // No need to register a new component type since we're using native types
+                            } else {
+                                // This is a section/container component (existing behavior)
+                                collectKeys(componentDef.schema, predefinedKeys);
+                                
+                                // Add section component definition to the builder
+                                builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
+                                    title: componentDef.title,
+                                    group: groupData.groupKey,
+                                    icon: componentDef.icon,
+                                    schema: componentDef.schema
+                                };
 
-                        Formio.Components.addComponent(
-                            componentDef.schema.type,
-                            class extends baseComponent {
-                                static schema(...extend) {
-                                    return baseComponent.schema(
-                                        componentDef.schema,
-                                        ...extend
-                                    );
+                                // Skip registration if this type is already registered
+                                if (registeredTypes.has(componentDef.schema.type)) {
+                                    console.log(`Component type ${componentDef.schema.type} already registered, skipping duplicate registration`);
+                                    return;
                                 }
+                                
+                                // Add this type to our registry
+                                registeredTypes.add(componentDef.schema.type);
 
-                                static get builderInfo() {
-                                    return {
-                                        title: componentDef.title,
-                                        group: groupData.groupKey,
-                                        icon: componentDef.icon,
-                                        weight: 10,
-                                        schema: this.schema()
-                                    };
-                                }
-                            },
-                            {
-                                template: isContainer 
-                                    ? `<div class="${componentDef.schema.type}-component"><div ref="components"></div></div>`
-                                    : `<div class="${componentDef.schema.type}-component">{{ view }}</div>`
+                                const isContainer = componentDef.schema.components && Array.isArray(componentDef.schema.components);
+                                const baseComponent = isContainer 
+                                    ? Formio.Components.components.container 
+                                    : Formio.Components.components.component;
+
+                                Formio.Components.addComponent(
+                                    componentDef.schema.type,
+                                    class extends baseComponent {
+                                        static schema(...extend) {
+                                            return baseComponent.schema(
+                                                componentDef.schema,
+                                                ...extend
+                                            );
+                                        }
+
+                                        static get builderInfo() {
+                                            return {
+                                                title: componentDef.title,
+                                                group: groupData.groupKey,
+                                                icon: componentDef.icon,
+                                                weight: 10,
+                                                schema: this.schema()
+                                            };
+                                        }
+                                    },
+                                    {
+                                        template: isContainer 
+                                            ? `<div class="${componentDef.schema.type}-component"><div ref="components"></div></div>`
+                                            : `<div class="${componentDef.schema.type}-component">{{ view }}</div>`
+                                    }
+                                );
                             }
-                        );
+                        });
                     });
-                  });
                 } catch (error) {
                     console.error("Error loading custom components:", error);
-                    alert("Failed to load custom components.  Check the console for details.");
+                    alert("Failed to load custom components. Check the console for details.");
                 }
                 return builderOptions;
             }
