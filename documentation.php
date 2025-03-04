@@ -164,8 +164,17 @@ function markdownToHtml($markdown) {
     // Convert inline code
     $html = preg_replace('/`(.+?)`/s', '<code>$1</code>', $html);
     
-    // Convert code blocks
-    $html = preg_replace('/```(.*?)\n(.*?)```/s', '<pre><code class="language-$1">$2</code></pre>', $html);
+    // Convert code blocks - improved to handle multi-line code blocks
+    $html = preg_replace_callback('/```(.*?)\n(.*?)```/s', function($matches) {
+        $language = trim($matches[1]);
+        $code = trim($matches[2]);
+        
+        // Escape HTML special characters
+        $code = htmlspecialchars($code);
+        
+        // If language is specified, you could add language class here
+        return '<pre><code' . ($language ? ' class="language-' . $language . '"' : '') . '>' . $code . '</code></pre>';
+    }, $html);
     
     // Convert lists (unordered)
     $html = preg_replace_callback('/(?:^|\n)(?:[ ]*?)([\*\-\+][ ]+.+?)(?:\n(?![\*\-\+][ ]+)|\z)/s', function($matches) {
@@ -581,14 +590,13 @@ EOT;
         }
     </style>
     
-    <!-- Dark Mode Styles -->
     <style>
         /* Dark Mode Styles */
         body.dark-mode {
             background-color: #121212;
             color: #e0e0e0;
         }
-        
+
         /* Header/Title styles */
         body.dark-mode h1, 
         body.dark-mode h2, 
@@ -598,23 +606,23 @@ EOT;
         body.dark-mode h6 {
             color: #ffffff;
         }
-        
+
         body.dark-mode .doc-list-item a:hover {
             background-color: #2d2d2d;
         }
-        
+
         body.dark-mode .doc-list-item a.active {
             background-color: #2d2d2d;
         }
-        
+
         body.dark-mode .sidebar {
             border-color: #444;
         }
-        
+
         body.dark-mode .doc-actions {
             border-color: #444;
         }
-        
+
         /* Form controls */
         body.dark-mode .form-control,
         body.dark-mode input,
@@ -624,60 +632,85 @@ EOT;
             color: #e0e0e0;
             border-color: #444;
         }
-        
+
+        body.dark-mode .form-label,
+        body.dark-mode .form-text {
+            color: #a0a0a0;
+        }
+
         body.dark-mode .alert {
             background-color: #1e1e1e;
             border-color: #444;
         }
-        
+
         body.dark-mode .alert-success {
             color: #8fd19e;
             border-color: #28a745;
         }
-        
+
         body.dark-mode .alert-danger {
             color: #ea868f;
             border-color: #dc3545;
         }
-        
+
         body.dark-mode .alert-info {
             color: #a2cbef;
             border-color: #17a2b8;
         }
-        
+
         body.dark-mode .markdown-content code {
             background-color: #2d2d2d;
             color: #e0e0e0;
         }
-        
+
         body.dark-mode .markdown-content pre {
             background-color: #2d2d2d;
             color: #e0e0e0;
         }
-        
+
         body.dark-mode .markdown-content blockquote {
             border-color: #444;
             background-color: #2d2d2d;
         }
-        
+
         /* Footer */
         body.dark-mode .footer {
             background-color: #1e1e1e;
             color: #aaa;
         }
-        
+
         body.dark-mode .footer a {
             color: #4da3ff;
         }
-        
+
         /* Card styling */
         body.dark-mode .card {
             background-color: #1e1e1e;
             border-color: #444;
         }
-        
+
         body.dark-mode .card-header {
             background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        /* Markdown Help Modal Dark Mode */
+        body.dark-mode .modal-content {
+            background-color: #1e1e1e;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .modal-header {
+            border-color: #444;
+        }
+
+        body.dark-mode .modal-footer {
+            border-color: #444;
+        }
+
+        body.dark-mode .modal pre {
+            background-color: #2d2d2d;
+            color: #e0e0e0;
             border-color: #444;
         }
     </style>
