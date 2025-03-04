@@ -4,6 +4,29 @@ require_once 'site.php';
 // Start session for authentication
 session_start();
 
+// Define the libraries directory
+$libDir = __DIR__ . '/lib';
+$parsedownPath = $libDir . '/Parsedown.php';
+
+// Create the lib directory if it doesn't exist
+if (!is_dir($libDir)) {
+    @mkdir($libDir, 0755, true);
+}
+
+// Auto-download Parsedown if not exists
+if (!file_exists($parsedownPath)) {
+    $parsedownSource = file_get_contents('https://raw.githubusercontent.com/erusev/parsedown/master/Parsedown.php');
+    if ($parsedownSource) {
+        file_put_contents($parsedownPath, $parsedownSource);
+        logDocAction("Downloaded Parsedown library to {$libDir}");
+    }
+}
+
+// Include Parsedown
+if (file_exists($parsedownPath)) {
+    require_once $parsedownPath;
+}
+
 // Configuration
 $config = [
     'docs_dir' => __DIR__ . '/documentation',
@@ -134,76 +157,20 @@ function getDocumentTitle($filePath) {
     return pathinfo($filePath, PATHINFO_FILENAME);
 }
 
-// This will remove [ORDER: X] tags from the rendered HTML
+// This will remove [ORDER: X] tags and process the markdown
 function markdownToHtml($markdown) {
     // Remove order tags before processing
     $markdown = preg_replace('/\[ORDER:\s*\d+\]/i', '', $markdown);
     
-    // Convert headers
-    $html = preg_replace('/^######\s+(.+)$/m', '<h6>$1</h6>', $markdown);
-    $html = preg_replace('/^#####\s+(.+)$/m', '<h5>$1</h5>', $html);
-    $html = preg_replace('/^####\s+(.+)$/m', '<h4>$1</h4>', $html);
-    $html = preg_replace('/^###\s+(.+)$/m', '<h3>$1</h3>', $html);
-    $html = preg_replace('/^##\s+(.+)$/m', '<h2>$1</h2>', $html);
-    $html = preg_replace('/^#\s+(.+)$/m', '<h1>$1</h1>', $html);
-    
-    // Convert blockquotes
-    $html = preg_replace('/^>\s+(.+)$/m', '<blockquote>$1</blockquote>', $html);
-    
-    // Convert horizontal rules
-    $html = preg_replace('/^([\-*_])\1{2,}$/m', '<hr>', $html);
-    
-    // Convert bold text
-    $html = preg_replace('/\*\*(.+?)\*\*/s', '<strong>$1</strong>', $html);
-    $html = preg_replace('/\_\_(.+?)\_\_/s', '<strong>$1</strong>', $html);
-    
-    // Convert italic text
-    $html = preg_replace('/\*(.+?)\*/s', '<em>$1</em>', $html);
-    $html = preg_replace('/\_(.+?)\_/s', '<em>$1</em>', $html);
-    
-    // Convert inline code
-    $html = preg_replace('/`(.+?)`/s', '<code>$1</code>', $html);
-    
-    // Convert code blocks - improved to handle multi-line code blocks
-    $html = preg_replace_callback('/```(.*?)\n(.*?)```/s', function($matches) {
-        $language = trim($matches[1]);
-        $code = trim($matches[2]);
-        
-        // Escape HTML special characters
-        $code = htmlspecialchars($code);
-        
-        // If language is specified, you could add language class here
-        return '<pre><code' . ($language ? ' class="language-' . $language . '"' : '') . '>' . $code . '</code></pre>';
-    }, $html);
-    
-    // Convert lists (unordered)
-    $html = preg_replace_callback('/(?:^|\n)(?:[ ]*?)([\*\-\+][ ]+.+?)(?:\n(?![\*\-\+][ ]+)|\z)/s', function($matches) {
-        $items = preg_split('/\n[ ]*?[\*\-\+][ ]+/', "\n".$matches[1]);
-        array_shift($items); // Remove first empty item
-        return '<ul><li>' . implode('</li><li>', $items) . '</li></ul>';
-    }, $html);
-    
-    // Convert lists (ordered)
-    $html = preg_replace_callback('/(?:^|\n)(?:[ ]*?)(\d+\.[ ]+.+?)(?:\n(?!\d+\.[ ]+)|\z)/s', function($matches) {
-        $items = preg_split('/\n[ ]*?\d+\.[ ]+/', "\n".$matches[1]);
-        array_shift($items); // Remove first empty item
-        return '<ol><li>' . implode('</li><li>', $items) . '</li></ol>';
-    }, $html);
-    
-    // Convert links
-    $html = preg_replace('/\[(.+?)\]\((.+?)\)/', '<a href="$2">$1</a>', $html);
-    
-    // Convert images
-    $html = preg_replace('/!\[(.+?)\]\((.+?)\)/', '<img src="$2" alt="$1">', $html);
-    
-    // Convert line breaks to paragraphs
-    $html = '<p>' . str_replace(["\r\n\r\n", "\n\n"], '</p><p>', $html) . '</p>';
-    
-    // Clean up empty paragraphs
-    $html = str_replace(['<p></p>', '<p><h', '</h1></p>', '</h2></p>', '</h3></p>', '</h4></p>', '</h5></p>', '</h6></p>'], ['', '<h', '</h1>', '</h2>', '</h3>', '</h4>', '</h5>', '</h6>'], $html);
-    $html = str_replace(['<p><ul>', '</ul></p>', '<p><ol>', '</ol></p>', '<p><blockquote>', '</blockquote></p>', '<p><hr></p>'], ['<ul>', '</ul>', '<ol>', '</ol>', '<blockquote>', '</blockquote>', '<hr>'], $html);
-    
-    return $html;
+    // If Parsedown is available, use it
+    if (class_exists('Parsedown')) {
+        $parsedown = new Parsedown();
+        return $parsedown->text($markdown);
+    } else {
+        // Fallback to basic conversion if Parsedown isn't available
+        $html = nl2br(htmlspecialchars($markdown));
+        return '<div class="alert alert-warning">Parsedown library not available. Showing raw content.</div>' . $html;
+    }
 }
 
 // Sanitize filenames to prevent directory traversal attacks
