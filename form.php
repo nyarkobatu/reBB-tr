@@ -519,7 +519,7 @@ if ($isJsonRequest) {
       </script>
     <?php endif; ?>
     <footer class="footer">
-        <p>Made using <a href="<?php echo SITE_URL; ?>"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
+        <p>Made using <a href="<?php echo SITE_URL; ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
         <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
             <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
         <?php else: ?>

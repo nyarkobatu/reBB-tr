@@ -3,7 +3,7 @@ RewriteEngine On
 
 # Allow specific files
 RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|components\.json)$ - [L]
+RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|documentation\.php|components\.json)$ - [L]
 
 # Allow access to resources directory
 RewriteCond %{REQUEST_URI} ^/resources/
@@ -31,6 +31,7 @@ RewriteCond %{REQUEST_URI} !^/builder\.php
 RewriteCond %{REQUEST_URI} !^/form\.php
 RewriteCond %{REQUEST_URI} !^/ajax\.php
 RewriteCond %{REQUEST_URI} !^/admin\.php
+RewriteCond %{REQUEST_URI} !^/documentation\.php
 RewriteCond %{REQUEST_URI} !^/components\.json
 RewriteCond %{REQUEST_URI} !^/resources/
 RewriteRule .* - [F,L]

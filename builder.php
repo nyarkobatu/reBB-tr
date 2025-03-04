@@ -458,6 +458,12 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             <button id='saveFormButton' class='btn btn-primary'>Save Form</button>
         </div>
 
+        <div id="documentation-link" class="text-center mt-3">
+            <a href="/documentation.php" target="_blank" class="btn btn-info">
+                <i class="bi bi-book"></i> Documentation
+            </a>
+        </div>
+
         <div id="success-message" class="alert alert-success mt-3">
             <p>Form saved successfully! Share this link:</p>
             <a id="shareable-link" class="text-primary" target="_blank"></a>
@@ -470,8 +476,10 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
     </div>
 
     <footer class="footer">
-       <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
+        <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
+        <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
+        <a href="/documentation.php" target="_blank">Documentation</a> • 
+        <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
         <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
     </footer>
 

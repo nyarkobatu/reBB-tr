@@ -122,6 +122,12 @@ require_once 'site.php';
                 </div>
                 <button id="submitHashBtn" class="btn btn-success btn-block">Submit</button>
             </div>
+
+            <div class="mt-3">
+                <a href="/documentation.php" class="btn btn-info btn-block">
+                    <i class="bi bi-book"></i> Documentation
+                </a>
+            </div>
         </div>
     </div>
 

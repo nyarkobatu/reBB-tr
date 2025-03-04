@@ -133,6 +133,9 @@ if ($isLoggedIn && isset($_GET['logs'])) {
     } elseif ($logType === 'forms') {
         $logFile = 'logs/form_submissions.log'; // Form submission logs
         logAdminAction("Viewed form submission logs");
+    } elseif ($logType === 'docs') {
+        $logFile = 'logs/documentation_activity.log';
+        logAdminAction("Viewed documentation activity logs");
     }
     
     // Read and display log content if file exists
@@ -583,6 +586,9 @@ if (!file_exists($authConfig['htpasswd_file']) && isset($_POST['create_admin']) 
                         </a>
                         <a href="?logs=forms" class="btn btn-info log-button" target="_blank">
                             <i class="bi bi-file-text"></i> View Form Submission Logs
+                        </a>
+                        <a href="?logs=docs" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> View Documentation Activity Logs
                         </a>
                     </div>
                 </div>
