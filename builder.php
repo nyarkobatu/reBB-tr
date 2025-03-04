@@ -617,12 +617,12 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
                         weight: 20,
                         components: {
                             email: false,
-                            url: false,
+                            url: true,
                             phoneNumber: false,
                             tags: false,
                             address: false,
                             currency: false,
-                            survey: false,
+                            survey: true,
                             signature: false
                         }
                     },
