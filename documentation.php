@@ -1,8 +1,15 @@
 <?php
-require_once 'site.php';
+/**
+ * reBB - Documentation
+ * 
+ * This file serves as the render point for documentation.
+ */
+require_once 'kernel.php';
 
-// Start session for authentication
-session_start();
+// Initialize session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Define the libraries directory
 $libDir = __DIR__ . '/lib';
@@ -33,7 +40,7 @@ $config = [
     'log_file' => 'logs/documentation_activity.log',
     'allowed_extensions' => ['md'],
     'default_doc' => 'getting-started.md',
-    'session_timeout' => 1800 // 30 minutes
+    'session_timeout' => SESSION_LIFETIME
 ];
 
 // Create documentation directory if it doesn't exist
@@ -367,6 +374,8 @@ if (empty($documentFiles) && is_dir($config['docs_dir'])) {
     
     if (!file_exists($defaultDocPath)) {
         $defaultContent = <<<EOT
+[ORDER: 1]
+
 # Getting Started with reBB
 
 Welcome to the reBB documentation! This guide will help you get started with using the reBB form system.
@@ -412,577 +421,250 @@ EOT;
             }
             
             logDocAction("Created default 'Getting Started' document");
+
+            header('Location: documentation.php');
         }
     }
 }
+
+// Define the page content to be yielded in the master layout
+ob_start();
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - <?php echo SITE_NAME; ?></title>
-    <link rel="apple-touch-icon" sizes="180x180" href="/resources/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/resources/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/resources/favicon-16x16.png">
-    <link rel="manifest" href="/resources/site.webmanifest">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-        }
-        
-        .container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            padding-top: 2rem;
-            padding-bottom: 2rem;
-        }
-        
-        .doc-container {
-            display: flex;
-            flex: 1;
-        }
-        
-        .sidebar {
-            width: 250px;
-            padding-right: 1rem;
-            border-right: 1px solid #dee2e6;
-            flex-shrink: 0;
-        }
-        
-        .doc-content {
-            flex: 1;
-            padding-left: 2rem;
-            overflow-y: auto;
-        }
-        
-        .doc-list {
-            list-style: none;
-            padding: 0;
-        }
-        
-        .doc-list-item {
-            margin-bottom: 0.5rem;
-        }
-        
-        .doc-list-item a {
-            display: block;
-            padding: 0.5rem;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: background-color 0.2s;
-        }
-        
-        .doc-list-item a:hover {
-            background-color: #f8f9fa;
-        }
-        
-        .doc-list-item a.active {
-            background-color: #e9ecef;
-            font-weight: bold;
-        }
-        
-        .doc-actions {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #dee2e6;
-        }
-        
-        .footer {
-            background-color: #e0e0e0;
-            padding: 20px 0;
-            text-align: center;
-            color: #555;
-        }
-        
-        .footer a {
-            color: #007bff;
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        .dark-mode-toggle {
-            cursor: pointer;
-        }
-        
-        .markdown-content img {
-            max-width: 100%;
-            height: auto;
-        }
-        
-        .markdown-content code {
-            padding: 0.2rem 0.4rem;
-            background-color: #f8f9fa;
-            border-radius: 3px;
-        }
-        
-        .markdown-content pre {
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        
-        .markdown-content blockquote {
-            padding: 0.5rem 1rem;
-            border-left: 4px solid #dee2e6;
-            background-color: #f8f9fa;
-        }
-        
-        @media (max-width: 767.98px) {
-            .doc-container {
-                flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                border-right: none;
-                border-bottom: 1px solid #dee2e6;
-                padding-bottom: 1rem;
-                margin-bottom: 1rem;
-            }
-            
-            .doc-content {
-                padding-left: 0;
-            }
-        }
-    </style>
+
+<div class="container documentation-container">
+    <header>
+        <div class="d-flex">
+            <h1>
+                <a href="index.php" class="text-decoration-none">
+                    <i class="bi bi-arrow-left-circle"></i>
+                </a> 
+                <?php echo SITE_NAME; ?> Documentation
+            </h1>
+            <?php if (isAdminLoggedIn() && $isViewMode): ?>
+                <a href="?<?php echo !empty($activeDoc) ? 'edit=' . urlencode($activeDoc) : ''; ?>" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Edit Documentation
+                </a>
+            <?php elseif (isAdminLoggedIn() && !$isViewMode): ?>
+                <a href="?<?php echo !empty($activeDoc) ? 'doc=' . urlencode($activeDoc) : ''; ?>" class="btn btn-secondary">
+                    <i class="bi bi-eye"></i> View Documentation
+                </a>
+            <?php endif; ?>
+        </div>
+    </header>
     
-    <style>
-        /* Dark Mode Styles */
-        body.dark-mode {
-            background-color: #121212;
-            color: #e0e0e0;
-        }
-
-        /* Header/Title styles */
-        body.dark-mode h1, 
-        body.dark-mode h2, 
-        body.dark-mode h3, 
-        body.dark-mode h4, 
-        body.dark-mode h5, 
-        body.dark-mode h6 {
-            color: #ffffff;
-        }
-
-        body.dark-mode .doc-list-item a:hover {
-            background-color: #2d2d2d;
-        }
-
-        body.dark-mode .doc-list-item a.active {
-            background-color: #2d2d2d;
-        }
-
-        body.dark-mode .sidebar {
-            border-color: #444;
-        }
-
-        body.dark-mode .doc-actions {
-            border-color: #444;
-        }
-
-        /* Form controls */
-        body.dark-mode .form-control,
-        body.dark-mode input,
-        body.dark-mode textarea,
-        body.dark-mode select {
-            background-color: #2d2d2d;
-            color: #e0e0e0;
-            border-color: #444;
-        }
-
-        body.dark-mode .form-label,
-        body.dark-mode .form-text {
-            color: #a0a0a0;
-        }
-
-        body.dark-mode .alert {
-            background-color: #1e1e1e;
-            border-color: #444;
-        }
-
-        body.dark-mode .alert-success {
-            color: #8fd19e;
-            border-color: #28a745;
-        }
-
-        body.dark-mode .alert-danger {
-            color: #ea868f;
-            border-color: #dc3545;
-        }
-
-        body.dark-mode .alert-info {
-            color: #a2cbef;
-            border-color: #17a2b8;
-        }
-
-        body.dark-mode .markdown-content code {
-            background-color: #2d2d2d;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .markdown-content pre {
-            background-color: #2d2d2d;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .markdown-content blockquote {
-            border-color: #444;
-            background-color: #2d2d2d;
-        }
-
-        /* Footer */
-        body.dark-mode .footer {
-            background-color: #1e1e1e;
-            color: #aaa;
-        }
-
-        body.dark-mode .footer a {
-            color: #4da3ff;
-        }
-
-        /* Card styling */
-        body.dark-mode .card {
-            background-color: #1e1e1e;
-            border-color: #444;
-        }
-
-        body.dark-mode .card-header {
-            background-color: #2d2d2d;
-            border-color: #444;
-        }
-
-        /* Markdown Help Modal Dark Mode */
-        body.dark-mode .modal-content {
-            background-color: #1e1e1e;
-            color: #e0e0e0;
-        }
-
-        body.dark-mode .modal-header {
-            border-color: #444;
-        }
-
-        body.dark-mode .modal-footer {
-            border-color: #444;
-        }
-
-        body.dark-mode .modal pre {
-            background-color: #2d2d2d;
-            color: #e0e0e0;
-            border-color: #444;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header class="mb-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1>
-                    <a href="index.php" class="text-decoration-none">
-                        <i class="bi bi-arrow-left-circle"></i>
-                    </a> 
-                    <?php echo SITE_NAME; ?> Documentation
-                </h1>
-                <?php if (isAdminLoggedIn() && $isViewMode): ?>
-                    <a href="?<?php echo !empty($activeDoc) ? 'edit=' . urlencode($activeDoc) : ''; ?>" class="btn btn-primary">
-                        <i class="bi bi-pencil"></i> Edit Documentation
-                    </a>
-                <?php elseif (isAdminLoggedIn() && !$isViewMode): ?>
-                    <a href="?<?php echo !empty($activeDoc) ? 'doc=' . urlencode($activeDoc) : ''; ?>" class="btn btn-secondary">
-                        <i class="bi bi-eye"></i> View Documentation
-                    </a>
+    <?php if (!empty($actionMessage)): ?>
+        <div class="alert alert-<?php echo $actionMessageType; ?> alert-dismissible fade show" role="alert">
+            <?php echo htmlspecialchars($actionMessage); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+    
+    <?php if ($isViewMode): ?>
+        <!-- DOCUMENTATION VIEWER MODE -->
+        <div class="doc-container">
+            <div class="sidebar">
+                <h4>Contents</h4>
+                
+                <?php if (empty($documentFiles)): ?>
+                    <p class="text-muted">No documentation available.</p>
+                <?php else: ?>
+                    <ul class="doc-list">
+                        <?php foreach ($documentFiles as $docFile): ?>
+                            <li class="doc-list-item">
+                                <a href="?doc=<?php echo urlencode($docFile['filename']); ?>" 
+                                    class="<?php echo ($activeDoc === $docFile['filename']) ? 'active' : ''; ?>">
+                                    <?php echo htmlspecialchars($docFile['title']); ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+                
+                <?php if (isAdminLoggedIn()): ?>
+                    <div class="doc-actions">
+                        <a href="?edit=new" class="btn btn-success btn-sm w-100 mb-2">
+                            <i class="bi bi-plus-circle"></i> Create New Document
+                        </a>
+                    </div>
                 <?php endif; ?>
             </div>
-        </header>
-        
-        <?php if (!empty($actionMessage)): ?>
-            <div class="alert alert-<?php echo $actionMessageType; ?> alert-dismissible fade show" role="alert">
-                <?php echo htmlspecialchars($actionMessage); ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            
+            <div class="doc-content">
+                <?php if (empty($docContent)): ?>
+                    <div class="alert alert-info">
+                        <?php if (empty($documentFiles)): ?>
+                            No documentation available. 
+                            <?php if (isAdminLoggedIn()): ?>
+                                <a href="?edit=new">Create your first document</a>.
+                            <?php endif; ?>
+                        <?php else: ?>
+                            Select a document from the sidebar to view its content.
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="markdown-content">
+                        <?php echo $docContent; ?>
+                    </div>
+                <?php endif; ?>
             </div>
-        <?php endif; ?>
-        
-        <?php if ($isViewMode): ?>
-            <!-- DOCUMENTATION VIEWER MODE -->
-            <div class="doc-container">
-                <div class="sidebar">
-                    <h4>Contents</h4>
-                    
-                    <?php if (empty($documentFiles)): ?>
-                        <p class="text-muted">No documentation available.</p>
-                    <?php else: ?>
-                        <ul class="doc-list">
-                            <?php foreach ($documentFiles as $docFile): ?>
-                                <li class="doc-list-item">
-                                    <a href="?doc=<?php echo urlencode($docFile['filename']); ?>" 
-                                       class="<?php echo ($activeDoc === $docFile['filename']) ? 'active' : ''; ?>">
-                                        <?php echo htmlspecialchars($docFile['title']); ?>
-                                    </a>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
-                    <?php endif; ?>
-                    
-                    <?php if (isAdminLoggedIn()): ?>
-                        <div class="doc-actions">
-                            <a href="?edit=new" class="btn btn-success btn-sm w-100 mb-2">
-                                <i class="bi bi-plus-circle"></i> Create New Document
-                            </a>
-                        </div>
-                    <?php endif; ?>
+        </div>
+    <?php else: ?>
+        <!-- DOCUMENTATION EDITOR MODE (Admin only) -->
+        <?php if (isAdminLoggedIn()): ?>
+            <div class="card card-documentation">
+                <div class="card-header">
+                    <h3><?php echo isset($_GET['edit']) && $_GET['edit'] !== 'new' ? 'Edit Document' : 'Create New Document'; ?></h3>
                 </div>
-                
-                <div class="doc-content">
-                    <?php if (empty($docContent)): ?>
+                <div class="card-body">
+                    <form method="post" action="documentation.php">
+                        <?php if (isset($_GET['edit']) && $_GET['edit'] !== 'new'): ?>
+                            <input type="hidden" name="doc_filename" value="<?php echo htmlspecialchars($_GET['edit']); ?>">
+                        <?php endif; ?>
+                        
+                        <div class="mb-3">
+                            <label for="doc_title" class="form-label">Document Title</label>
+                            <input type="text" class="form-control" id="doc_title" name="doc_title" 
+                                    value="<?php echo isset($title) ? htmlspecialchars($title) : ''; ?>" required>
+                            <div class="form-text">This will be displayed in the documentation sidebar.</div>
+                        </div>
+                        
+                        <?php if (!isset($_GET['edit']) || $_GET['edit'] === 'new'): ?>
+                        <!-- Only show order field for new documents -->
+                        <div class="mb-3">
+                            <label for="doc_order" class="form-label">Display Order</label>
+                            <input type="number" class="form-control" id="doc_order" name="doc_order" 
+                                    value="<?php echo isset($docOrder) ? $docOrder : 10; ?>" min="1" max="999">
+                            <div class="form-text">Lower numbers appear at the top. Edit the [ORDER: X] tag in your document to change order later.</div>
+                        </div>
+                        <?php else: ?>
                         <div class="alert alert-info">
-                            <?php if (empty($documentFiles)): ?>
-                                No documentation available. 
-                                <?php if (isAdminLoggedIn()): ?>
-                                    <a href="?edit=new">Create your first document</a>.
+                            <strong>Note:</strong> To change document order, edit the [ORDER: X] tag in your document content (where X is a number).
+                        </div>
+                        <?php endif; ?>
+                        
+                        <div class="mb-3">
+                            <label for="doc_content" class="form-label">Content (Markdown)</label>
+                            <textarea class="form-control" id="doc_content" name="doc_content" rows="15" required><?php echo isset($docContent) ? htmlspecialchars($docContent) : ''; ?></textarea>
+                            <div class="form-text">
+                                Use Markdown syntax for formatting. 
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#markdownHelpModal">Markdown Help</a>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="?<?php echo !empty($activeDoc) ? 'doc=' . urlencode($activeDoc) : ''; ?>" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            
+                            <div>
+                                <?php if (isset($_GET['edit']) && $_GET['edit'] !== 'new'): ?>
+                                    <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteDocModal">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </button>
+                                    <button type="submit" name="update_doc" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Update Document
+                                    </button>
+                                <?php else: ?>
+                                    <button type="submit" name="create_doc" class="btn btn-success">
+                                        <i class="bi bi-plus-circle"></i> Create Document
+                                    </button>
                                 <?php endif; ?>
-                            <?php else: ?>
-                                Select a document from the sidebar to view its content.
-                            <?php endif; ?>
+                            </div>
                         </div>
-                    <?php else: ?>
-                        <div class="markdown-content">
-                            <?php echo $docContent; ?>
-                        </div>
-                    <?php endif; ?>
+                    </form>
                 </div>
             </div>
-        <?php else: ?>
-            <!-- DOCUMENTATION EDITOR MODE (Admin only) -->
-            <?php if (isAdminLoggedIn()): ?>
-                <div class="card">
-                    <div class="card-header">
-                        <h3><?php echo isset($_GET['edit']) && $_GET['edit'] !== 'new' ? 'Edit Document' : 'Create New Document'; ?></h3>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" action="documentation.php">
-                            <?php if (isset($_GET['edit']) && $_GET['edit'] !== 'new'): ?>
+            
+            <!-- Delete Confirmation Modal -->
+            <div class="modal fade" id="deleteDocModal" tabindex="-1" aria-labelledby="deleteDocModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="deleteDocModalLabel">Confirm Deletion</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            Are you sure you want to delete this document? This action cannot be undone.
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <form method="post" action="documentation.php">
                                 <input type="hidden" name="doc_filename" value="<?php echo htmlspecialchars($_GET['edit']); ?>">
-                            <?php endif; ?>
-                            
-                            <div class="mb-3">
-                                <label for="doc_title" class="form-label">Document Title</label>
-                                <input type="text" class="form-control" id="doc_title" name="doc_title" 
-                                       value="<?php echo isset($title) ? htmlspecialchars($title) : ''; ?>" required>
-                                <div class="form-text">This will be displayed in the documentation sidebar.</div>
-                            </div>
-                            
-                            <?php if (!isset($_GET['edit']) || $_GET['edit'] === 'new'): ?>
-                            <!-- Only show order field for new documents -->
-                            <div class="mb-3">
-                                <label for="doc_order" class="form-label">Display Order</label>
-                                <input type="number" class="form-control" id="doc_order" name="doc_order" 
-                                       value="<?php echo isset($docOrder) ? $docOrder : 10; ?>" min="1" max="999">
-                                <div class="form-text">Lower numbers appear at the top. Add [ORDER: X] tag in your document to change order later.</div>
-                            </div>
-                            <?php else: ?>
-                            <div class="alert alert-info">
-                                <strong>Note:</strong> To change document order, add or edit the [ORDER: X] tag in your document content (where X is a number).
-                            </div>
-                            <?php endif; ?>
-                            
-                            <div class="mb-3">
-                                <label for="doc_content" class="form-label">Content (Markdown)</label>
-                                <textarea class="form-control" id="doc_content" name="doc_content" rows="15" required><?php echo isset($docContent) ? htmlspecialchars($docContent) : ''; ?></textarea>
-                                <div class="form-text">
-                                    Use Markdown syntax for formatting. 
-                                    <a href="#" data-bs-toggle="modal" data-bs-target="#markdownHelpModal">Markdown Help</a>
-                                </div>
-                            </div>
-                            
-                            <div class="d-flex justify-content-between">
-                                <a href="?<?php echo !empty($activeDoc) ? 'doc=' . urlencode($activeDoc) : ''; ?>" class="btn btn-secondary">
-                                    <i class="bi bi-x-circle"></i> Cancel
-                                </a>
-                                
-                                <div>
-                                    <?php if (isset($_GET['edit']) && $_GET['edit'] !== 'new'): ?>
-                                        <button type="button" class="btn btn-danger me-2" data-bs-toggle="modal" data-bs-target="#deleteDocModal">
-                                            <i class="bi bi-trash"></i> Delete
-                                        </button>
-                                        <button type="submit" name="update_doc" class="btn btn-primary">
-                                            <i class="bi bi-save"></i> Update Document
-                                        </button>
-                                    <?php else: ?>
-                                        <button type="submit" name="create_doc" class="btn btn-success">
-                                            <i class="bi bi-plus-circle"></i> Create Document
-                                        </button>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- Delete Confirmation Modal -->
-                <div class="modal fade" id="deleteDocModal" tabindex="-1" aria-labelledby="deleteDocModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="deleteDocModalLabel">Confirm Deletion</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                Are you sure you want to delete this document? This action cannot be undone.
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                <form method="post" action="documentation.php">
-                                    <input type="hidden" name="doc_filename" value="<?php echo htmlspecialchars($_GET['edit']); ?>">
-                                    <button type="submit" name="delete_doc" class="btn btn-danger">Delete Document</button>
-                                </form>
-                            </div>
+                                <button type="submit" name="delete_doc" class="btn btn-danger">Delete Document</button>
+                            </form>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Markdown Help Modal -->
-                <div class="modal fade" id="markdownHelpModal" tabindex="-1" aria-labelledby="markdownHelpModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="markdownHelpModalLabel">Markdown Formatting Guide</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h5>Headings</h5>
-                                        <pre># Heading 1
+            </div>
+            
+            <!-- Markdown Help Modal -->
+            <div class="modal fade" id="markdownHelpModal" tabindex="-1" aria-labelledby="markdownHelpModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="markdownHelpModalLabel">Markdown Formatting Guide</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Headings</h5>
+                                    <pre># Heading 1
 ## Heading 2
 ### Heading 3</pre>
-                                        
-                                        <h5>Emphasis</h5>
-                                        <pre>*italic* or _italic_
+                                    
+                                    <h5>Emphasis</h5>
+                                    <pre>*italic* or _italic_
 **bold** or __bold__</pre>
-                                        
-                                        <h5>Lists</h5>
-                                        <pre>- Item 1
+                                    
+                                    <h5>Lists</h5>
+                                    <pre>- Item 1
 - Item 2
-  - Subitem
+- Subitem
 
 1. First item
 2. Second item</pre>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h5>Links</h5>
-                                        <pre>[Link text](https://example.com)</pre>
-                                        
-                                        <h5>Images</h5>
-                                        <pre>![Alt text](image-url.jpg)</pre>
-                                        
-                                        <h5>Code</h5>
-                                        <pre>`inline code`
+                                </div>
+                                <div class="col-md-6">
+                                    <h5>Links</h5>
+                                    <pre>[Link text](https://example.com)</pre>
+                                    
+                                    <h5>Images</h5>
+                                    <pre>![Alt text](image-url.jpg)</pre>
+                                    
+                                    <h5>Code</h5>
+                                    <pre>`inline code`
 
 ```
 code block
 ```</pre>
-                                        
-                                        <h5>Blockquotes</h5>
-                                        <pre>> This is a blockquote</pre>
-                                    </div>
+                                    
+                                    <h5>Blockquotes</h5>
+                                    <pre>> This is a blockquote</pre>
                                 </div>
                             </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </div>
                 </div>
-            <?php else: ?>
-                <div class="alert alert-danger">
-                    You must be logged in as an administrator to edit documentation.
-                    <a href="admin.php" class="alert-link">Log in here</a>.
-                </div>
-            <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <div class="alert alert-danger">
+                You must be logged in as an administrator to edit documentation.
+                <a href="admin.php" class="alert-link">Log in here</a>.
+            </div>
         <?php endif; ?>
-    </div>
-    
-    <footer class="footer">
-        <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
-        <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
-    </footer>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Dark Mode Functions
-        // Function to set a cookie
-        function setDarkModeCookie(darkMode) {
-            const date = new Date();
-            date.setTime(date.getTime() + (365 * 24 * 60 * 60 * 1000)); // 1 year
-            const expires = "expires=" + date.toUTCString();
-            document.cookie = `darkMode=${darkMode};${expires};path=/`;
-        }
-        
-        // Function to get a cookie value
-        function getDarkModeCookie() {
-            const name = "darkMode=";
-            const decodedCookie = decodeURIComponent(document.cookie);
-            const cookies = decodedCookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name)) {
-                    return cookie.substring(name.length, cookie.length);
-                }
-            }
-            return null;
-        }
-        
-        // Function to toggle dark mode
-        function toggleDarkMode() {
-            const body = document.body;
-            const isDarkMode = body.classList.toggle('dark-mode');
-            setDarkModeCookie(isDarkMode ? 'true' : 'false');
-            
-            // Update toggle text
-            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
-            toggleLinks.forEach(link => {
-                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
-            });
-        }
-        
-        // Function to initialize dark mode based on cookie
-        function initDarkMode() {
-            const darkModeSetting = getDarkModeCookie();
-            if (darkModeSetting === 'true') {
-                document.body.classList.add('dark-mode');
-            }
-            
-            // Set initial toggle text
-            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            toggleLinks.forEach(link => {
-                link.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
-            });
-        }
-        
-        // Add event listeners to dark mode toggles
-        document.addEventListener('DOMContentLoaded', function() {
-            const toggleLinks = document.querySelectorAll('.dark-mode-toggle');
-            toggleLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    toggleDarkMode();
-                });
-            });
-            
-            // Initialize dark mode from cookie
-            initDarkMode();
-        });
-    </script>
-</body>
-</html>
+    <?php endif; ?>
+</div>
+
+<?php
+// Store the content in a global variable
+$GLOBALS['page_content'] = ob_get_clean();
+
+// Define a page title
+$GLOBALS['page_title'] = 'Documentation';
+
+// Include the master layout
+require_once BASE_DIR . '/includes/master.php';
