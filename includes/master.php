@@ -6,6 +6,14 @@
  * It includes the common header and footer elements.
  */
 
+ // Function to get settings with fallback to default values
+function page_setting($key, $default = null) {
+    if (isset($GLOBALS['page_settings'][$key])) {
+        return $GLOBALS['page_settings'][$key];
+    }
+    return null;
+}
+
 // Function to include the content from the calling page
 function yield_content() {
     if (isset($GLOBALS['page_content'])) {
@@ -51,17 +59,24 @@ function get_page_title() {
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo SITE_URL; ?>/resources/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="<?php echo SITE_URL; ?>/resources/favicon-16x16.png">
     <link rel="manifest" href="<?php echo SITE_URL; ?>/resources/site.webmanifest">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/app.css?v=<?php echo SITE_VERSION; ?>">
     <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/dark-mode.css?v=<?php echo SITE_VERSION; ?>">
+    <?php if (page_setting('formio_assets', true)): ?>
+    <link rel="stylesheet" href="https://cdn.form.io/js/formio.full.min.css">
+    <script src='https://cdn.form.io/js/formio.full.min.js'></script>
+    <?php endif; ?>
     <?php yield_css(); ?>
 </head>
 <body>
     <?php yield_content(); ?>
 
     <footer class="footer">
-        <p>Made with ❤️ by <a href="https://booskit.dev/">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>">Github</a> • <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
+        <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
+        <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
+        <a href="<?php echo SITE_URL; ?>/documentation.php" target="_blank">Documentation</a> • 
+        <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
         <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
     </footer>
 

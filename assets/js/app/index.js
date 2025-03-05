@@ -4,7 +4,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Handle "Create a form" button click
     document.getElementById('createFormBtn').addEventListener('click', function() {
-        window.location.href = '/builder.php';
+        window.location.href = current_header + '/builder.php';
     });
 
     // Handle "Use a form" button click
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('submitHashBtn').addEventListener('click', function() {
         const hash = document.getElementById('shareableHash').value;
         if (hash) {
-            window.location.href = '/form.php?f=' + hash;
+            window.location.href = current_header + '/form.php?f=' + hash;
         } else {
             alert('Please enter a shareable hash.');
         }

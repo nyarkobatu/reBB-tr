@@ -37,6 +37,10 @@ ob_start();
 $GLOBALS['page_content'] = ob_get_clean();
 
 // Add page-specific JavaScript
+$site_url = SITE_URL;
+$GLOBALS['page_js_vars'] = <<<JSVARS
+var current_header = "$site_url";
+JSVARS;
 $GLOBALS['page_javascript'] = '<script src="'. ASSETS_DIR .'/js/app/index.js?v=' . SITE_VERSION . '"></script>';
 
 // Include the master layout
