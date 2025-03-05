@@ -4,9 +4,12 @@
  * 
  * This file serves as the render point for documentation.
  */
-require_once 'site.php';
+require_once 'kernel.php';
 
-session_start();
+// Initialize session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Define the libraries directory
 $libDir = __DIR__ . '/lib';
@@ -37,7 +40,7 @@ $config = [
     'log_file' => 'logs/documentation_activity.log',
     'allowed_extensions' => ['md'],
     'default_doc' => 'getting-started.md',
-    'session_timeout' => 1800 // 30 minutes
+    'session_timeout' => SESSION_LIFETIME
 ];
 
 // Create documentation directory if it doesn't exist
@@ -371,6 +374,8 @@ if (empty($documentFiles) && is_dir($config['docs_dir'])) {
     
     if (!file_exists($defaultDocPath)) {
         $defaultContent = <<<EOT
+[ORDER: 1]
+
 # Getting Started with reBB
 
 Welcome to the reBB documentation! This guide will help you get started with using the reBB form system.

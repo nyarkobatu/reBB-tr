@@ -4,7 +4,7 @@
  * 
  * This file serves as the renderer for the form builder.
  */
-require_once 'site.php';
+require_once 'kernel.php';
 
 $existingSchema = null;
 $existingFormName = '';
@@ -83,10 +83,12 @@ $GLOBALS['page_settings'] = [
 // Add page-specific JavaScript
 $existingSchema = $existingSchema ? $existingSchema : 'null';
 $existingTemplate = json_encode($existingTemplate, JSON_UNESCAPED_SLASHES);
+$siteURL = SITE_URL;
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
 let existingTemplatePHP = $existingTemplate;
+let siteURL = "$siteURL";
 JSVARS;
 $GLOBALS['page_javascript'] = '<script src="'. ASSETS_DIR .'/js/app/builder.js?v=' . SITE_VERSION . '"></script>';
 

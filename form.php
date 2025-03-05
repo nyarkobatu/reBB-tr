@@ -4,7 +4,7 @@
  * 
  * This file serves as the renderer for the form (enduser).
  */
-require_once 'site.php';
+require_once 'kernel.php';
 
 $isJsonRequest = false;
 $formName = '';

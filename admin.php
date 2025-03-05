@@ -4,15 +4,17 @@
  * 
  * This file serves the administrative interface for the app.
  */
-require_once 'site.php';
+require_once 'kernel.php';
 
-// Start session for authentication
-session_start();
+// Initialize session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Admin authentication configuration
 $authConfig = [
     'htpasswd_file' => __DIR__ . '/.htpasswd',
-    'session_timeout' => 1800, // 30 minutes
+    'session_timeout' => SESSION_LIFETIME, // 30 minutes
     'log_file' => 'logs/admin_access.log'
 ];
 

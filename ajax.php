@@ -1,4 +1,11 @@
 <?php
+/**
+ * reBB - Ajax Backend
+ * 
+ * This file handles the backend ajax calls.
+ */
+require_once 'kernel.php';
+
 header('Content-Type: application/json');
 
 // Initialize session if not already started
@@ -47,19 +54,21 @@ if ($requestData === null && json_last_error() !== JSON_ERROR_NONE) {
     exit;
 }
 
-// Modified CSRF token check - if token is expired/invalid, generate new one instead of rejecting
+// CSRF protection based on application configuration
 $tokenExpired = false;
-if (isset($_SESSION['csrf_token'])) {
-    if (!isset($requestData['csrf_token']) || $requestData['csrf_token'] !== $_SESSION['csrf_token']) {
-        // Log the invalid token but continue processing
-        logAttempt('CSRF token expired or invalid, generating new one');
-        $tokenExpired = true;
+if (defined('ENABLE_CSRF') && ENABLE_CSRF) {
+    if (isset($_SESSION['csrf_token'])) {
+        if (!isset($requestData['csrf_token']) || $requestData['csrf_token'] !== $_SESSION['csrf_token']) {
+            // Log the invalid token but continue processing
+            logAttempt('CSRF token expired or invalid, generating new one');
+            $tokenExpired = true;
+        }
     }
-}
 
-// Generate a new CSRF token if it doesn't exist or was expired
-if (!isset($_SESSION['csrf_token']) || $tokenExpired) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    // Generate a new CSRF token if it doesn't exist or was expired
+    if (!isset($_SESSION['csrf_token']) || $tokenExpired) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
 }
 
 // Rate limiting: Check submission cooldown
@@ -154,9 +163,11 @@ if ($requestType === 'schema') {
     // Log successful submission with form ID
     logAttempt("Successful form schema submission - Form ID: $randomString", false);
     
-    // Include the new or current CSRF token in successful response
+    // Include the CSRF token in response only if CSRF is enabled
     $responseData = json_decode($fileContent, true);
-    $responseData['csrf_token'] = $_SESSION['csrf_token'];
+    if (defined('ENABLE_CSRF') && ENABLE_CSRF) {
+        $responseData['csrf_token'] = $_SESSION['csrf_token'];
+    }
     
     echo json_encode($responseData);
     exit;
@@ -195,5 +206,10 @@ function logAttempt($message, $isFailure = true) {
     $logEntry = "[$timestamp] [$status] [IP: $ip] $message" . PHP_EOL;
     
     file_put_contents($config['log_file'], $logEntry, FILE_APPEND);
+    
+    // Additional debug logging if debug mode is enabled
+    if (defined('DEBUG_MODE') && DEBUG_MODE && $isFailure) {
+        error_log("reBB Ajax Error: $message [IP: $ip]");
+    }
 }
 ?>

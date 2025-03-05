@@ -4,7 +4,7 @@
  * 
  * This file serves as the entry point for the application.
  */
-require_once 'site.php';
+require_once 'kernel.php';
 
 // Define the page content to be yielded in the master layout
 ob_start();

@@ -409,7 +409,7 @@
             }
 
             const formId = data.filename.replace('forms/', '').replace('_schema.json', '');
-            const shareUrl = `<?php echo SITE_URL; ?>/form.php?f=${formId}`;
+            const shareUrl = siteURL + `/form.php?f=${formId}`;
 
             document.getElementById('shareable-link').textContent = shareUrl;
             document.getElementById('shareable-link').href = shareUrl;
