@@ -25,14 +25,41 @@ reBB provides a drag-and-drop form builder interface for creating custom forms w
    git clone https://github.com/booskit-codes/reBB.git
    ```
 
-2. Upload the files to your PHP-enabled web server (PHP 7.4+ recommended)
+2. Create a configuration file:
+   - Copy `includes/config.example.php` to `includes/config.php`
+   - Adjust the settings to match your environment
 
-3. Ensure the web server has write permissions for these directories:
+3. Ensure the web server has write permissions for these directories (these directories should automatically get made with the appropriate permissions):
    - `/forms` (stores form definitions)
    - `/logs` (stores system logs)
    - `/documentation` (stores markdown docs)
+   - `/lib` (stores libraries)
 
 4. Access the application through your web browser
+
+## Configuration
+
+The configuration system has been completely revamped. Key settings include:
+
+```php
+// Site identity
+define('SITE_NAME',        'reBB');
+define('SITE_DESCRIPTION', 'BBCode done differently');
+
+// URLs and paths
+define('SITE_URL',         'https://your-domain.com');
+
+// Environment: 'development' or 'production'
+define('ENVIRONMENT',      'production');
+
+// Security settings
+define('ENABLE_CSRF',      true);
+define('SESSION_LIFETIME', 86400);      // 24 hours in seconds
+
+// Rate limiting
+define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum submissions per hour per IP
+define('COOLDOWN_PERIOD', 5);           // Seconds between submissions
+```
 
 ## Usage
 
@@ -86,13 +113,13 @@ Features:
 
 The system supports custom components defined in `components.json`. This allows for pre-built form elements with special functionality, like sections that remember user input through browser cookies.
 
-## Browser Compatibility
+## Documentation System
 
-reBB works in all modern browsers:
-- Chrome
-- Firefox
-- Safari
-- Edge
+reBB includes a built-in documentation system with:
+- Markdown support
+- Admin editing interface
+- Automatic ordering of documentation pages
+- Mobile-responsive layout
 
 ## Security Features
 
@@ -101,6 +128,16 @@ reBB works in all modern browsers:
 - Input validation
 - XSS prevention
 - Form submission logging
+- Blacklist support for malicious IPs
+- Session timeout controls
+
+## Browser Compatibility
+
+reBB works in all modern browsers:
+- Chrome
+- Firefox
+- Safari
+- Edge
 
 ## License
 
