@@ -15,10 +15,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Anti-spam configuration
 $config = [
-    'max_requests_per_hour' => 60,          // Maximum form submissions per hour per IP
-    'cooldown_period' => 5,                 // Seconds between submissions
+    'max_requests_per_hour' => MAX_REQUESTS_PER_HOUR,          // Maximum form submissions per hour per IP
+    'cooldown_period' => COOLDOWN_PERIOD,                 // Seconds between submissions
     'log_file' => 'logs/form_submissions.log', // Path to log file (relative to script)
-    'ip_blacklist' => ['192.0.2.1'],        // Example blacklisted IPs (replace with actual ones)
+    'ip_blacklist' => IP_BLACKLIST,
 ];
 
 // Create logs directory if it doesn't exist

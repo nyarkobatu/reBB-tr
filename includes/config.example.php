@@ -19,7 +19,7 @@ define('SITE_NAME',        'reBB');
 define('SITE_DESCRIPTION', 'BBCode done differently');
 
 // URLs and paths
-define('SITE_URL',         'http://localhost/reBB');
+define('SITE_URL',         'https://rebb.booskit.dev/');
 define('FOOTER_GITHUB',    'https://github.com/booskit-codes/reBB');
 
 // Directory structure
@@ -34,10 +34,12 @@ define('ENVIRONMENT',      'production');
 
 // Security settings
 define('ENABLE_CSRF',      true);
-define('SESSION_LIFETIME', 86400); // 24 hours in seconds
+define('SESSION_LIFETIME', 86400);      // 24 hours in seconds
 
 // Form Builder Submission settings
-
+define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum form submissions per hour per IP
+define('COOLDOWN_PERIOD', 5);           // Seconds between submissions
+define('IP_BLACKLIST', ['192.0.2.1']);  // Example blacklisted IPs (replace with actual ones)
 
 // Feature flags
 define('DEBUG_MODE',         ENVIRONMENT === 'development');

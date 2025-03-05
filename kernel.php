@@ -113,7 +113,10 @@ $required_constants = [
     'ENVIRONMENT',
     'ENABLE_CSRF',
     'SESSION_LIFETIME',
-    'DEBUG_MODE'
+    'DEBUG_MODE',
+    'MAX_REQUESTS_PER_HOUR',
+    'COOLDOWN_PERIOD',
+    'IP_BLACKLIST'
 ];
 
 $missing_constants = [];
