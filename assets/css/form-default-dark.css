@@ -1,0 +1,74 @@
+/**
+ * Form Default Dark Mode Style
+ * Overrides dark-mode.css specifically for the default form style
+ */
+
+/* Remove backgrounds from containers in dark mode */
+body.dark-mode #form-container,
+body.dark-mode #output-container {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+/* Make all formio containers transparent in dark mode */
+body.dark-mode .formio-form,
+body.dark-mode .formio-container,
+body.dark-mode .formio-component,
+body.dark-mode .formio-component-panel,
+body.dark-mode .formio-component-container,
+body.dark-mode .formio-component-content,
+body.dark-mode .formio-component-fieldset,
+body.dark-mode .formio-component-tabs .card,
+body.dark-mode .formio-component-tabs .tab-content,
+body.dark-mode .formio-component-tabs .tab-pane,
+body.dark-mode .formio-component-well,
+body.dark-mode .formio-component-columns,
+body.dark-mode .formio-component-panel .card {
+  background-color: transparent !important;
+  border-color: #444;
+}
+
+/* Make sure the output textarea maintains visibility */
+body.dark-mode #output {
+  background-color: #2d2d2d;
+  border-color: #444;
+}
+
+/* Adjust the Add Another button for better visibility in dark mode */
+body.dark-mode .formio-component-datagrid .datagrid-add {
+  background-color: #1e375a;
+  border-color: #2962a7;
+  padding: 5px;
+  margin-top: 10px;
+}
+
+/* Ensure datagrid styling works in dark mode */
+body.dark-mode .formio-component-datagrid .datagrid-table tbody tr:first-child {
+  display: none !important;
+}
+
+/* Alert containers should be visible but blend better */
+body.dark-mode .alert {
+  background-color: rgba(30, 30, 30, 0.7);
+  border-color: #444;
+}
+
+/* Make sure the text in form containers is still visible */
+body.dark-mode #form-container h1,
+body.dark-mode #form-container h2,
+body.dark-mode #form-container h3,
+body.dark-mode #form-container h4,
+body.dark-mode #form-container h5,
+body.dark-mode #form-container h6,
+body.dark-mode #form-container p,
+body.dark-mode #form-container label,
+body.dark-mode #output-container h4 {
+  color: #e0e0e0;
+}
+
+/* Keep consistent footer styling */
+body.dark-mode .footer {
+  margin-top: 20px !important;
+  background-color: #1e1e1e;
+}

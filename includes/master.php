@@ -64,21 +64,35 @@ function get_page_title() {
     <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/app.css?v=<?php echo SITE_VERSION; ?>">
     <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/dark-mode.css?v=<?php echo SITE_VERSION; ?>">
     <?php if (page_setting('formio_assets', true)): ?>
-    <link rel="stylesheet" href="https://cdn.form.io/js/formio.full.min.css">
-    <script src='https://cdn.form.io/js/formio.full.min.js'></script>
+        <link rel="stylesheet" href="https://cdn.form.io/js/formio.full.min.css">
+        <script src='https://cdn.form.io/js/formio.full.min.js'></script>
     <?php endif; ?>
     <?php yield_css(); ?>
 </head>
 <body>
     <?php yield_content(); ?>
 
-    <footer class="footer">
-        <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
-        <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
-        <a href="<?php echo SITE_URL; ?>/documentation.php" target="_blank">Documentation</a> • 
-        <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
-        <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
-    </footer>
+    <?php if (page_setting('footer', 'form')): ?>
+        <footer class="footer">
+            <p>Made using <a href="<?php echo SITE_URL; ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
+            <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
+                <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
+                <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
+                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
+            <?php else: ?>
+                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
+            <?php endif; ?>
+            <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
+        </footer>
+    <?php else: ?>
+        <footer class="footer">
+            <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
+            <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
+            <a href="<?php echo SITE_URL; ?>/documentation.php" target="_blank">Documentation</a> • 
+            <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
+            <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
+        </footer>
+    <?php endif; ?>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>

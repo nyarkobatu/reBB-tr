@@ -51,6 +51,19 @@ body.dark-mode .formio-dialog .formio-dialog-content {
     color: #e0e0e0;
 }
 
+/* Formio specific elements */
+body.dark-mode .formio-component,
+body.dark-mode .formio-container,
+body.dark-mode .formio-form,
+body.dark-mode .formio-component-table .formio-table {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+body.dark-mode .formio-component-datagrid .datagrid-add {
+    background-color: #2d2d2d;
+}
+
 /* Builder sidebar text */
 body.dark-mode #builder-sidebar-build,
 body.dark-mode #builder-sidebar-build *,
@@ -136,7 +149,10 @@ body.dark-mode .formio-component-table .table,
 body.dark-mode .formio-component-table .table tbody,
 body.dark-mode .formio-component-table .table tr,
 body.dark-mode .formio-component-table .table td,
-body.dark-mode .formio-component-table .table th {
+body.dark-mode .formio-component-table .table th,
+body.dark-mode table,
+body.dark-mode th,
+body.dark-mode td {
     background-color: #1e1e1e;
     color: #e0e0e0;
     border-color: #444;
@@ -163,14 +179,6 @@ body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
 /* Handle hover effect */
 body.dark-mode .table-hover tbody tr:hover {
     background-color: #333;
-}
-
-/* Fix any remaining white backgrounds in form.io components */
-body.dark-mode .formio-component,
-body.dark-mode .formio-container,
-body.dark-mode .formio-form,
-body.dark-mode .formio-component-table .formio-table {
-    background-color: #1e1e1e;
 }
 
 /* Fix table cell inputs in dark mode */
