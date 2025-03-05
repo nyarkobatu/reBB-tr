@@ -2,4 +2,5 @@ forms/*
 logs/*
 documentation/*
 lib/*
+includes/config.php
 .htpasswd

@@ -1,9 +1,6 @@
 # Enable rewrite engine
 RewriteEngine On
 
-# Set the base path if installed in a subdirectory (uncomment if needed)
-# RewriteBase /reBB
-
 # Explicitly allow CSS and JS files
 <FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|webmanifest)$">
     Order allow,deny
