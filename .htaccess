@@ -1,13 +1,14 @@
 # Enable rewrite engine
 RewriteEngine On
 
-# Allow specific files
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|documentation\.php|components\.json)$ - [L]
+# Set the base path if installed in a subdirectory (uncomment if needed)
+# RewriteBase /reBB
 
-# Allow access to resources directory
-RewriteCond %{REQUEST_URI} ^/resources/
-RewriteRule ^ - [L]
+# Explicitly allow CSS and JS files
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|webmanifest)$">
+    Order allow,deny
+    Allow from all
+</FilesMatch>
 
 # Protect .htpasswd file
 <Files ~ "^\.htpasswd">
@@ -21,17 +22,20 @@ RewriteRule ^ - [L]
   Deny from all
 </Files>
 
-# Deny access to sensitive directories via a simple method
+# Ensure we're using the right MIME types for CSS and JS
+AddType text/css .css
+AddType application/javascript .js
+
+# Allow direct access to resources and assets directories
+RewriteCond %{REQUEST_URI} ^/?(resources|assets)/
+RewriteRule .* - [L]
+
+# Allow specific PHP files
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|documentation\.php|components\.json)$ - [L]
+
+# Deny access to sensitive directories
 RewriteRule ^logs/.* - [F,L]
 
-# Default deny rule for everything else that wasn't allowed above
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteCond %{REQUEST_URI} !^/index\.php
-RewriteCond %{REQUEST_URI} !^/builder\.php
-RewriteCond %{REQUEST_URI} !^/form\.php
-RewriteCond %{REQUEST_URI} !^/ajax\.php
-RewriteCond %{REQUEST_URI} !^/admin\.php
-RewriteCond %{REQUEST_URI} !^/documentation\.php
-RewriteCond %{REQUEST_URI} !^/components\.json
-RewriteCond %{REQUEST_URI} !^/resources/
-RewriteRule .* - [F,L]
+# Disable directory listing
+Options -Indexes

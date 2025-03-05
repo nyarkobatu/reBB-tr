@@ -1,0 +1,45 @@
+/* Dark Mode Styles */
+body.dark-mode {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* Header/Title styles */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode h4, 
+body.dark-mode h5, 
+body.dark-mode h6 {
+    color: #ffffff;
+}
+
+/* Container/Form styles */
+body.dark-mode .form-box,
+body.dark-mode #form-container,
+body.dark-mode #output-container,
+body.dark-mode #content-wrapper,
+body.dark-mode .card {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Form controls */
+body.dark-mode .form-control,
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Footer */
+body.dark-mode .footer {
+    background-color: #1e1e1e;
+    color: #aaa;
+}
+
+body.dark-mode .footer a {
+    color: #4da3ff;
+}

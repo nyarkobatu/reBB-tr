@@ -1,0 +1,15 @@
+# Prevent direct access to PHP files in this directory
+<FilesMatch "\.php$">
+    Order deny,allow
+    Deny from all
+</FilesMatch>
+
+# But allow the server to include them
+<Files "master.php">
+    Order deny,allow
+    Allow from localhost
+    Allow from 127.0.0.1
+</Files>
+
+# Disable directory listing
+Options -Indexes
