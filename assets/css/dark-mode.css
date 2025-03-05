@@ -294,3 +294,55 @@ body.dark-mode .dropdown-item:focus {
     background-color: #444 !important;
     color: #ffffff !important;
 }
+
+/* Dark mode adjustments */
+body.dark-mode .container-admin .card {
+    background-color: #1e1e1e;
+    border-color: #444;
+}
+
+body.dark-mode .container-admin .card-header {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+body.dark-mode .container-admin .table {
+    color: #e0e0e0;
+}
+
+body.dark-mode .container-admin .table th {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+body.dark-mode .container-admin .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+body.dark-mode .container-admin .stat-value {
+    color: #4da3ff;
+}
+
+body.dark-mode .container-admin .form-list-empty {
+    color: #aaa;
+}
+
+body.dark-mode .container-admin .page-header {
+    border-color: #444;
+}
+
+body.dark-mode .container-admin .modal-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .container-admin .modal-header,
+body.dark-mode .container-admin .modal-footer {
+    border-color: #444;
+}
+
+body.dark-mode .container-admin .close {
+    color: #e0e0e0;
+    text-shadow: none;
+}
