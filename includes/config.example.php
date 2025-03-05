@@ -19,7 +19,7 @@ define('SITE_NAME',        'reBB');
 define('SITE_DESCRIPTION', 'BBCode done differently');
 
 // URLs and paths
-define('SITE_URL',         'https://rebb.booskit.dev/');
+define('SITE_URL',         'https://rebb.booskit.dev');
 define('FOOTER_GITHUB',    'https://github.com/booskit-codes/reBB');
 
 // Directory structure
