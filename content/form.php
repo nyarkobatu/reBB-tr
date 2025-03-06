@@ -115,6 +115,11 @@ ob_start();
   <div id="output-container">
     <h4>Generated Output:</h4>
     <textarea id="output" class="form-control" rows="5" readonly></textarea>
+    <div class="mt-2 text-end">
+      <button id="copyOutputBtn" class="btn btn-primary">
+        <i class="bi bi-clipboard"></i> Copy to Clipboard
+      </button>
+    </div>
   </div>
 <?php endif; ?>
 

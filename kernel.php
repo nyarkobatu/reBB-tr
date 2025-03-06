@@ -9,7 +9,7 @@
 
 // Define the base path for the application
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', 'v1.3.10');
+    define('APP_VERSION', 'v1.3.11');
 }
 
 // Define the base path for the application
