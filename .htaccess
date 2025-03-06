@@ -1,38 +1,9 @@
 # Enable rewrite engine
 RewriteEngine On
 
-# Explicitly allow CSS and JS files
-<FilesMatch "\.(css|js|png|jpg|jpeg|gif|svg|webmanifest)$">
-    Order allow,deny
-    Allow from all
-</FilesMatch>
-
-# Protect .htpasswd file
-<Files ~ "^\.htpasswd">
-  Order allow,deny
-  Deny from all
-</Files>
-
-# Protect log files
-<Files ~ "\.(log)$">
-  Order allow,deny
-  Deny from all
-</Files>
-
-# Ensure we're using the right MIME types for CSS and JS
-AddType text/css .css
-AddType application/javascript .js
-
-# Allow direct access to resources and assets directories
-RewriteCond %{REQUEST_URI} ^/?(resources|assets)/
-RewriteRule .* - [L]
-
-# Allow specific PHP files
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^(index\.php|builder\.php|form\.php|ajax\.php|admin\.php|documentation\.php|components\.json)$ - [L]
-
-# Deny access to sensitive directories
-RewriteRule ^logs/.* - [F,L]
+# Redirect everything to public folder
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L]
 
 # Disable directory listing
 Options -Indexes

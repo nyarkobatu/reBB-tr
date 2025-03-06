@@ -4,18 +4,32 @@
  * 
  * This file serves the administrative interface for the app.
  */
-require_once 'kernel.php';
+
+// Make sure ROOT_DIR is defined
+if (!defined('ROOT_DIR')) {
+    if (defined('BASE_DIR')) {
+        define('ROOT_DIR', basename(BASE_DIR) === 'public' ? dirname(BASE_DIR) : BASE_DIR);
+    } else {
+        define('ROOT_DIR', dirname(__DIR__)); // Default to parent directory
+    }
+}
 
 // Initialize session if not already started
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    @session_start();
 }
 
-// Admin authentication configuration
+// Make sure required constants are defined
+if (!defined('SESSION_LIFETIME')) {
+    define('SESSION_LIFETIME', 1800); // Default to 30 minutes
+}
+
+// Admin authentication configuration - define globally
+global $authConfig;
 $authConfig = [
-    'htpasswd_file' => __DIR__ . '/.htpasswd',
-    'session_timeout' => SESSION_LIFETIME, // 30 minutes
-    'log_file' => 'logs/admin_access.log'
+    'htpasswd_file' => ROOT_DIR . '/.htpasswd',
+    'session_timeout' => SESSION_LIFETIME,
+    'log_file' => ROOT_DIR . '/logs/admin_access.log'
 ];
 
 // Create logs directory if it doesn't exist
@@ -61,8 +75,27 @@ function verifyPassword($username, $password, $htpasswdFile) {
     return false;
 }
 
+/**
+ * Log admin actions to a file
+ * @param string $action The action to log
+ * @param bool $success Whether the action was successful (default: true)
+ */
 function logAdminAction($action, $success = true) {
     global $authConfig;
+    
+    // Safety check - ensure log file path exists
+    if (empty($authConfig) || empty($authConfig['log_file'])) {
+        // Fallback log path
+        $log_file = ROOT_DIR . '/logs/admin_access.log';
+    } else {
+        $log_file = $authConfig['log_file'];
+    }
+    
+    // Make sure logs directory exists
+    $logsDir = dirname($log_file);
+    if (!is_dir($logsDir)) {
+        @mkdir($logsDir, 0755, true);
+    }
     
     $timestamp = date('Y-m-d H:i:s');
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
@@ -70,7 +103,9 @@ function logAdminAction($action, $success = true) {
     $status = $success ? 'SUCCESS' : 'FAILED';
     
     $logEntry = "[$timestamp] [$status] [IP: $ip] [User: $user] $action" . PHP_EOL;
-    file_put_contents($authConfig['log_file'], $logEntry, FILE_APPEND);
+    
+    // Try to write to log file, safely handle any errors
+    @file_put_contents($log_file, $logEntry, FILE_APPEND);
 }
 
 // Initialize variables
@@ -119,7 +154,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'logout' && $isLoggedIn) {
     logAdminAction("Admin logout");
     session_unset();
     session_destroy();
-    header('Location: admin.php');
+    header('Location: admin');
     exit;
 }
 
@@ -138,10 +173,10 @@ if ($isLoggedIn && isset($_GET['logs'])) {
         $logFile = $authConfig['log_file']; // Admin access logs
         logAdminAction("Viewed admin access logs");
     } elseif ($logType === 'forms') {
-        $logFile = 'logs/form_submissions.log'; // Form submission logs
+        $logFile = ROOT_DIR . '/logs/form_submissions.log'; // Form submission logs
         logAdminAction("Viewed form submission logs");
     } elseif ($logType === 'docs') {
-        $logFile = 'logs/documentation_activity.log';
+        $logFile = ROOT_DIR . '/logs/documentation_activity.log';
         logAdminAction("Viewed documentation activity logs");
     }
     
@@ -161,7 +196,7 @@ if ($isLoggedIn && isset($_GET['logs'])) {
 // Handle form deletion
 if ($isLoggedIn && isset($_POST['delete_form']) && isset($_POST['form_id'])) {
     $formId = $_POST['form_id'];
-    $filename = 'forms/' . $formId . '_schema.json';
+    $filename = ROOT_DIR . '/forms/' . $formId . '_schema.json';
     
     if (file_exists($filename) && is_readable($filename) && unlink($filename)) {
         $actionMessage = "Form $formId has been deleted successfully.";
@@ -174,7 +209,7 @@ if ($isLoggedIn && isset($_POST['delete_form']) && isset($_POST['form_id'])) {
 
 // Get form data if logged in
 if ($isLoggedIn) {
-    $formsDir = 'forms';
+    $formsDir = ROOT_DIR . '/forms';
     
     if (is_dir($formsDir)) {
         $files = scandir($formsDir);
@@ -206,7 +241,7 @@ if ($isLoggedIn) {
                 'created' => $creationTime,
                 'modified' => $modificationTime,
                 'size' => $fileSize,
-                'url' => SITE_URL . '/form.php?f=' . $formId
+                'url' => site_url('form') . '?f=' . $formId
             ];
         }
         
@@ -270,7 +305,7 @@ if (!file_exists($authConfig['htpasswd_file']) && isset($_POST['create_admin']) 
             $_SESSION['admin_message'] = $actionMessage;
 
             // Redirect to refresh the page - this must happen before any HTML output
-            header("Location: " . $_SERVER['PHP_SELF']);
+            header("Location: admin");
             exit();
         } else {
             $error = error_get_last();
@@ -299,7 +334,7 @@ ob_start();
                     
                     <p>Welcome to the admin panel setup. Please create an administrator account:</p>
                     
-                    <form method="post" action="admin.php">
+                    <form method="post" action="admin">
                         <div class="form-group mb-3">
                             <label for="new_username">Username:</label>
                             <input type="text" class="form-control" id="new_username" name="new_username" required>
@@ -357,7 +392,7 @@ ob_start();
                         <div class="alert alert-danger"><?php echo htmlspecialchars($loginError); ?></div>
                     <?php endif; ?>
                     
-                    <form method="post" action="admin.php">
+                    <form method="post" action="admin">
                         <div class="form-group mb-3">
                             <label for="username">Username:</label>
                             <input type="text" class="form-control" id="username" name="username" required>
@@ -443,7 +478,7 @@ ob_start();
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h4 class="mb-0">Manage Forms</h4>
-                <a href="builder.php" class="btn btn-sm btn-success">
+                <a href="builder" class="btn btn-sm btn-success">
                     <i class="bi bi-plus-circle"></i> Create New Form
                 </a>
             </div>
@@ -457,7 +492,7 @@ ob_start();
                     <div class="form-list-empty">
                         <p><i class="bi bi-inbox"></i></p>
                         <p>No forms have been created yet.</p>
-                        <a href="builder.php" class="btn btn-primary">Create your first form</a>
+                        <a href="builder" class="btn btn-primary">Create your first form</a>
                     </div>
                 <?php else: ?>
                     <div class="table-responsive">
@@ -492,7 +527,7 @@ ob_start();
                                             <a href="<?php echo htmlspecialchars($form['url']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                                                 <i class="bi bi-eye"></i> View
                                             </a>
-                                            <a href="builder.php?f=<?php echo htmlspecialchars($form['id']); ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                            <a href="builder?f=<?php echo htmlspecialchars($form['id']); ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
                                                 <i class="bi bi-pencil"></i> Edit
                                             </a>
                                             <button type="button" class="btn btn-sm btn-outline-danger" 
@@ -525,7 +560,7 @@ ob_start();
                         <p class="text-danger mt-2">This action cannot be undone.</p>
                     </div>
                     <div class="modal-footer">
-                        <form method="post" action="admin.php">
+                        <form method="post" action="admin">
                             <input type="hidden" name="form_id" id="formIdToDelete">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                             <button type="submit" name="delete_form" class="btn btn-danger">Delete</button>
@@ -545,7 +580,7 @@ $GLOBALS['page_content'] = ob_get_clean();
 $GLOBALS['page_title'] = 'Admin Panel';
 
 // Add page-specific JavaScript
-$GLOBALS['page_javascript'] = '<script src="'. ASSETS_DIR .'/js/app/admin.js?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/admin.js') .'?v=' . SITE_VERSION . '"></script>';
 
 // Include the master layout
-require_once BASE_DIR . '/includes/master.php';
+require_once ROOT_DIR . '/includes/master.php';
