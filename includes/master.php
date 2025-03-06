@@ -61,8 +61,8 @@ function get_page_title() {
     <link rel="manifest" href="<?php echo site_url(); ?>/resources/site.webmanifest">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo asset_path('css/app.css'); ?>?v=<?php echo SITE_VERSION; ?>">
-    <link rel="stylesheet" href="<?php echo asset_path('css/dark-mode.css'); ?>?v=<?php echo SITE_VERSION; ?>">
+    <link rel="stylesheet" href="<?php echo asset_path('css/app.css'); ?>?v=<?php echo APP_VERSION; ?>">
+    <link rel="stylesheet" href="<?php echo asset_path('css/dark-mode.css'); ?>?v=<?php echo APP_VERSION; ?>">
     <?php if (page_setting('formio_assets', true)): ?>
         <link rel="stylesheet" href="https://cdn.form.io/js/formio.full.min.css">
         <script src='https://cdn.form.io/js/formio.full.min.js'></script>
@@ -74,7 +74,7 @@ function get_page_title() {
 
     <?php if (page_setting('footer', 'form')): ?>
         <footer class="footer">
-            <p>Made using <a href="<?php echo site_url(); ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
+            <p>Made using <a href="<?php echo site_url(); ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo APP_VERSION; ?></br>
             <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
                 <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
                 <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
@@ -90,7 +90,7 @@ function get_page_title() {
             <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
             <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
             <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
-            <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
+            <span style="font-size: 12px;"><?php echo APP_VERSION; ?></span></p>
         </footer>
     <?php endif; ?>
 
@@ -98,7 +98,7 @@ function get_page_title() {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script><?php yield_js_vars(); ?></script>
-    <script src="<?php echo asset_path('js/common.js'); ?>?v=<?php echo SITE_VERSION; ?>"></script>
+    <script src="<?php echo asset_path('js/common.js'); ?>?v=<?php echo APP_VERSION; ?>"></script>
     <?php yield_javascript(); ?>
 </body>
 </html>

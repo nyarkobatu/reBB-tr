@@ -135,8 +135,8 @@ $GLOBALS['page_settings'] = [
 $formStyleCSS = '';
 if ($formStyle === 'default') {
     // Include both the default CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/form-default.css') . '?v=' . SITE_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/form-default-dark.css') .'?v=' . SITE_VERSION . '">';
+    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/form-default.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
+    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/form-default-dark.css') .'?v=' . APP_VERSION . '">';
 }
 $GLOBALS['page_css'] = $formStyleCSS;
 
@@ -147,7 +147,7 @@ $GLOBALS['page_js_vars'] = <<<JSVARS
 const formSchema = $formSchema;
 const formTemplate = $formTemplate;
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/form.js') .'?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/form.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

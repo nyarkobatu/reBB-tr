@@ -40,7 +40,7 @@ $site_url = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS
 var current_header = "$site_url";
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/index.js') .'?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/index.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

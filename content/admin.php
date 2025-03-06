@@ -580,7 +580,7 @@ $GLOBALS['page_content'] = ob_get_clean();
 $GLOBALS['page_title'] = 'Admin Panel';
 
 // Add page-specific JavaScript
-$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/admin.js') .'?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/admin.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

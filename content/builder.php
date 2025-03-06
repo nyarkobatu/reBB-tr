@@ -89,7 +89,7 @@ let existingFormNamePHP = "$existingFormName";
 let existingTemplatePHP = $existingTemplate;
 let siteURL = "$siteURL";
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

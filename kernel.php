@@ -8,8 +8,8 @@
  */
 
 // Define the base path for the application
-if (!defined('SITE_VERSION')) {
-    define('SITE_VERSION', 'dev');
+if (!defined('APP_VERSION')) {
+    define('APP_VERSION', 'v1.3.10');
 }
 
 // Define the base path for the application
@@ -122,7 +122,7 @@ $required_constants = [
     'SITE_NAME',
     'SITE_URL',
     'SITE_DESCRIPTION',
-    'SITE_VERSION',
+    'APP_VERSION',
     'FOOTER_GITHUB',
     'ASSETS_DIR',
     'ENVIRONMENT',
