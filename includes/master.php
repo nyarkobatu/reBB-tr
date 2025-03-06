@@ -55,14 +55,14 @@ function get_page_title() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo get_page_title(); ?></title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo SITE_URL; ?>/resources/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo SITE_URL; ?>/resources/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo SITE_URL; ?>/resources/favicon-16x16.png">
-    <link rel="manifest" href="<?php echo SITE_URL; ?>/resources/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo site_url(); ?>/resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo site_url(); ?>/resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo site_url(); ?>/resources/favicon-16x16.png">
+    <link rel="manifest" href="<?php echo site_url(); ?>/resources/site.webmanifest">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/app.css?v=<?php echo SITE_VERSION; ?>">
-    <link rel="stylesheet" href="<?php echo ASSETS_DIR; ?>/css/dark-mode.css?v=<?php echo SITE_VERSION; ?>">
+    <link rel="stylesheet" href="<?php echo asset_path('css/app.css'); ?>?v=<?php echo APP_VERSION; ?>">
+    <link rel="stylesheet" href="<?php echo asset_path('css/dark-mode.css'); ?>?v=<?php echo APP_VERSION; ?>">
     <?php if (page_setting('formio_assets', true)): ?>
         <link rel="stylesheet" href="https://cdn.form.io/js/formio.full.min.css">
         <script src='https://cdn.form.io/js/formio.full.min.js'></script>
@@ -74,10 +74,10 @@ function get_page_title() {
 
     <?php if (page_setting('footer', 'form')): ?>
         <footer class="footer">
-            <p>Made using <a href="<?php echo SITE_URL; ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo SITE_VERSION; ?></br>
+            <p>Made using <a href="<?php echo site_url(); ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo APP_VERSION; ?></br>
             <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
                 <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
-                <a href="<?php echo SITE_URL; ?>/builder.php?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
+                <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
                 <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
             <?php else: ?>
                 <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
@@ -88,9 +88,9 @@ function get_page_title() {
         <footer class="footer">
             <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
             <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
-            <a href="<?php echo SITE_URL; ?>/documentation.php" target="_blank">Documentation</a> • 
+            <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
             <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
-            <span style="font-size: 12px;"><?php echo SITE_VERSION; ?></span></p>
+            <span style="font-size: 12px;"><?php echo APP_VERSION; ?></span></p>
         </footer>
     <?php endif; ?>
 
@@ -98,7 +98,7 @@ function get_page_title() {
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script><?php yield_js_vars(); ?></script>
-    <script src="<?php echo ASSETS_DIR; ?>/js/common.js?v=<?php echo SITE_VERSION; ?>"></script>
+    <script src="<?php echo asset_path('js/common.js'); ?>?v=<?php echo APP_VERSION; ?>"></script>
     <?php yield_javascript(); ?>
 </body>
 </html>

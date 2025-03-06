@@ -4,15 +4,28 @@
  * 
  * This file serves as the render point for documentation.
  */
-require_once 'kernel.php';
+
+// Make sure ROOT_DIR is defined
+if (!defined('ROOT_DIR')) {
+    if (defined('BASE_DIR')) {
+        define('ROOT_DIR', basename(BASE_DIR) === 'public' ? dirname(BASE_DIR) : BASE_DIR);
+    } else {
+        define('ROOT_DIR', dirname(__DIR__)); // Default to parent directory
+    }
+}
+
+// Make sure SESSION_LIFETIME is defined
+if (!defined('SESSION_LIFETIME')) {
+    define('SESSION_LIFETIME', 1800); // Default to 30 minutes
+}
 
 // Initialize session if not already started
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    @session_start();
 }
 
 // Define the libraries directory
-$libDir = __DIR__ . '/lib';
+$libDir = ROOT_DIR . '/lib';
 $parsedownPath = $libDir . '/Parsedown.php';
 
 // Create the lib directory if it doesn't exist
@@ -22,9 +35,9 @@ if (!is_dir($libDir)) {
 
 // Auto-download Parsedown if not exists
 if (!file_exists($parsedownPath)) {
-    $parsedownSource = file_get_contents('https://raw.githubusercontent.com/erusev/parsedown/master/Parsedown.php');
+    $parsedownSource = @file_get_contents('https://raw.githubusercontent.com/erusev/parsedown/master/Parsedown.php');
     if ($parsedownSource) {
-        file_put_contents($parsedownPath, $parsedownSource);
+        @file_put_contents($parsedownPath, $parsedownSource);
         logDocAction("Downloaded Parsedown library to {$libDir}");
     }
 }
@@ -34,10 +47,11 @@ if (file_exists($parsedownPath)) {
     require_once $parsedownPath;
 }
 
-// Configuration
+// Configuration - make it global so it's accessible in functions
+global $config;
 $config = [
-    'docs_dir' => __DIR__ . '/documentation',
-    'log_file' => 'logs/documentation_activity.log',
+    'docs_dir' => ROOT_DIR . '/documentation',
+    'log_file' => ROOT_DIR . '/logs/documentation_activity.log', // Fixed missing slash here
     'allowed_extensions' => ['md'],
     'default_doc' => 'getting-started.md',
     'session_timeout' => SESSION_LIFETIME
@@ -72,9 +86,27 @@ if (isAdminLoggedIn()) {
     $_SESSION['admin_last_activity'] = time();
 }
 
-// Log documentation actions
+/**
+ * Log documentation actions
+ * @param string $action The action to log
+ * @param bool $success Whether the action was successful
+ */
 function logDocAction($action, $success = true) {
     global $config;
+    
+    // Safety check - ensure log file path exists
+    if (empty($config) || empty($config['log_file'])) {
+        // Fallback log path
+        $log_file = ROOT_DIR . '/logs/documentation_activity.log';
+    } else {
+        $log_file = $config['log_file'];
+    }
+    
+    // Make sure logs directory exists
+    $logsDir = dirname($log_file);
+    if (!is_dir($logsDir)) {
+        @mkdir($logsDir, 0755, true);
+    }
     
     $timestamp = date('Y-m-d H:i:s');
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
@@ -82,16 +114,24 @@ function logDocAction($action, $success = true) {
     $status = $success ? 'SUCCESS' : 'FAILED';
     
     $logEntry = "[$timestamp] [$status] [IP: $ip] [User: $user] $action" . PHP_EOL;
-    file_put_contents($config['log_file'], $logEntry, FILE_APPEND);
+    @file_put_contents($log_file, $logEntry, FILE_APPEND);
 }
 
-// Get a list of all documentation files
+/**
+ * Get a list of all documentation files
+ * @return array List of documentation files with metadata
+ */
 function getDocumentationFiles() {
     global $config;
     
     $files = [];
     
-    if (is_dir($config['docs_dir'])) {
+    // Safety check
+    if (empty($config) || empty($config['docs_dir']) || !is_dir($config['docs_dir'])) {
+        return $files;
+    }
+    
+    try {
         $dirContent = scandir($config['docs_dir']);
         
         foreach ($dirContent as $file) {
@@ -126,18 +166,28 @@ function getDocumentationFiles() {
             // If order is the same, sort by title alphabetically
             return strcmp($a['title'], $b['title']);
         });
+    } catch (Exception $e) {
+        // Handle any errors silently
+        error_log("Error getting documentation files: " . $e->getMessage());
     }
     
     return $files;
 }
 
-// Extract order number from document content
+/**
+ * Extract order number from document content
+ * @param string $filePath Path to the document file
+ * @return int Order number (999 if not found)
+ */
 function getDocumentOrder($filePath) {
     if (!file_exists($filePath)) {
         return 999; // Default high number for new files
     }
     
-    $content = file_get_contents($filePath);
+    $content = @file_get_contents($filePath);
+    if ($content === false) {
+        return 999;
+    }
     
     // Look for [ORDER: X] where X is a number
     if (preg_match('/\[ORDER:\s*(\d+)\]/i', $content, $matches)) {
@@ -147,13 +197,20 @@ function getDocumentOrder($filePath) {
     return 999; // Default high number if no order found
 }
 
-// Extract a title from the markdown file (first heading)
+/**
+ * Extract a title from the markdown file (first heading)
+ * @param string $filePath Path to the document file
+ * @return string Document title
+ */
 function getDocumentTitle($filePath) {
     if (!file_exists($filePath)) {
         return pathinfo($filePath, PATHINFO_FILENAME);
     }
     
-    $content = file_get_contents($filePath);
+    $content = @file_get_contents($filePath);
+    if ($content === false) {
+        return pathinfo($filePath, PATHINFO_FILENAME);
+    }
     
     // Look for the first heading (# Title)
     if (preg_match('/^#\s+(.+)$/m', $content, $matches)) {
@@ -164,7 +221,11 @@ function getDocumentTitle($filePath) {
     return pathinfo($filePath, PATHINFO_FILENAME);
 }
 
-// This will remove [ORDER: X] tags and process the markdown
+/**
+ * Convert markdown to HTML
+ * @param string $markdown Markdown content
+ * @return string HTML content
+ */
 function markdownToHtml($markdown) {
     // Remove order tags before processing
     $markdown = preg_replace('/\[ORDER:\s*\d+\]/i', '', $markdown);
@@ -180,7 +241,11 @@ function markdownToHtml($markdown) {
     }
 }
 
-// Sanitize filenames to prevent directory traversal attacks
+/**
+ * Sanitize filenames to prevent directory traversal attacks
+ * @param string $filename Filename to sanitize
+ * @return string Sanitized filename
+ */
 function sanitizeFilename($filename) {
     // Remove any path information
     $filename = basename($filename);
@@ -220,7 +285,7 @@ if (isset($_GET['edit'])) {
         $filePath = $config['docs_dir'] . '/' . $filename;
         
         if (file_exists($filePath)) {
-            $docContent = file_get_contents($filePath);
+            $docContent = @file_get_contents($filePath);
             $title = getDocumentTitle($filePath);
             
             // Remove the title from the content (first line with # heading)
@@ -251,7 +316,7 @@ if (isAdminLoggedIn()) {
             // Add document title as first line heading and add order tag
             $fullContent = "# {$title}\n\n[ORDER: {$order}]\n\n{$content}";
             
-            if (file_put_contents($filePath, $fullContent)) {
+            if (@file_put_contents($filePath, $fullContent)) {
                 $actionMessage = "Document '{$title}' created successfully.";
                 $actionMessageType = 'success';
                 logDocAction("Created document: {$filename}");
@@ -294,7 +359,7 @@ if (isAdminLoggedIn()) {
                 // Add document title as first line heading
                 $fullContent = "# {$title}\n\n{$orderTag}{$content}";
                 
-                if (file_put_contents($filePath, $fullContent)) {
+                if (@file_put_contents($filePath, $fullContent)) {
                     $actionMessage = "Document '{$title}' updated successfully.";
                     $actionMessageType = 'success';
                     logDocAction("Updated document: {$filename}");
@@ -317,7 +382,7 @@ if (isAdminLoggedIn()) {
         $filename = sanitizeFilename($_POST['doc_filename']);
         $filePath = $config['docs_dir'] . '/' . $filename;
         
-        if (file_exists($filePath) && unlink($filePath)) {
+        if (file_exists($filePath) && @unlink($filePath)) {
             $actionMessage = "Document '{$filename}' deleted successfully.";
             $actionMessageType = 'success';
             logDocAction("Deleted document: {$filename}");
@@ -337,7 +402,7 @@ if (isAdminLoggedIn()) {
         
         if (file_exists($filePath)) {
             $isViewMode = false;
-            $docContent = file_get_contents($filePath);
+            $docContent = @file_get_contents($filePath);
             $title = getDocumentTitle($filePath);
             
             // Remove the title from the content (first line with # heading)
@@ -363,7 +428,7 @@ if (isset($_GET['doc']) && !empty($_GET['doc'])) {
 if ($isViewMode && !empty($activeDoc)) {
     $docPath = $config['docs_dir'] . '/' . $activeDoc;
     if (file_exists($docPath)) {
-        $markdownContent = file_get_contents($docPath);
+        $markdownContent = @file_get_contents($docPath);
         $docContent = markdownToHtml($markdownContent);
     }
 }
@@ -410,7 +475,7 @@ You can add various components to your form:
 Check out our documentation for more detailed guides, or contact the administrator if you have any questions.
 EOT;
 
-        if (file_put_contents($defaultDocPath, $defaultContent)) {
+        if (@file_put_contents($defaultDocPath, $defaultContent)) {
             // Refresh file list
             $documentFiles = getDocumentationFiles();
             
@@ -422,7 +487,8 @@ EOT;
             
             logDocAction("Created default 'Getting Started' document");
 
-            header('Location: documentation.php');
+            header('Location: docs');
+            exit;
         }
     }
 }
@@ -435,7 +501,7 @@ ob_start();
     <header>
         <div class="d-flex">
             <h1>
-                <a href="index.php" class="text-decoration-none">
+                <a href="<?php echo site_url(); ?>" class="text-decoration-none">
                     <i class="bi bi-arrow-left-circle"></i>
                 </a> 
                 <?php echo SITE_NAME; ?> Documentation
@@ -516,7 +582,7 @@ ob_start();
                     <h3><?php echo isset($_GET['edit']) && $_GET['edit'] !== 'new' ? 'Edit Document' : 'Create New Document'; ?></h3>
                 </div>
                 <div class="card-body">
-                    <form method="post" action="documentation.php">
+                    <form method="post" action="docs">
                         <?php if (isset($_GET['edit']) && $_GET['edit'] !== 'new'): ?>
                             <input type="hidden" name="doc_filename" value="<?php echo htmlspecialchars($_GET['edit']); ?>">
                         <?php endif; ?>
@@ -588,7 +654,7 @@ ob_start();
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            <form method="post" action="documentation.php">
+                            <form method="post" action="docs">
                                 <input type="hidden" name="doc_filename" value="<?php echo htmlspecialchars($_GET['edit']); ?>">
                                 <button type="submit" name="delete_doc" class="btn btn-danger">Delete Document</button>
                             </form>
@@ -653,7 +719,7 @@ code block
         <?php else: ?>
             <div class="alert alert-danger">
                 You must be logged in as an administrator to edit documentation.
-                <a href="admin.php" class="alert-link">Log in here</a>.
+                <a href="<?php echo site_url('admin'); ?>" class="alert-link">Log in here</a>.
             </div>
         <?php endif; ?>
     <?php endif; ?>
@@ -667,4 +733,4 @@ $GLOBALS['page_content'] = ob_get_clean();
 $GLOBALS['page_title'] = 'Documentation';
 
 // Include the master layout
-require_once BASE_DIR . '/includes/master.php';
+require_once ROOT_DIR . '/includes/master.php';

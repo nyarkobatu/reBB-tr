@@ -4,7 +4,6 @@
  * 
  * This file serves as the entry point for the application.
  */
-require_once 'kernel.php';
 
 // Define the page content to be yielded in the master layout
 ob_start();
@@ -25,7 +24,7 @@ ob_start();
         </div>
 
         <div class="mt-3">
-            <a href="<?php echo SITE_URL; ?>/documentation.php" class="btn btn-info btn-block">
+            <a href="<?php echo site_url('docs'); ?>" class="btn btn-info btn-block">
                 <i class="bi bi-book"></i> Documentation
             </a>
         </div>
@@ -37,11 +36,11 @@ ob_start();
 $GLOBALS['page_content'] = ob_get_clean();
 
 // Add page-specific JavaScript
-$site_url = SITE_URL;
+$site_url = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS
 var current_header = "$site_url";
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. ASSETS_DIR .'/js/app/index.js?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/index.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
-require_once BASE_DIR . '/includes/master.php';
+require_once ROOT_DIR . '/includes/master.php';

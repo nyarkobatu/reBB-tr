@@ -8,8 +8,24 @@
  */
 
 // Define the base path for the application
+if (!defined('APP_VERSION')) {
+    define('APP_VERSION', 'v1.3.10');
+}
+
+// Define the base path for the application
 if (!defined('BASE_DIR')) {
     define('BASE_DIR', dirname(__FILE__));
+}
+
+// Define the root directory (project root)
+if (!defined('ROOT_DIR')) {
+    // If BASE_DIR is pointing to /public/, move up one level
+    if (basename(BASE_DIR) === 'public') {
+        define('ROOT_DIR', dirname(BASE_DIR));
+    } else {
+        // Otherwise, assume BASE_DIR is already at the root
+        define('ROOT_DIR', BASE_DIR);
+    }
 }
 
 /**
@@ -89,25 +105,24 @@ function kernel_panic($message) {
 }
 
 // Attempt to load configuration
-if (!file_exists(BASE_DIR . '/includes/config.php')) {
+if (!file_exists(ROOT_DIR . '/includes/config.php')) {
     kernel_panic('Critical error: Configuration file not found (/includes/config.php)');
 }
 
 // Attempt to load autoload
-if (!file_exists(BASE_DIR . '/includes/autoload.php')) {
-    kernel_panic('Critical error: Configuration file not found (/includes/autoload.php)');
+if (!file_exists(ROOT_DIR . '/core/autorun.php')) {
+    kernel_panic('Critical error: Autorun file not found (/core/autorun.php)');
 }
 
 // Include configuration file
-require_once BASE_DIR . '/includes/config.php';
-require_once BASE_DIR . '/includes/autoload.php';
+require_once ROOT_DIR . '/includes/config.php';
 
 // Verify that essential configuration constants are defined
 $required_constants = [
     'SITE_NAME',
     'SITE_URL',
     'SITE_DESCRIPTION',
-    'SITE_VERSION',
+    'APP_VERSION',
     'FOOTER_GITHUB',
     'ASSETS_DIR',
     'ENVIRONMENT',
@@ -139,9 +154,17 @@ if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
     ini_set('display_errors', 0);
 }
 
+// *** FIX: Start output buffering before session start to prevent headers already sent errors ***
+ob_start();
+
 // Initialize session if not already started
 if (session_status() === PHP_SESSION_NONE) {
-    session_start();
+    if (headers_sent($file, $line)) {
+        // Log this error instead of showing a warning
+        error_log("Warning: Headers already sent in $file:$line - Unable to start session");
+    } else {
+        @session_start();
+    }
 }
 
 // Set default timezone if specified in config
@@ -151,6 +174,12 @@ if (defined('TIMEZONE') && TIMEZONE) {
 
 // Additional kernel initialization can be added here
 // For example: autoloading, database connection, etc.
+
+// Load the core autorun file if it exists
+$autorun_file = ROOT_DIR . '/core/autorun.php';
+if (file_exists($autorun_file)) {
+    require_once $autorun_file;
+}
 
 // Kernel successfully initialized
 define('KERNEL_INITIALIZED', true);

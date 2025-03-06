@@ -28,7 +28,7 @@
     async function registerCustomComponents(builderOptions) {
         try {
             // Fetch the components.json file
-            const response = await fetch('components.json');
+            const response = await fetch('assets/components.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -244,7 +244,9 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const textToCopy = this.getAttribute('data-clipboard');
-                navigator.clipboard.writeText(textToCopy)
+                
+                // Try to copy text to clipboard using the best available method
+                copyToClipboard(textToCopy)
                     .then(() => {
                         // Show feedback that copy was successful
                         const originalIcon = this.innerHTML;
@@ -253,12 +255,51 @@
                             this.innerHTML = originalIcon;
                         }, 1000);
                     })
-                    .catch(err => console.error('Copy failed:', err));
+                    .catch(err => {
+                        console.error('Copy failed:', err);
+                        alert('Could not copy to clipboard. Please try selecting and copying manually.');
+                    });
             });
         });
         
         // Check for used wildcards in the template
         checkUsedWildcards();
+    }
+    
+    /**
+     * Cross-browser clipboard copy function
+     * @param {string} text - The text to copy
+     * @returns {Promise} - Resolves when copy is successful
+     */
+    function copyToClipboard(text) {
+        // Modern approach - Clipboard API (not supported in all browsers)
+        if (navigator && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+            return navigator.clipboard.writeText(text);
+        }
+        
+        // Fallback approach - Create a temporary element and copy from it
+        return new Promise((resolve, reject) => {
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';  // Avoid scrolling to bottom
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                
+                // Execute the copy command
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (successful) {
+                    resolve();
+                } else {
+                    reject(new Error('Unable to copy'));
+                }
+            } catch (err) {
+                reject(err);
+            }
+        });
     }
 
     function getComponentKeys(component) {
@@ -388,7 +429,7 @@
             // Get the last returned CSRF token if it exists
             const csrfToken = window.lastCsrfToken || '';
 
-            const response = await fetch('ajax.php', {
+            const response = await fetch('ajax', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -408,8 +449,15 @@
                 window.lastCsrfToken = data.csrf_token;
             }
 
-            const formId = data.filename.replace('forms/', '').replace('_schema.json', '');
-            const shareUrl = siteURL + `/form.php?f=${formId}`;
+            // FIXED: Extract just the form ID from the filename
+            let formId = data.filename.replace('forms/', '').replace('_schema.json', '');
+            
+            // Make sure we don't include any directory paths in the formId
+            if (formId.includes('/') || formId.includes('\\')) {
+                formId = formId.split(/[\/\\]/).pop();
+            }
+            
+            const shareUrl = siteURL + `form?f=${formId}`;
 
             document.getElementById('shareable-link').textContent = shareUrl;
             document.getElementById('shareable-link').href = shareUrl;

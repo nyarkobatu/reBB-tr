@@ -4,7 +4,6 @@
  * 
  * This file serves as the renderer for the form builder.
  */
-require_once 'kernel.php';
 
 $existingSchema = null;
 $existingFormName = '';
@@ -12,7 +11,7 @@ $existingTemplate = '';
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
     $formId = $_GET['f'];
-    $filename = 'forms/' . $formId . '_schema.json';
+    $filename = ROOT_DIR . '/forms/' . $formId . '_schema.json';
 
     if (file_exists($filename)) {
         $fileContent = file_get_contents($filename);
@@ -83,14 +82,14 @@ $GLOBALS['page_settings'] = [
 // Add page-specific JavaScript
 $existingSchema = $existingSchema ? $existingSchema : 'null';
 $existingTemplate = json_encode($existingTemplate, JSON_UNESCAPED_SLASHES);
-$siteURL = SITE_URL;
+$siteURL = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
 let existingTemplatePHP = $existingTemplate;
 let siteURL = "$siteURL";
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. ASSETS_DIR .'/js/app/builder.js?v=' . SITE_VERSION . '"></script>';
+$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>';
 
 // Include the master layout
-require_once BASE_DIR . '/includes/master.php';
+require_once ROOT_DIR . '/includes/master.php';
