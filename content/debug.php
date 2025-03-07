@@ -8,11 +8,6 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Define the base path if not already defined
-if (!defined('PUBLIC_DIR')) {
-    define('PUBLIC_DIR', __DIR__);
-}
-
 // Function to check if a file exists and is readable
 function check_file($path, $label = '') {
     echo "<li>";
@@ -68,7 +63,7 @@ function check_mod_rewrite() {
 
 // Fix for the router - simplified version
 function fix_router() {
-    $router_file = BASE_DIR . '/core/routing.php';
+    $router_file = ROOT_DIR . '/core/routing.php';
     if (file_exists($router_file) && is_writable($router_file)) {
         $content = file_get_contents($router_file);
         
@@ -92,8 +87,8 @@ function fix_router() {
         
         // Fix 3: Make sure we're checking file existence correctly in content directory
         $fixed_content = str_replace(
-            '$view_path = BASE_DIR . \'/content/\' . $view . \'.php\';',
-            '$view_path = BASE_DIR . \'/content/\' . ltrim($view, \'/\') . \'.php\';',
+            '$view_path = ROOT_DIR . \'/content/\' . $view . \'.php\';',
+            '$view_path = ROOT_DIR . \'/content/\' . ltrim($view, \'/\') . \'.php\';',
             $fixed_content
         );
         
@@ -130,7 +125,7 @@ echo "<!DOCTYPE html>
     <h1>reBB Routing Debugger</h1>";
 
 // Check if config.php exists and try to load it
-$config_file = BASE_DIR . '/includes/config.php';
+$config_file = ROOT_DIR . '/includes/config.php';
 if (file_exists($config_file)) {
     try {
         include_once $config_file;
@@ -167,27 +162,27 @@ echo "</ul></div>";
 echo "<div class='block'>
     <h2>Directory Structure Check</h2>
     <ul>";
-check_directory(BASE_DIR, 'Root');
-check_directory(BASE_DIR . '/public', 'Public');
-check_directory(BASE_DIR . '/core', 'Core');
-check_directory(BASE_DIR . '/content', 'Content');
-check_directory(BASE_DIR . '/includes', 'Includes');
+check_directory(ROOT_DIR, 'Root');
+check_directory(PUBLIC_DIR, 'Public');
+check_directory(ROOT_DIR . '/core', 'Core');
+check_directory(ROOT_DIR . '/content', 'Content');
+check_directory(ROOT_DIR . '/includes', 'Includes');
 echo "</ul></div>";
 
 // Critical Files Check
 echo "<div class='block'>
     <h2>Critical Files Check</h2>
     <ul>";
-check_file(BASE_DIR . '/.htaccess', 'Root .htaccess');
-check_file(BASE_DIR . '/public/.htaccess', 'Public .htaccess');
-check_file(BASE_DIR . '/public/index.php', 'Main entry point');
-check_file(BASE_DIR . '/kernel.php', 'Kernel');
-check_file(BASE_DIR . '/core/autorun.php', 'Autorun');
-check_file(BASE_DIR . '/core/routing.php', 'Router');
-check_file(BASE_DIR . '/core/helpers.php', 'Helpers');
-check_file(BASE_DIR . '/routes.php', 'Routes');
-check_file(BASE_DIR . '/content/index.php', 'Home view');
-check_file(BASE_DIR . '/content/errors/404.php', '404 error view');
+check_file(ROOT_DIR . '/.htaccess', 'Root .htaccess');
+check_file(PUBLIC_DIR . '/.htaccess', 'Public .htaccess');
+check_file(PUBLIC_DIR . '/index.php', 'Main entry point');
+check_file(ROOT_DIR . '/kernel.php', 'Kernel');
+check_file(ROOT_DIR . '/core/autorun.php', 'Autorun');
+check_file(ROOT_DIR . '/core/routing.php', 'Router');
+check_file(ROOT_DIR . '/core/helpers.php', 'Helpers');
+check_file(ROOT_DIR . '/routes.php', 'Routes');
+check_file(ROOT_DIR . '/content/front-page.php', 'Home view');
+check_file(ROOT_DIR . '/content/errors/404.php', '404 error view');
 echo "</ul></div>";
 
 // File Content Check
@@ -195,7 +190,7 @@ echo "<div class='block'>
     <h2>File Content Check</h2>";
 
 // Check public/.htaccess
-$htaccess_path = BASE_DIR . '/public/.htaccess';
+$htaccess_path = PUBLIC_DIR . '/.htaccess';
 if (file_exists($htaccess_path) && is_readable($htaccess_path)) {
     echo "<h3>public/.htaccess content:</h3>";
     echo "<pre>" . htmlspecialchars(file_get_contents($htaccess_path)) . "</pre>";
@@ -211,7 +206,7 @@ if (file_exists($htaccess_path) && is_readable($htaccess_path)) {
 }
 
 // Check routes.php
-$routes_path = BASE_DIR . '/routes.php';
+$routes_path = ROOT_DIR . '/routes.php';
 if (file_exists($routes_path) && is_readable($routes_path)) {
     echo "<h3>routes.php content:</h3>";
     echo "<pre>" . htmlspecialchars(file_get_contents($routes_path)) . "</pre>";

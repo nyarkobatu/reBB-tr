@@ -13,7 +13,7 @@ legacy('documentation.php', 'docs');
 
 // Home page
 get('/', function() {
-    view('index');
+    view('front-page');
 });
 
 // Form page
@@ -23,7 +23,7 @@ get('/form', function() {
 
 // Form with ID
 get('/form/:id', function($params) {
-    $_GET['f'] = $params['id']; // Set the form ID in $_GET for backward compatibility
+    $_GET['f'] = $params['id'];
     view('form');
 });
 
@@ -34,33 +34,32 @@ get('/builder', function() {
 
 // Builder with ID
 get('/builder/:id', function($params) {
-    $_GET['f'] = $params['id']; // Set the form ID in $_GET for backward compatibility
+    $_GET['f'] = $params['id'];
     view('builder');
 });
 
-// Ajax endpoint - handle both GET and POST
 any('/ajax', function() {
     view('ajax');
 });
 
 // Admin page
-get('/admin', function() {
-    view('admin');
-});
-post('/admin', function() {
+any('/admin', function() {
     view('admin');
 });
 
 // Documentation page
-get('/docs', function() {
-    view('documentation');
-});
-post('/docs', function() {
+any('/docs', function() {
     view('documentation');
 });
 
 // Documentation with ID
 get('/docs/:id', function($params) {
-    $_GET['doc'] = $params['id']; // Set the doc ID in $_GET for backward compatibility
+    $_GET['doc'] = $params['id'];
     view('documentation');
 });
+
+if(DEBUG_MODE === true) {
+    get('/debug', function() {
+        view('debug');
+    });
+}
