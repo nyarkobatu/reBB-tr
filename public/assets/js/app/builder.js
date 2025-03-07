@@ -193,6 +193,7 @@
         helpText.style.display = 'none'; // Hidden by default
         helpText.innerHTML = '<small><strong>Note:</strong> Dataset wildcards (highlighted in red) must be included in your template before saving. They define where repeating content will appear.</small>';
         wildcardContainer.appendChild(helpText);
+        enhanceBuilderInit();
     }
 
     function generateUniqueId() {
@@ -419,11 +420,15 @@
         }
     }
 
+    // Updates to builder.js for the form style selector
+
+    // Add to the saveForm function to include style selection
     async function saveForm() {
         const formSchema = builderInstance?.form;
         if (!formSchema) return alert('No form schema found');
 
         const formName = formNameInput.value;
+        const formStyle = document.querySelector('input[name="formStyle"]:checked').value;
 
         try {
             // Get the last returned CSRF token if it exists
@@ -437,6 +442,7 @@
                     schema: formSchema,
                     template: templateInput.value,
                     formName: formName,
+                    formStyle: formStyle, // Add the form style
                     csrf_token: csrfToken // Include CSRF token
                 })
             });
@@ -449,7 +455,7 @@
                 window.lastCsrfToken = data.csrf_token;
             }
 
-            // FIXED: Extract just the form ID from the filename
+            // Extract just the form ID from the filename
             let formId = data.filename.replace('forms/', '').replace('_schema.json', '');
             
             // Make sure we don't include any directory paths in the formId
@@ -467,5 +473,98 @@
             console.error('Save error:', error);
             alert('Error saving form: ' + (error.message || 'Unknown error'));
         }
+    }
+
+    // Updates to builder.js for the form style selector
+
+    // Add to the saveForm function to include style selection
+    async function saveForm() {
+        const formSchema = builderInstance?.form;
+        if (!formSchema) return alert('No form schema found');
+
+        const formName = formNameInput.value;
+        const formStyle = document.querySelector('input[name="formStyle"]:checked').value;
+
+        try {
+            // Get the last returned CSRF token if it exists
+            const csrfToken = window.lastCsrfToken || '';
+
+            const response = await fetch('ajax', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'schema',
+                    schema: formSchema,
+                    template: templateInput.value,
+                    formName: formName,
+                    formStyle: formStyle, // Add the form style
+                    csrf_token: csrfToken // Include CSRF token
+                })
+            });
+
+            const data = await response.json();
+            if (!data.success) throw new Error(data.error);
+
+            // Store the new CSRF token for next request
+            if (data.csrf_token) {
+                window.lastCsrfToken = data.csrf_token;
+            }
+
+            // Extract just the form ID from the filename
+            let formId = data.filename.replace('forms/', '').replace('_schema.json', '');
+            
+            // Make sure we don't include any directory paths in the formId
+            if (formId.includes('/') || formId.includes('\\')) {
+                formId = formId.split(/[\/\\]/).pop();
+            }
+            
+            const shareUrl = siteURL + `form?f=${formId}`;
+
+            document.getElementById('shareable-link').textContent = shareUrl;
+            document.getElementById('shareable-link').href = shareUrl;
+            document.getElementById('go-to-form-button').href = shareUrl;
+            document.getElementById('success-message').style.display = 'block';
+        } catch (error) {
+            console.error('Save error:', error);
+            alert('Error saving form: ' + (error.message || 'Unknown error'));
+        }
+    }
+
+    // Add an initialization function to set the form style when editing an existing form
+    function initFormStyle() {
+        if (typeof existingFormStyle !== 'undefined' && existingFormStyle) {
+            const styleRadio = document.querySelector(`input[name="formStyle"][value="${existingFormStyle}"]`);
+            if (styleRadio) {
+                styleRadio.checked = true;
+            }
+        }
+    }
+
+    // Call this after the form builder is initialized
+    function enhanceBuilderInit() {
+        // Set up the form style radio buttons for better UX
+        document.querySelectorAll('.style-option').forEach(option => {
+            option.addEventListener('click', function(e) {
+                // If clicking on the div but not directly on the radio button, check the radio button
+                if (e.target.type !== 'radio') {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        // Uncheck all other radio buttons first
+                        document.querySelectorAll('input[name="formStyle"]').forEach(r => {
+                            r.checked = false;
+                        });
+                        
+                        // Check this radio button
+                        radio.checked = true;
+                        
+                        // Trigger a change event to ensure any listeners are notified
+                        radio.dispatchEvent(new Event('change'));
+                    }
+                }
+            });
+        });
+
+        // Initialize form style from existing data
+        initFormStyle();
     }
 })();

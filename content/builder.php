@@ -8,6 +8,7 @@
 $existingSchema = null;
 $existingFormName = '';
 $existingTemplate = '';
+$existingFormStyle = 'default'; // Default style
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
     $formId = $_GET['f'];
@@ -20,6 +21,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             $existingSchema = json_encode($formData['schema']);
             $existingFormName = isset($formData['formName']) ? $formData['formName'] : '';
             $existingTemplate = isset($formData['template']) ? $formData['template'] : '';
+            $existingFormStyle = isset($formData['formStyle']) ? $formData['formStyle'] : 'default';
         }
     }
 }
@@ -34,6 +36,38 @@ ob_start();
     <div id='form-name-container' style="margin-top: 20px;">
         <h3>Form Name:</h3>
         <input type='text' id='formName' class='form-control' placeholder='Enter form name' value="<?php echo htmlspecialchars($existingFormName); ?>">
+    </div>
+
+    <div id='form-style-container' style="margin-top: 20px;">
+        <h3>Form Style:</h3>
+        <div class="form-style-options">
+            <label class="style-option" for="styleDefault">
+                <input class="form-check-input" type="radio" name="formStyle" id="styleDefault" value="default" checked>
+                <span class="form-check-label">Default</span>
+                <div class="style-tooltip">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="tooltip-content">
+                        <p>Standard form layout with clean design.</p>
+                        <div class="tooltip-image">
+                            <img src="<?php echo asset_path('images/form-types/default.png'); ?>" alt="Default style preview">
+                        </div>
+                    </div>
+                </div>
+            </label>
+            <label class="style-option" for="stylePaperwork">
+                <input class="form-check-input" type="radio" name="formStyle" id="stylePaperwork" value="paperwork">
+                <span class="form-check-label">Paperwork</span>
+                <div class="style-tooltip">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="tooltip-content">
+                        <p>Form styled like an official document or paperwork.</p>
+                        <div class="tooltip-image">
+                            <img src="<?php echo asset_path('images/form-types/paperwork.png'); ?>" alt="Paperwork style preview">
+                        </div>
+                    </div>
+                </div>
+            </label>
+        </div>
     </div>
 
     <div id='template-container'>
@@ -85,11 +119,13 @@ $GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/bu
 // Add page-specific JavaScript
 $existingSchema = $existingSchema ? $existingSchema : 'null';
 $existingTemplate = json_encode($existingTemplate, JSON_UNESCAPED_SLASHES);
+$existingStyleJS = json_encode($existingFormStyle);
 $siteURL = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
 let existingTemplatePHP = $existingTemplate;
+let existingFormStyle = $existingStyleJS;
 let siteURL = "$siteURL";
 JSVARS;
 $GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>';

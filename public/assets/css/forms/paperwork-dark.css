@@ -1,0 +1,149 @@
+/**
+ * reBB - Paperwork Form Dark Mode Style
+ * Based on official document styling with dark mode colors
+ */
+
+/* Override base container styling for dark mode */
+body.dark-mode #form-container {
+    background-color: #1e1e1e;
+    border-color: #444;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    color: #e0e0e0;
+}
+
+/* Title styling for dark mode */
+body.dark-mode #form-container h2 {
+    color: #e0e0e0;
+}
+
+/* Component container styling */
+body.dark-mode .formio-component-fieldset {
+    border-color: #444;
+    background-color: #2a2a2a;
+}
+
+/* Legend styling */
+body.dark-mode .formio-component-fieldset legend {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+/* Label styling for dark mode */
+body.dark-mode .formio-component label {
+    color: #ccc;
+}
+
+/* Input styling for dark mode */
+body.dark-mode .form-control,
+body.dark-mode input.form-control,
+body.dark-mode textarea.form-control,
+body.dark-mode select.form-control {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-control:focus {
+    border-color: #777;
+    box-shadow: 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
+/* Placeholder text for dark mode */
+body.dark-mode .form-control::placeholder {
+    color: #888;
+}
+
+/* Table styling for dark mode */
+body.dark-mode .table th {
+    background-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .table td {
+    border-top-color: #555;
+}
+
+/* Data Grid styling for dark mode */
+body.dark-mode .formio-component-datagrid .table {
+    border-color: #555;
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .formio-component-datagrid .table th {
+    background-color: #444;
+}
+
+/* Button styling for dark mode */
+body.dark-mode .btn-primary {
+    background-color: #3572b0;
+    border-color: #3572b0;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #285e8e;
+    border-color: #285e8e;
+}
+
+/* Output area styling for dark mode */
+body.dark-mode #output-container {
+    border-color: #444;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+}
+
+body.dark-mode #output-container h4 {
+    color: #ccc;
+}
+
+body.dark-mode #output {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+/* Copy button styling for dark mode */
+body.dark-mode #copyOutputBtn {
+    background-color: #3572b0;
+    border-color: #3572b0;
+}
+
+body.dark-mode #copyOutputBtn:hover {
+    background-color: #285e8e;
+    border-color: #285e8e;
+}
+
+/* Reset button styling for dark mode */
+body.dark-mode .reset-button {
+    background-color: #a94442;
+}
+
+body.dark-mode .reset-button:hover {
+    background-color: #d9534f;
+}
+
+/* Checkbox styling for dark mode */
+body.dark-mode .form-check-input {
+    background-color: #333;
+    border-color: #555;
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: #3572b0;
+    border-color: #3572b0;
+}
+
+/* Form validation for dark mode */
+body.dark-mode .has-error .form-control {
+    border-color: #a94442;
+}
+
+body.dark-mode .has-error .help-block {
+    color: #a94442;
+}
+
+body.dark-mode .alert-danger {
+    background-color: #462c2e;
+    border-color: #a94442;
+    color: #e0e0e0;
+}

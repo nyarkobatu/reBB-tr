@@ -46,7 +46,7 @@ if ($isJsonRequest) {
             $formData = json_decode($fileContents, true);
             $formSchema = $formData['schema'] ?? null;
             $formTemplate = $formData['template'] ?? '';
-            $formStyle = $formData['style'] ?? 'default';
+            $formStyle = $formData['formStyle'] ?? 'default';
             $formNameDisplay = $formData['formName'] ?? '';
 
             // Check for sensitive keywords in formSchema
@@ -136,12 +136,14 @@ $GLOBALS['page_settings'] = [
     'footer' => 'form'
 ];
 
-// Add form-specific CSS based on formStyle
-$formStyleCSS = '';
 if ($formStyle === 'default') {
     // Include both the default CSS and the dark mode version
     $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/default.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
     $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/default-dark.css') .'?v=' . APP_VERSION . '">';
+} elseif ($formStyle === 'paperwork') {
+    // Include both the paperwork CSS and the dark mode version
+    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/paperwork.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
+    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/paperwork-dark.css') .'?v=' . APP_VERSION . '">';
 }
 $GLOBALS['page_css'] = $formStyleCSS;
 

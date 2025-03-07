@@ -132,6 +132,7 @@ if ($requestType === 'schema') {
     $formSchema = isset($requestData['schema']) ? $requestData['schema'] : null;
     $formTemplate = isset($requestData['template']) ? $requestData['template'] : ''; 
     $formName = isset($requestData['formName']) ? $requestData['formName'] : '';
+    $formStyle = isset($requestData['formStyle']) ? $requestData['formStyle'] : 'default'; // Get form style
 
     if ($formSchema === null) {
         logAttempt('No form schema data received');
@@ -150,6 +151,12 @@ if ($requestType === 'schema') {
     // Sanitize template to prevent malicious content
     $formTemplate = htmlspecialchars($formTemplate, ENT_QUOTES, 'UTF-8');
     
+    // Validate form style (only allow valid options)
+    $allowedStyles = ['default', 'paperwork'];
+    if (!in_array($formStyle, $allowedStyles)) {
+        $formStyle = 'default'; // Default fallback
+    }
+    
     $filename = $formsDir . '/' . $randomString . '_schema.json';
     $fileContent = json_encode([
         'success' => true,
@@ -157,6 +164,7 @@ if ($requestType === 'schema') {
         'formName' => $formName,
         'schema' => $formSchema,
         'template' => $formTemplate,
+        'formStyle' => $formStyle, // Include form style in the saved data
     ], JSON_PRETTY_PRINT);
 
     if (!file_put_contents($filename, $fileContent)) {
