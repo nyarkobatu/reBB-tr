@@ -225,3 +225,8 @@ select.form-control {
         font-size: 14px;
     }
 }
+
+/* DataGrid specific styling */
+.formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}
