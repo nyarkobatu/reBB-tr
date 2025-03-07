@@ -8,11 +8,17 @@ body {
     width: 100%;
 }
 
-.container {
+/* Change the generic container to be specific to the home page */
+.container.home-container {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-grow: 1;
+}
+
+/* Keep a generic container style for backward compatibility, but with minimal styling */
+.container {
+    width: 100%;
 }
 
 .form-box {

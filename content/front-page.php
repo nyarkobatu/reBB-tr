@@ -9,7 +9,7 @@
 ob_start();
 ?>
 
-<div class="container">
+<div class="container home-container">
     <div class="form-box">
         <h2 class="text-center mb-4"><?php echo SITE_NAME; ?></h2>
         <button id="createFormBtn" class="btn btn-primary btn-block">Create a form</button>
