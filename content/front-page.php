@@ -9,24 +9,71 @@
 ob_start();
 ?>
 
-<div class="container home-container">
-    <div class="form-box">
-        <h2 class="text-center mb-4"><?php echo SITE_NAME; ?></h2>
-        <button id="createFormBtn" class="btn btn-primary btn-block">Create a form</button>
-        <button id="useFormBtn" class="btn btn-secondary btn-block">Use a form</button>
-
-        <div id="hashInputContainer">
-            <div class="form-group">
-                <label for="shareableHash">Form:</label>
-                <input type="text" class="form-control" id="shareableHash" placeholder="Enter the hash/id for the form you wish to use">
+<div class="landing-page">
+    <!-- Animated gradient background -->
+    <div class="gradient-background"></div>
+    
+    <div class="landing-container">
+        <!-- Version badge -->
+        <div class="version-badge"><?php echo APP_VERSION; ?></div>
+        
+        <!-- Left side with description -->
+        <div class="landing-info">
+            <h1><?php echo SITE_NAME; ?></h1>
+            <p class="tagline">BBCode done differently</p>
+            
+            <div class="description">
+                <p>Create custom forms without any coding knowledge. Generate structured BBCode content with a simple drag-and-drop interface.</p>
+                <ul>
+                    <li><i class="bi bi-check-circle"></i> Easy form creation</li>
+                    <li><i class="bi bi-check-circle"></i> Shareable unique URLs</li>
+                    <li><i class="bi bi-check-circle"></i> Customizable templates</li>
+                    <li><i class="bi bi-check-circle"></i> Consistent formatted output</li>
+                </ul>
             </div>
-            <button id="submitHashBtn" class="btn btn-success btn-block">Submit</button>
+            
+            <div class="docs-link">
+                <a href="<?php echo site_url('docs'); ?>">
+                    <i class="bi bi-book"></i> Learn more in our documentation
+                </a>
+            </div>
         </div>
-
-        <div class="mt-3">
-            <a href="<?php echo site_url('docs'); ?>" class="btn btn-info btn-block">
-                <i class="bi bi-book"></i> Documentation
-            </a>
+        
+        <!-- Right side with form actions -->
+        <div class="landing-actions">
+            <div class="actions-card">
+                <h2>Get Started</h2>
+                
+                <button id="createFormBtn" class="btn btn-primary btn-action">
+                    <i class="bi bi-plus-circle"></i> Create a form
+                </button>
+                
+                <button id="useFormBtn" class="btn btn-secondary btn-action">
+                    <i class="bi bi-box-arrow-in-right"></i> Use a form
+                </button>
+                
+                <div id="hashInputContainer" class="hash-input-container">
+                    <div class="form-group">
+                        <label for="shareableHash">Form ID or URL:</label>
+                        <input type="text" class="form-control" id="shareableHash" placeholder="Enter the form ID">
+                    </div>
+                    <button id="submitHashBtn" class="btn btn-success btn-action">
+                        <i class="bi bi-arrow-right-circle"></i> Continue
+                    </button>
+                </div>
+                
+                <div class="additional-links">
+                    <a href="<?php echo site_url('docs'); ?>" class="text-decoration-none">
+                        <i class="bi bi-question-circle"></i> How it works
+                    </a>
+                    <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank" class="text-decoration-none">
+                        <i class="bi bi-github"></i> GitHub
+                    </a>
+                    <a href="#" class="dark-mode-toggle text-decoration-none">
+                        <i class="bi bi-moon"></i> Dark Mode
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>

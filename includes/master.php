@@ -48,6 +48,34 @@ function get_page_title() {
     }
     return SITE_NAME . " - " . SITE_DESCRIPTION;
 }
+
+// Function to detect if current page is homepage
+function is_homepage() {
+    // Check if the current page is the home/front page
+    if (isset($GLOBALS['current_page']) && $GLOBALS['current_page'] === 'front-page') {
+        return true;
+    }
+    
+    // Check if we're at the root URL
+    $request_uri = $_SERVER['REQUEST_URI'];
+    $uri_parts = parse_url($request_uri);
+    $path = $uri_parts['path'] ?? '/';
+    
+    // Get the base path
+    $script_name = $_SERVER['SCRIPT_NAME'];
+    $dir_path = rtrim(dirname($script_name), '/\\');
+    
+    // Adjust path for subdirectory installations
+    if ($dir_path !== '' && $dir_path !== '/' && strpos($path, $dir_path) === 0) {
+        $path = substr($path, strlen($dir_path));
+    }
+    
+    // Clean path
+    $path = '/' . ltrim($path, '/');
+    
+    // Check if we're at the root
+    return ($path === '/' || $path === '/index.php');
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -72,26 +100,31 @@ function get_page_title() {
 <body>
     <?php yield_content(); ?>
 
-    <?php if (page_setting('footer', 'form')): ?>
-        <footer class="footer">
-            <p>Made using <a href="<?php echo site_url(); ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo APP_VERSION; ?></br>
-            <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
-                <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
-                <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
-                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
-            <?php else: ?>
-                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
-            <?php endif; ?>
-            <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
-        </footer>
-    <?php else: ?>
-        <footer class="footer">
-            <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
-            <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
-            <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
-            <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
-            <span style="font-size: 12px;"><?php echo APP_VERSION; ?></span></p>
-        </footer>
+    <?php 
+    // Only show footer if not on homepage
+    if (!is_homepage()): 
+    ?>
+        <?php if (page_setting('footer', 'form')): ?>
+            <footer class="footer">
+                <p>Made using <a href="<?php echo site_url(); ?>" target="_blank"><?php echo SITE_NAME; ?></a> <?php echo APP_VERSION; ?></br>
+                <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
+                    <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
+                    <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
+                    <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
+                <?php else: ?>
+                    <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
+                <?php endif; ?>
+                <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
+            </footer>
+        <?php else: ?>
+            <footer class="footer">
+                <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
+                <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
+                <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
+                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
+                <span style="font-size: 12px;"><?php echo APP_VERSION; ?></span></p>
+            </footer>
+        <?php endif; ?>
     <?php endif; ?>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
