@@ -1,0 +1,40 @@
+/**
+ * reBB - Homepage Styles
+ */
+
+/* Homepage container layout */
+.container.home-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}
+
+/* Homepage form box sizing */
+.home-container .form-box {
+    width: 400px;
+    max-width: 90%;
+}
+
+/* Form hash input area */
+#hashInputContainer {
+    display: none;
+    margin-top: 15px;
+}
+
+/* Button spacing */
+.home-container .btn-block {
+    margin-bottom: 12px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .home-container .form-box {
+        width: 100%;
+        padding: 15px;
+    }
+    
+    .home-container h2 {
+        font-size: 1.75rem;
+    }
+}

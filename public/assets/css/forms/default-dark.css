@@ -1,6 +1,6 @@
 /**
- * Form Default Dark Mode Style
- * Overrides dark-mode.css specifically for the default form style
+ * reBB - Default Form Dark Mode Style
+ * Overrides for the default form style in dark mode
  */
 
 /* Remove backgrounds from containers in dark mode */
@@ -48,11 +48,11 @@ body.dark-mode .formio-component-datagrid .datagrid-table tbody tr:first-child {
   display: none !important;
 }
 
-/* Alert containers should be visible but blend better */
+/* Alert containers should be visible but blend better
 body.dark-mode .alert {
   background-color: rgba(30, 30, 30, 0.7);
   border-color: #444;
-}
+}  */
 
 /* Make sure the text in form containers is still visible */
 body.dark-mode #form-container h1,

@@ -35,6 +35,9 @@ ob_start();
 // Store the content in a global variable
 $GLOBALS['page_content'] = ob_get_clean();
 
+// Add page-specific CSS
+$GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/front-page.css') .'?v=' . APP_VERSION . '">';
+
 // Add page-specific JavaScript
 $site_url = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS

@@ -723,5 +723,8 @@ $GLOBALS['page_content'] = ob_get_clean();
 // Define a page title
 $GLOBALS['page_title'] = 'Documentation';
 
+// Add page-specific CSS
+$GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/documentation.css') .'?v=' . APP_VERSION . '">';
+
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

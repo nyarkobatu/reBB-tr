@@ -1,0 +1,178 @@
+/**
+ * reBB - Documentation Page Styles
+ */
+
+/* Documentation container */
+.container.documentation-container {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Header styling */
+.documentation-container header {
+    width: 100%;
+    margin-bottom: 1.5rem;
+}
+
+.documentation-container header .d-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 1rem;
+}
+
+.documentation-container header h1 {
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+}
+
+.documentation-container header h1 a {
+    margin-right: 0.75rem;
+}
+
+/* Two-column layout */
+.doc-container {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    padding-right: 1rem;
+    border-right: 1px solid #dee2e6;
+    flex-shrink: 0;
+}
+
+.doc-content {
+    flex: 1;
+    padding-left: 2rem;
+    overflow-y: auto;
+}
+
+/* Documentation navigation */
+.doc-list {
+    list-style: none;
+    padding: 0;
+}
+
+.doc-list-item {
+    margin-bottom: 0.5rem;
+}
+
+.doc-list-item a {
+    display: block;
+    padding: 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.doc-list-item a:hover {
+    background-color: #f8f9fa;
+}
+
+.doc-list-item a.active {
+    background-color: #e9ecef;
+    font-weight: bold;
+}
+
+.doc-actions {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Markdown content styling */
+.markdown-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.markdown-content code {
+    padding: 0.2rem 0.4rem;
+    background-color: #f8f9fa;
+    border-radius: 3px;
+}
+
+.markdown-content pre {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+
+.markdown-content blockquote {
+    padding: 0.5rem 1rem;
+    border-left: 4px solid #dee2e6;
+    background-color: #f8f9fa;
+}
+
+/* Documentation editor styling */
+.documentation-container .card-documentation {
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.documentation-container .card-documentation .card-header {
+    padding: 1.25rem 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.documentation-container .card-documentation .card-body {
+    padding: 1.75rem;
+}
+
+.documentation-container .card-documentation textarea {
+    min-height: 300px;
+}
+
+.documentation-container .card-documentation .form-text {
+    margin-top: 0.25rem;
+    color: #6c757d;
+}
+
+.documentation-container .card-documentation .btn {
+    padding: 0.5rem 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .doc-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .doc-content {
+        padding-left: 0;
+    }
+    
+    .documentation-container header .d-flex {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .documentation-container header .d-flex a {
+        margin-top: 1rem;
+    }
+}

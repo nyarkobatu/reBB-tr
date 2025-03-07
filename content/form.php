@@ -128,7 +128,7 @@ ob_start();
 $GLOBALS['page_content'] = ob_get_clean();
 
 // Define a page title
-$GLOBALS['page_title'] = $formNameDisplay . ' - ' . SITE_NAME;
+$GLOBALS['page_title'] = $formNameDisplay;
 
 // Page-specific settings
 $GLOBALS['page_settings'] = [
@@ -140,8 +140,8 @@ $GLOBALS['page_settings'] = [
 $formStyleCSS = '';
 if ($formStyle === 'default') {
     // Include both the default CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/form-default.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/form-default-dark.css') .'?v=' . APP_VERSION . '">';
+    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/default.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
+    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/default-dark.css') .'?v=' . APP_VERSION . '">';
 }
 $GLOBALS['page_css'] = $formStyleCSS;
 

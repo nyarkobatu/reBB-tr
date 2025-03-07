@@ -1,0 +1,59 @@
+/**
+ * reBB - Form Display Page Styles
+ */
+
+/* Form container spacing */
+#form-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Output area styling */
+#output-container {
+    max-width: 800px;
+    margin: 20px auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Alert positioning */
+.alert {
+    max-width: 800px;
+    margin: 40px auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Copy button styling */
+#copyOutputBtn {
+    transition: all 0.2s ease;
+}
+
+#copyOutputBtn:hover {
+    background-color: #0069d9;
+}
+
+#copyOutputBtn .bi {
+    margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    #form-container,
+    #output-container {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    
+    #form-container h2 {
+        font-size: 1.5rem;
+    }
+    
+    #output-container h4 {
+        font-size: 1.2rem;
+    }
+}

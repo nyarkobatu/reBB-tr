@@ -1,4 +1,9 @@
-/* Dark Mode Styles */
+/**
+ * reBB - Global Dark Mode Styles
+ * These styles apply to the entire application when dark mode is enabled
+ */
+
+/* Base dark mode */
 body.dark-mode {
     background-color: #121212;
     color: #e0e0e0;
@@ -16,11 +21,8 @@ body.dark-mode h6 {
 
 /* Container/Form styles */
 body.dark-mode .form-box,
-body.dark-mode #form-container,
-body.dark-mode #output-container,
 body.dark-mode #content-wrapper,
-body.dark-mode .card,
-body.dark-mode .table {
+body.dark-mode .card {
     background-color: #1e1e1e;
     color: #e0e0e0;
 }
@@ -43,39 +45,103 @@ body.dark-mode textarea::placeholder {
     opacity: 1;
 }
 
-/* Builder specific */
-body.dark-mode #builder,
-body.dark-mode .formio-builder,
-body.dark-mode .formio-dialog .formio-dialog-content {
-    background-color: #1e1e1e;
+/* Table styling */
+body.dark-mode .table {
     color: #e0e0e0;
 }
 
-/* Formio specific elements */
-body.dark-mode .formio-component,
-body.dark-mode .formio-container,
-body.dark-mode .formio-form,
-body.dark-mode .formio-component-table .formio-table {
+body.dark-mode .table,
+body.dark-mode th,
+body.dark-mode td {
     background-color: #1e1e1e;
     color: #e0e0e0;
+    border-color: #444;
 }
 
-body.dark-mode .formio-component-datagrid .datagrid-add {
-    background-color: #2d2d2d;
+/* Handle striped tables */
+body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
+    background-color: #2a2a2a;
 }
 
-/* Builder sidebar text */
-body.dark-mode #builder-sidebar-build,
-body.dark-mode #builder-sidebar-build *,
-body.dark-mode .builder-sidebar,
-body.dark-mode .builder-sidebar *,
-body.dark-mode .formio-builder-panel-header,
-body.dark-mode .formio-builder-group-header,
-body.dark-mode .formio-builder-component {
-    color: #ffffff;
+/* Handle hover effect */
+body.dark-mode .table-hover tbody tr:hover {
+    background-color: #333;
 }
 
-/* Wildcard dark mode adjustments */
+/* Dropdown styling */
+body.dark-mode select option {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode select optgroup {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+}
+
+/* Dropdown menus */
+body.dark-mode .dropdown-menu {
+    background-color: #2d2d2d !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode .dropdown-item {
+    color: #e0e0e0 !important;
+}
+
+body.dark-mode .dropdown-item:hover,
+body.dark-mode .dropdown-item:focus {
+    background-color: #444 !important;
+    color: #ffffff !important;
+}
+
+/* Alert styling */
+body.dark-mode .alert {
+    background-color: #1e1e1e;
+    border-color: #444;
+}
+
+body.dark-mode .alert-success {
+    background-color: #1e462d;
+    color: #e0e0e0;
+    border-color: #285e3b;
+}
+
+body.dark-mode .alert-info {
+    background-color: #1e3a4a;
+    color: #e0e0e0;
+    border-color: #2a546b;
+}
+
+body.dark-mode .alert-warning {
+    background-color: #442e0f;
+    color: #e0e0e0;
+    border-color: #664719;
+}
+
+body.dark-mode .alert-danger {
+    background-color: #461c1f;
+    color: #e0e0e0;
+    border-color: #6b2a2e;
+}
+
+/* Links and buttons */
+body.dark-mode a:not(.btn) {
+    color: #4da3ff;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: #b0b0b0;
+    border-color: #555;
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: #444;
+    color: #fff;
+    border-color: #666;
+}
+
+/* Wildcard styling for dark mode */
 body.dark-mode .wildcard {
     background-color: #2d2d2d;
     border-color: #444;
@@ -106,24 +172,6 @@ body.dark-mode .wildcard-used .copy-btn:hover {
     background-color: rgba(163, 215, 181, 0.1);
 }
 
-/* Footer */
-body.dark-mode .footer {
-    background-color: #1e1e1e;
-    color: #aaa;
-}
-
-body.dark-mode .footer a {
-    color: #4da3ff;
-}
-
-/* Success message */
-body.dark-mode #success-message.alert-success {
-    background-color: #1e462d;
-    color: #e0e0e0;
-    border-color: #285e3b;
-}
-
-/* Dark mode for danger wildcard state */
 body.dark-mode .wildcard-danger {
     background-color: #2c1315;
     border-color: #dc3545;
@@ -141,208 +189,485 @@ body.dark-mode .wildcard-danger .copy-btn:hover {
     background-color: rgba(220, 53, 69, 0.2);
 }
 
-/* Table component dark mode styles */
-body.dark-mode .table-responsive,
-body.dark-mode table.table,
-body.dark-mode .formio-component-table,
-body.dark-mode .formio-component-table .table,
-body.dark-mode .formio-component-table .table tbody,
-body.dark-mode .formio-component-table .table tr,
-body.dark-mode .formio-component-table .table td,
-body.dark-mode .formio-component-table .table th,
-body.dark-mode table,
-body.dark-mode th,
-body.dark-mode td {
+/* Modal styling */
+body.dark-mode .modal-content {
     background-color: #1e1e1e;
     color: #e0e0e0;
     border-color: #444;
 }
 
-/* Additional fixes for form.io builder specific tables */
-body.dark-mode .formbuilder .table,
-body.dark-mode .formbuilder .table thead,
-body.dark-mode .formbuilder .table tbody,
-body.dark-mode .formbuilder .table tr,
-body.dark-mode .formbuilder .table th,
-body.dark-mode .formbuilder .table td,
-body.dark-mode div[ref="element"] table {
+body.dark-mode .modal-header,
+body.dark-mode .modal-footer {
+    border-color: #444;
+}
+
+body.dark-mode .close {
+    color: #e0e0e0;
+    text-shadow: none;
+}
+
+/* Footer styling */
+body.dark-mode .footer {
     background-color: #1e1e1e;
-    color: #e0e0e0;
-    border-color: #444;
-}
-
-/* Handle striped tables */
-body.dark-mode .table-striped tbody tr:nth-of-type(odd) {
-    background-color: #2a2a2a;
-}
-
-/* Handle hover effect */
-body.dark-mode .table-hover tbody tr:hover {
-    background-color: #333;
-}
-
-/* Fix table cell inputs in dark mode */
-body.dark-mode .formio-component-table input,
-body.dark-mode .formio-component-table select,
-body.dark-mode .formio-component-table textarea {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-    border-color: #444;
-}
-
-/* Dropdown option styling for dark mode */
-body.dark-mode select option {
-    background-color: #2d2d2d !important;
-    color: #e0e0e0 !important;
-}
-
-/* Handle optgroup if used */
-body.dark-mode select optgroup {
-    background-color: #2d2d2d !important;
-    color: #e0e0e0 !important;
-}
-
-/* Form.io specific dropdown components */
-body.dark-mode .choices__list--dropdown .choices__item {
-    background-color: #2d2d2d !important;
-    color: #e0e0e0 !important;
-}
-
-body.dark-mode .choices__list--dropdown {
-    background-color: #2d2d2d !important;
-    border-color: #444 !important;
-}
-
-/* Dropdown search input styling */
-body.dark-mode .choices__input,
-body.dark-mode .choices__input--cloned {
-    background-color: #383838 !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-}
-
-body.dark-mode .choices__input::placeholder {
-    color: #aaa !important;
-}
-
-/* Search container styling */
-body.dark-mode .choices__list--dropdown .choices__list {
-    background-color: #2d2d2d !important;
-}
-
-/* Select2 search field if used */
-body.dark-mode .select2-search, 
-body.dark-mode .select2-search--dropdown {
-    background-color: #2d2d2d !important;
-}
-
-body.dark-mode .select2-search__field {
-    background-color: #383838 !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-}
-
-body.dark-mode .select2-search--dropdown .select2-search__field::placeholder {
-    color: #aaa !important;
-}
-
-/* Generic search inputs in dropdowns */
-body.dark-mode .dropdown-menu input[type="search"],
-body.dark-mode .dropdown-menu input[type="text"] {
-    background-color: #383838 !important;
-    color: #e0e0e0 !important;
-    border-color: #555 !important;
-}
-
-/* Active/highlighted state */
-body.dark-mode .choices__list--dropdown .choices__item--selectable.is-highlighted {
-    background-color: #444 !important;
-}
-
-/* Select2 component if used */
-body.dark-mode .select2-dropdown,
-body.dark-mode .select2-dropdown--below,
-body.dark-mode .select2-dropdown--above {
-    background-color: #2d2d2d !important;
-    color: #e0e0e0 !important;
-    border-color: #444 !important;
-}
-
-body.dark-mode .select2-results__option {
-    background-color: #2d2d2d !important;
-    color: #e0e0e0 !important;
-}
-
-body.dark-mode .select2-results__option--highlighted,
-body.dark-mode .select2-results__option[aria-selected=true] {
-    background-color: #444 !important;
-    color: #ffffff !important;
-}
-
-/* Bootstrap dropdown menus if used */
-body.dark-mode .dropdown-menu {
-    background-color: #2d2d2d !important;
-    border-color: #444 !important;
-}
-
-body.dark-mode .dropdown-item {
-    color: #e0e0e0 !important;
-}
-
-body.dark-mode .dropdown-item:hover,
-body.dark-mode .dropdown-item:focus {
-    background-color: #444 !important;
-    color: #ffffff !important;
-}
-
-/* Dark mode adjustments */
-body.dark-mode .container-admin .card {
-    background-color: #1e1e1e;
-    border-color: #444;
-}
-
-body.dark-mode .container-admin .card-header {
-    background-color: #2d2d2d;
-    border-color: #444;
-}
-
-body.dark-mode .container-admin .table {
-    color: #e0e0e0;
-}
-
-body.dark-mode .container-admin .table th {
-    background-color: #2d2d2d;
-    color: #e0e0e0;
-}
-
-body.dark-mode .container-admin .table-striped tbody tr:nth-of-type(odd) {
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-body.dark-mode .container-admin .stat-value {
-    color: #4da3ff;
-}
-
-body.dark-mode .container-admin .form-list-empty {
     color: #aaa;
 }
 
-body.dark-mode .container-admin .page-header {
+body.dark-mode .footer a {
+    color: #4da3ff;
+}
+
+/* Code blocks and Markdown */
+body.dark-mode code,
+body.dark-mode pre {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
     border-color: #444;
 }
 
-body.dark-mode .container-admin .modal-content {
+body.dark-mode blockquote {
+    border-left-color: #444;
+    background-color: #2a2a2a;
+}
+
+/* Form.io Builder specific styles */
+body.dark-mode .formio-dialog.formio-dialog-theme-default .formio-dialog-content {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Form builder component editor modal */
+body.dark-mode .formio-dialog {
+    color: #e0e0e0;
+}
+
+/* Fix tabs in form builder component editor */
+body.dark-mode .formio-dialog .nav-tabs .nav-link {
+    color: #4da3ff;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+body.dark-mode .formio-dialog .nav-tabs .nav-link.active {
+    color: #fff;
+    background-color: #2d2d2d;
+    border-color: #444 #444 #2d2d2d;
+}
+
+body.dark-mode .formio-dialog .nav-tabs {
+    border-bottom-color: #444;
+}
+
+/* Fix input fields in component editor */
+body.dark-mode .formio-dialog input.form-control,
+body.dark-mode .formio-dialog select.form-control,
+body.dark-mode .formio-dialog .choices__inner,
+body.dark-mode .formio-dialog .ace_editor {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix text areas in component editor */
+body.dark-mode .formio-dialog textarea.form-control,
+body.dark-mode .formio-dialog .ace_editor {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix component selection sidebar */
+body.dark-mode .formio-builder-sidebar,
+body.dark-mode .builder-sidebar,
+body.dark-mode .formio-builder-panel-header,
+body.dark-mode .formio-builder-group-header,
+body.dark-mode .formio-builder-group,
+body.dark-mode .formio-builder-component {
     background-color: #1e1e1e;
     color: #e0e0e0;
     border-color: #444;
 }
 
-body.dark-mode .container-admin .modal-header,
-body.dark-mode .container-admin .modal-footer {
+/* Fix builder sidebar search field */
+body.dark-mode .builder-sidebar_search,
+body.dark-mode input[ref="sidebar-search"] {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
     border-color: #444;
 }
 
-body.dark-mode .container-admin .close {
+/* Fix component buttons in sidebar */
+body.dark-mode .builder-sidebar .btn-outline-primary,
+body.dark-mode .builder-sidebar .formcomponent,
+body.dark-mode span[ref="sidebar-component"] {
+    background-color: #2d2d2d;
     color: #e0e0e0;
-    text-shadow: none;
+    border-color: #4da3ff;
+}
+
+body.dark-mode .builder-sidebar .btn-outline-primary:hover,
+body.dark-mode .builder-sidebar .formcomponent:hover {
+    background-color: #3d3d3d;
+    color: #fff;
+    border-color: #4da3ff;
+}
+
+/* Fix accordion panels in sidebar */
+body.dark-mode .form-builder-panel,
+body.dark-mode .card.form-builder-panel,
+body.dark-mode .card.accordion-item {
+    background-color: #1e1e1e;
+    border-color: #444;
+}
+
+body.dark-mode .form-builder-group-header,
+body.dark-mode .card-header.form-builder-group-header {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+body.dark-mode .builder-group-button,
+body.dark-mode .btn.builder-group-button {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: transparent;
+    text-align: left;
+}
+
+body.dark-mode .builder-group-button:hover,
+body.dark-mode .btn.builder-group-button:hover {
+    background-color: #3d3d3d;
+    color: #fff;
+}
+
+body.dark-mode .builder-group-button:not(.collapsed),
+body.dark-mode .btn.builder-group-button:not(.collapsed) {
+    background-color: #3d3d3d;
+    color: #fff;
+    border-color: #444;
+}
+
+/* Fix preview panel */
+body.dark-mode .formio-dialog .preview-panel,
+body.dark-mode .formio-dialog .component-preview {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix form builder action buttons */
+body.dark-mode .formio-dialog .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+body.dark-mode .formio-dialog .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+body.dark-mode .formio-dialog .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+body.dark-mode .formio-dialog .btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+/* Fix dropdown menus in form builder */
+body.dark-mode .formio-dialog .dropdown-menu {
+    background-color: #2d2d2d;
+    border-color: #444;
+}
+
+body.dark-mode .formio-dialog .dropdown-item {
+    color: #e0e0e0;
+}
+
+body.dark-mode .formio-dialog .dropdown-item:hover,
+body.dark-mode .formio-dialog .dropdown-item:focus {
+    background-color: #444;
+    color: #fff;
+}
+
+/* Fix form builder component drag and drop */
+body.dark-mode .formio-builder-form,
+body.dark-mode .formio-builder-form .drag-and-drop-alert,
+body.dark-mode .formio-builder-form .builder-component {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .formio-builder-form .builder-component.formio-component-dropzone-active {
+    background-color: #2d2d2d;
+}
+
+/* Fix dropdown selections */
+body.dark-mode .formio-dialog .form-control option {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+}
+
+/* Fix the accordion elements */
+body.dark-mode .formio-dialog .accordion-header,
+body.dark-mode .formio-dialog .accordion-item,
+body.dark-mode .formio-dialog .accordion-button {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+body.dark-mode .formio-dialog .accordion-button:not(.collapsed) {
+    background-color: #333;
+    color: #fff;
+}
+
+/* Help text */
+body.dark-mode .formio-dialog .form-text {
+    color: #aaa;
+}
+
+/* Fix checkboxes in form builder */
+body.dark-mode .formio-dialog .checkbox label,
+body.dark-mode .formio-dialog .radio label,
+body.dark-mode .formio-dialog .form-check-label {
+    color: #e0e0e0;
+}
+
+/* Fix X close button */
+body.dark-mode .formio-dialog .formio-dialog-close {
+    color: #e0e0e0;
+}
+
+/* Fix JSON editor */
+body.dark-mode .formio-dialog .jsoneditor,
+body.dark-mode .formio-dialog .jsoneditor-menu,
+body.dark-mode .formio-dialog .jsoneditor-tree,
+body.dark-mode .formio-dialog .jsoneditor-field,
+body.dark-mode .formio-dialog .jsoneditor-value {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Add icons styling to ensure visibility */
+body.dark-mode .builder-sidebar .fa,
+body.dark-mode .builder-sidebar .bi {
+    color: #4da3ff;
+}
+
+/* Fix drag area styles in builder */
+body.dark-mode .formbuilder,
+body.dark-mode .formarea,
+body.dark-mode .component-settings,
+body.dark-mode .formcomponents {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix dropzone placeholder */
+body.dark-mode .builder-component-display {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix component edit form in sidebar */
+body.dark-mode div[ref="sidebar-groups"] {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix group containers */
+body.dark-mode div[ref="sidebar-container"] {
+    background-color: #1e1e1e;
+    color: #e0e0e0;
+}
+
+/* Fix builder when building - the component editor */
+body.dark-mode .formio-component-editor,
+body.dark-mode .formio-component-display {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Style the builder when dragging */
+body.dark-mode .builder-component.drag-copy {
+    background-color: #3d3d3d;
+    color: #e0e0e0;
+    border-color: #4da3ff;
+}
+
+/* Fix ACE editor in dark mode */
+body.dark-mode .ace_editor,
+body.dark-mode div.ace_editor,
+body.dark-mode .formio-dialog .ace_editor {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix line counter/gutter area */
+body.dark-mode .ace_editor .ace_gutter,
+body.dark-mode .ace_editor .ace_gutter-layer,
+body.dark-mode .ace_editor .ace_gutter-cell {
+    background-color: #252525 !important;
+    color: #aaa !important;
+    border-color: #444 !important;
+}
+
+/* Fix active line in gutter */
+body.dark-mode .ace_editor .ace_gutter-cell.ace_gutter-active-line {
+    background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* Fix active line background */
+body.dark-mode .ace_editor .ace_active-line {
+    background-color: rgba(80, 80, 80, 0.4) !important;
+}
+
+/* Fix placeholder text */
+body.dark-mode .ace_editor .ace_placeholder {
+    color: #888 !important;
+    opacity: 0.8 !important;
+}
+
+/* Fix cursor */
+body.dark-mode .ace_editor .ace_cursor {
+    color: #fff !important;
+}
+
+/* Fix text in editor */
+body.dark-mode .ace_editor .ace_text-layer {
+    color: #e0e0e0 !important;
+}
+
+/* Fix list groups in builder */
+body.dark-mode .list-group,
+body.dark-mode .editgrid-listgroup,
+body.dark-mode ul.list-group {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode .list-group-item,
+body.dark-mode .list-group-header,
+body.dark-mode li.list-group-item {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix dropdown styling */
+body.dark-mode .choices,
+body.dark-mode .choices.formio-choices,
+body.dark-mode .formio-dialog .choices {
+    background-color: #2d2d2d;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+/* Fix dropdown container */
+body.dark-mode .choices .form-control, 
+body.dark-mode .choices__inner,
+body.dark-mode .choices .ui.selection.dropdown {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix dropdown list */
+body.dark-mode .choices__list--dropdown,
+body.dark-mode .choices__list[aria-expanded] {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix dropdown items */
+body.dark-mode .choices__list--dropdown .choices__item,
+body.dark-mode .choices__list[aria-expanded] .choices__item {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix highlighted dropdown item */
+body.dark-mode .choices__list--dropdown .choices__item--selectable.is-highlighted,
+body.dark-mode .choices__list[aria-expanded] .choices__item--selectable.is-highlighted,
+body.dark-mode .choices__list--dropdown .choices__item--selectable:hover,
+body.dark-mode .choices__list[aria-expanded] .choices__item--selectable:hover {
+    background-color: #444 !important;
+    color: #fff !important;
+}
+
+/* Fix search input in dropdown */
+body.dark-mode .choices__input,
+body.dark-mode .choices__input--cloned {
+    background-color: #333 !important;
+    color: #e0e0e0 !important;
+    border-color: #555 !important;
+}
+
+/* Fix selected items */
+body.dark-mode .choices__list--multiple .choices__item,
+body.dark-mode .choices__list--single .choices__item {
+    background-color: #1e375a !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix the blue background of selected values in the dropdown field */
+body.dark-mode .choices .form-control,
+body.dark-mode .choices.is-focused .form-control,
+body.dark-mode .choices__inner,
+body.dark-mode .choices__input--cloned,
+body.dark-mode .choices .ui.selection.dropdown,
+body.dark-mode .choices .ui.dropdown .menu > .item {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #444 !important;
+}
+
+/* Fix specific styling for selected values in the field */
+body.dark-mode .choices__list--single .choices__item,
+body.dark-mode .choices__input,
+body.dark-mode .choices__input--cloned,
+body.dark-mode .choices__placeholder {
+    background-color: transparent !important;
+    color: #e0e0e0 !important;
+}
+
+/* Fix dropdown inputs when selected/active */
+body.dark-mode .form-control:focus,
+body.dark-mode .form-select:focus,
+body.dark-mode select:focus,
+body.dark-mode .choices.is-focused .choices__inner,
+body.dark-mode .choices.is-open .choices__inner {
+    background-color: #2d2d2d !important;
+    color: #e0e0e0 !important;
+    border-color: #4da3ff !important;
+    box-shadow: 0 0 0 0.2rem rgba(77, 163, 255, 0.25) !important;
+}
+
+/* Make info button darker in dark mode */
+body.dark-mode .btn-info {
+    background-color: #0f5885 !important;
+    border-color: #0a4e79 !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode .btn-info:hover,
+body.dark-mode .btn-info:focus,
+body.dark-mode .btn-info:active {
+    background-color: #0c4a72 !important;
+    border-color: #094066 !important;
+    color: #ffffff !important;
 }

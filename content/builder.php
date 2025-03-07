@@ -79,6 +79,9 @@ $GLOBALS['page_settings'] = [
     'formio_assets' => true,
 ];
 
+// Add page-specific CSS
+$GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/builder.css') .'?v=' . APP_VERSION . '">';
+
 // Add page-specific JavaScript
 $existingSchema = $existingSchema ? $existingSchema : 'null';
 $existingTemplate = json_encode($existingTemplate, JSON_UNESCAPED_SLASHES);

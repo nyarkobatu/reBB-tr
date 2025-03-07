@@ -570,6 +570,9 @@ $GLOBALS['page_content'] = ob_get_clean();
 // Define a page title
 $GLOBALS['page_title'] = 'Admin Panel';
 
+// Add page-specific CSS
+$GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/admin.css') .'?v=' . APP_VERSION . '">';
+
 // Add page-specific JavaScript
 $GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/admin.js') .'?v=' . APP_VERSION . '"></script>';
 
