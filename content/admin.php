@@ -5,15 +5,6 @@
  * This file serves the administrative interface for the app.
  */
 
-// Make sure ROOT_DIR is defined
-if (!defined('ROOT_DIR')) {
-    if (defined('BASE_DIR')) {
-        define('ROOT_DIR', basename(BASE_DIR) === 'public' ? dirname(BASE_DIR) : BASE_DIR);
-    } else {
-        define('ROOT_DIR', dirname(__DIR__)); // Default to parent directory
-    }
-}
-
 // Initialize session if not already started
 if (session_status() === PHP_SESSION_NONE) {
     @session_start();

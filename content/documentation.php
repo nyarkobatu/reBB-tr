@@ -5,15 +5,6 @@
  * This file serves as the render point for documentation.
  */
 
-// Make sure ROOT_DIR is defined
-if (!defined('ROOT_DIR')) {
-    if (defined('BASE_DIR')) {
-        define('ROOT_DIR', basename(BASE_DIR) === 'public' ? dirname(BASE_DIR) : BASE_DIR);
-    } else {
-        define('ROOT_DIR', dirname(__DIR__)); // Default to parent directory
-    }
-}
-
 // Make sure SESSION_LIFETIME is defined
 if (!defined('SESSION_LIFETIME')) {
     define('SESSION_LIFETIME', 1800); // Default to 30 minutes

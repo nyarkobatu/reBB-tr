@@ -8,7 +8,7 @@
 
 // Define the base path for the application
 // In this case, the base directory will be the public folder
-define('BASE_DIR', __DIR__);
+define('PUBLIC_DIR', __DIR__);
 
 // Define the root directory (parent of public)
 define('ROOT_DIR', dirname(__DIR__));

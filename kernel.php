@@ -12,19 +12,19 @@ if (!defined('APP_VERSION')) {
     define('APP_VERSION', 'v1.3.11');
 }
 
-// Define the base path for the application
-if (!defined('BASE_DIR')) {
-    define('BASE_DIR', dirname(__FILE__));
+// Define the public path for the application
+if (!defined('PUBLIC_DIR')) {
+    define('PUBLIC_DIR', dirname(__FILE__));
 }
 
 // Define the root directory (project root)
 if (!defined('ROOT_DIR')) {
-    // If BASE_DIR is pointing to /public/, move up one level
-    if (basename(BASE_DIR) === 'public') {
-        define('ROOT_DIR', dirname(BASE_DIR));
+    // If PUBLIC_DIR is pointing to /public/, move up one level
+    if (basename(PUBLIC_DIR) === 'public') {
+        define('ROOT_DIR', dirname(PUBLIC_DIR));
     } else {
-        // Otherwise, assume BASE_DIR is already at the root
-        define('ROOT_DIR', BASE_DIR);
+        // Otherwise, assume PUBLIC_DIR is already at the root
+        define('ROOT_DIR', PUBLIC_DIR);
     }
 }
 

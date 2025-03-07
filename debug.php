@@ -9,8 +9,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Define the base path if not already defined
-if (!defined('BASE_DIR')) {
-    define('BASE_DIR', __DIR__);
+if (!defined('PUBLIC_DIR')) {
+    define('PUBLIC_DIR', __DIR__);
 }
 
 // Function to check if a file exists and is readable
