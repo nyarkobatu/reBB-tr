@@ -1,0 +1,183 @@
+/**
+ * reBB - Document/PDF Style (Dark Mode)
+ * Dark version of the PDF-like form style
+ */
+
+/* Base container styling for dark mode */
+body.dark-mode #form-container {
+    background-color: #1f1f1f;
+    border-color: #444;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+    color: #e0e0e0;
+}
+
+/* Form title styling for dark mode */
+body.dark-mode #form-container h2 {
+    color: #e0e0e0;
+    border-bottom-color: #444;
+}
+
+/* Fieldset styling for dark mode */
+body.dark-mode .formio-component-fieldset {
+    border-color: #444;
+    background-color: #2a2a2a;
+}
+
+/* Legend styling for dark mode */
+body.dark-mode .formio-component-fieldset legend {
+    color: #ccc;
+    background-color: #2a2a2a;
+}
+
+/* Label styling for dark mode */
+body.dark-mode .formio-component label {
+    color: #ccc;
+}
+
+/* Input styling for dark mode - maintain form field appearance */
+body.dark-mode .form-control,
+body.dark-mode input.form-control,
+body.dark-mode textarea.form-control,
+body.dark-mode select.form-control {
+    background-color: #333;
+    border-color: #555;
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-control:hover {
+    background-color: #383838;
+}
+
+body.dark-mode .form-control:focus {
+    background-color: #3a3a3a;
+    border-color: #5d9aff;
+    box-shadow: 0 0 0 2px rgba(93, 154, 255, 0.2);
+}
+
+/* Placeholder text styling for dark mode */
+body.dark-mode .form-control::placeholder {
+    color: #888;
+}
+
+/* Checkbox/Radio styling for dark mode */
+body.dark-mode .form-check-input {
+    background-color: #333;
+    border-color: #555;
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: #5d9aff;
+    border-color: #5d9aff;
+}
+
+body.dark-mode .form-check-label {
+    color: #ccc;
+}
+
+/* Table styling for dark mode */
+body.dark-mode .table {
+    border-color: #444;
+}
+
+body.dark-mode .table th {
+    background-color: #2d2d2d;
+    color: #ccc;
+    border-bottom-color: #444;
+}
+
+body.dark-mode .table td {
+    border-top-color: #444;
+    color: #e0e0e0;
+}
+
+/* Data Grid styling for dark mode */
+body.dark-mode .formio-component-datagrid .table {
+    border-color: #444;
+}
+
+body.dark-mode .formio-component-datagrid .table th {
+    background-color: #2d2d2d;
+}
+
+body.dark-mode .formio-component-datagrid .table td {
+    background-color: #333;
+}
+
+/* Submit button styling for dark mode */
+body.dark-mode .btn-primary {
+    background-color: #5d9aff;
+    border-color: #5d9aff;
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #4a86e8;
+    border-color: #4a86e8;
+}
+
+/* Output area styling for dark mode */
+body.dark-mode #output-container {
+    border-color: #444;
+    background-color: #2a2a2a;
+}
+
+body.dark-mode #output-container h4 {
+    color: #ccc;
+}
+
+body.dark-mode #output {
+    background-color: #333;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+/* Copy button styling for dark mode */
+body.dark-mode #copyOutputBtn {
+    background-color: #5d9aff;
+    border-color: #5d9aff;
+}
+
+body.dark-mode #copyOutputBtn:hover {
+    background-color: #4a86e8;
+    border-color: #4a86e8;
+}
+
+/* Error styling for dark mode */
+body.dark-mode .has-error .form-control {
+    border-color: #cf6679;
+}
+
+body.dark-mode .has-error .help-block {
+    color: #cf6679;
+}
+
+/* For the watermark lines in dark mode - more subtle */
+body.dark-mode #form-container::before {
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px);
+}
+
+/* For any alerts in the form */
+body.dark-mode .alert {
+    background-color: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+body.dark-mode .alert-danger {
+    background-color: #462c2e;
+    border-color: #cf6679;
+}
+
+body.dark-mode .alert-success {
+    background-color: #1e462d;
+    border-color: #4caf50;
+}
+
+body.dark-mode .alert-info {
+    background-color: #1e3a4a;
+    border-color: #5d9aff;
+}
+
+/* DataGrid specific styling - maintaining first row hiding */
+body.dark-mode .formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}

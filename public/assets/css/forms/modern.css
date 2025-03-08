@@ -1,0 +1,370 @@
+/**
+ * reBB - Modern Style
+ * Clean, minimalist design with subtle animations
+ */
+
+/* Base container styling */
+#form-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+/* Form title styling */
+#form-container h2 {
+    font-size: 24px;
+    font-weight: 500;
+    margin-bottom: 30px;
+    color: #333333;
+    text-align: center;
+}
+
+/* Component container styling */
+.formio-component {
+    margin-bottom: 24px;
+}
+
+/* Fieldset styling */
+.formio-component-fieldset {
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+/* Legend styling */
+.formio-component-fieldset legend {
+    font-weight: 500;
+    font-size: 16px;
+    padding: 0 10px;
+    color: #333333;
+}
+
+/* Label styling */
+.formio-component label {
+    display: block;
+    font-weight: 500;
+    font-size: 14px;
+    margin-bottom: 8px;
+    color: #555555;
+}
+
+/* Input styling */
+.form-control,
+input.form-control,
+textarea.form-control,
+select.form-control {
+    font-family: inherit;
+    font-size: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    transition: all 0.2s ease;
+    color: #333333;
+}
+
+.form-control:hover {
+    border-color: #d0d0d0;
+}
+
+.form-control:focus {
+    border-color: #4f86ed;
+    box-shadow: 0 0 0 3px rgba(79, 134, 237, 0.15);
+    outline: none;
+}
+
+/* Checkbox/Radio styling */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.form-check-input {
+    margin-right: 10px;
+    border: 1px solid #d0d0d0;
+    transition: all 0.2s ease;
+}
+
+.form-check-input:checked {
+    background-color: #4f86ed;
+    border-color: #4f86ed;
+}
+
+.form-check-label {
+    font-weight: normal;
+    font-size: 15px;
+}
+
+/* Submit button styling */
+.btn-primary {
+    background-color: #4f86ed;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(79, 134, 237, 0.2);
+}
+
+.btn-primary:hover {
+    background-color: #3a75e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 134, 237, 0.3);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 3px rgba(79, 134, 237, 0.2);
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table th {
+    padding: 12px 16px;
+    text-align: left;
+    background-color: #f5f7fa;
+    font-weight: 500;
+    font-size: 14px;
+    color: #555555;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+    color: #333333;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Data Grid styling */
+.formio-component-datagrid .table {
+    border: 1px solid #e0e0e0;
+}
+
+.formio-component-datagrid .table th {
+    background-color: #f5f7fa;
+}
+
+.formio-component-datagrid .table td {
+    background-color: #ffffff;
+}
+
+.formio-component-datagrid .btn-secondary {
+    background-color: #f5f7fa;
+    color: #555555;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.formio-component-datagrid .btn-secondary:hover {
+    background-color: #e9ecf2;
+}
+
+/* Output container styling */
+#output-container {
+    max-width: 800px;
+    margin: 20px auto 40px;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
+#output-container h4 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+    color: #333333;
+}
+
+#output {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-family: "SF Mono", "Roboto Mono", Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    padding: 16px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333333;
+    transition: all 0.2s ease;
+}
+
+/* Copy button styling */
+#copyOutputBtn {
+    background-color: #4f86ed;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(79, 134, 237, 0.2);
+}
+
+#copyOutputBtn:hover {
+    background-color: #3a75e0;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(79, 134, 237, 0.3);
+}
+
+#copyOutputBtn .bi {
+    margin-right: 8px;
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: none;
+}
+
+.alert-danger {
+    background-color: #fff2f2;
+    color: #d32f2f;
+    border-left: 4px solid #d32f2f;
+}
+
+.alert-success {
+    background-color: #f2fff5;
+    color: #388e3c;
+    border-left: 4px solid #388e3c;
+}
+
+/* Required field marker */
+.field-required:after {
+    content: " *";
+    color: #d32f2f;
+}
+
+/* Error styling */
+.has-error .form-control {
+    border-color: #d32f2f;
+}
+
+.has-error .help-block {
+    color: #d32f2f;
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#form-container, #output-container {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* Placeholder text */
+::placeholder {
+    color: #aaaaaa;
+    opacity: 0.7;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #f5f7fa;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 16px 20px;
+    font-weight: 500;
+    font-size: 16px;
+}
+
+/* Footer styling */
+.footer {
+    background-color: #f5f7fa;
+    border-top: 1px solid #e0e0e0;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 14px;
+    color: #666666;
+}
+
+.footer a {
+    color: #4f86ed;
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* DataGrid specific styling - hiding first row */
+.formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    #form-container,
+    #output-container {
+        padding: 20px;
+        margin: 20px auto;
+        border-radius: 8px;
+    }
+    
+    #form-container h2 {
+        font-size: 20px;
+    }
+    
+    .form-control,
+    input.form-control,
+    textarea.form-control,
+    select.form-control {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+    
+    .btn-primary {
+        padding: 10px 20px;
+    }
+}

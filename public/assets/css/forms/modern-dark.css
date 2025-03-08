@@ -1,0 +1,225 @@
+/**
+ * reBB - Modern Style (Dark Mode)
+ * Clean, minimalist dark design with subtle animations
+ */
+
+/* Base container styling */
+body.dark-mode #form-container {
+    background-color: #202124;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: #e0e0e0;
+}
+
+/* Form title styling */
+body.dark-mode #form-container h2 {
+    color: #ffffff;
+}
+
+/* Component container styling */
+body.dark-mode .formio-component {
+    margin-bottom: 24px;
+}
+
+/* Fieldset styling */
+body.dark-mode .formio-component-fieldset {
+    background-color: #292a2d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Legend styling */
+body.dark-mode .formio-component-fieldset legend {
+    color: #e0e0e0;
+    background-color: #292a2d;
+}
+
+/* Label styling */
+body.dark-mode .formio-component label {
+    color: #b8b8b8;
+}
+
+/* Input styling */
+body.dark-mode .form-control,
+body.dark-mode input.form-control,
+body.dark-mode textarea.form-control,
+body.dark-mode select.form-control {
+    background-color: #303134;
+    border-color: #3c4043;
+    color: #e0e0e0;
+}
+
+body.dark-mode .form-control:hover {
+    border-color: #494c50;
+}
+
+body.dark-mode .form-control:focus {
+    border-color: #5c90f0;
+    box-shadow: 0 0 0 3px rgba(92, 144, 240, 0.2);
+}
+
+/* Placeholder text */
+body.dark-mode ::placeholder {
+    color: #808080;
+    opacity: 0.7;
+}
+
+/* Checkbox/Radio styling */
+body.dark-mode .form-check-input {
+    background-color: #303134;
+    border-color: #494c50;
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: #5c90f0;
+    border-color: #5c90f0;
+}
+
+body.dark-mode .form-check-label {
+    color: #b8b8b8;
+}
+
+/* Submit button styling */
+body.dark-mode .btn-primary {
+    background-color: #5c90f0;
+    box-shadow: 0 2px 5px rgba(92, 144, 240, 0.3);
+}
+
+body.dark-mode .btn-primary:hover {
+    background-color: #4a81e7;
+    box-shadow: 0 4px 8px rgba(92, 144, 240, 0.4);
+}
+
+body.dark-mode .btn-primary:active {
+    box-shadow: 0 2px 3px rgba(92, 144, 240, 0.3);
+}
+
+/* Table styling */
+body.dark-mode .table {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .table th {
+    background-color: #292a2d;
+    color: #b8b8b8;
+    border-bottom-color: #3c4043;
+}
+
+body.dark-mode .table td {
+    border-bottom-color: #3c4043;
+    color: #e0e0e0;
+}
+
+/* Data Grid styling */
+body.dark-mode .formio-component-datagrid .table {
+    border-color: #3c4043;
+}
+
+body.dark-mode .formio-component-datagrid .table th {
+    background-color: #292a2d;
+}
+
+body.dark-mode .formio-component-datagrid .table td {
+    background-color: #303134;
+}
+
+body.dark-mode .formio-component-datagrid .btn-secondary {
+    background-color: #3c4043;
+    color: #e0e0e0;
+    border-color: #494c50;
+}
+
+body.dark-mode .formio-component-datagrid .btn-secondary:hover {
+    background-color: #494c50;
+}
+
+/* Output container styling */
+body.dark-mode #output-container {
+    background-color: #202124;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode #output-container h4 {
+    color: #ffffff;
+}
+
+body.dark-mode #output {
+    background-color: #303134;
+    border-color: #3c4043;
+    color: #e0e0e0;
+}
+
+/* Copy button styling */
+body.dark-mode #copyOutputBtn {
+    background-color: #5c90f0;
+    box-shadow: 0 2px 5px rgba(92, 144, 240, 0.3);
+}
+
+body.dark-mode #copyOutputBtn:hover {
+    background-color: #4a81e7;
+    box-shadow: 0 4px 8px rgba(92, 144, 240, 0.4);
+}
+
+/* Alert styling */
+body.dark-mode .alert {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .alert-danger {
+    background-color: #2c1a1a;
+    color: #f48e8e;
+    border-left-color: #d32f2f;
+}
+
+body.dark-mode .alert-success {
+    background-color: #1a2c1a;
+    color: #8ef48e;
+    border-left-color: #388e3c;
+}
+
+/* Required field marker */
+body.dark-mode .field-required:after {
+    color: #f48e8e;
+}
+
+/* Error styling */
+body.dark-mode .has-error .form-control {
+    border-color: #d32f2f;
+}
+
+body.dark-mode .has-error .help-block {
+    color: #f48e8e;
+}
+
+/* Card styling */
+body.dark-mode .card {
+    background-color: #292a2d;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.dark-mode .card-header {
+    background-color: #202124;
+    border-bottom-color: #3c4043;
+    color: #e0e0e0;
+}
+
+/* Footer styling */
+body.dark-mode .footer {
+    background-color: #292a2d;
+    border-top-color: #3c4043;
+    color: #b8b8b8;
+}
+
+body.dark-mode .footer a {
+    color: #5c90f0;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* DataGrid specific styling - maintaining first row hiding */
+body.dark-mode .formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}

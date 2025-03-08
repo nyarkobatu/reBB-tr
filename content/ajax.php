@@ -152,7 +152,7 @@ if ($requestType === 'schema') {
     $formTemplate = htmlspecialchars($formTemplate, ENT_QUOTES, 'UTF-8');
     
     // Validate form style (only allow valid options)
-    $allowedStyles = ['default', 'paperwork'];
+    $allowedStyles = ['default', 'paperwork', 'vector', 'retro', 'modern'];
     if (!in_array($formStyle, $allowedStyles)) {
         $formStyle = 'default'; // Default fallback
     }

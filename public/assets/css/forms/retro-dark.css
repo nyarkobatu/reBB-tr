@@ -1,0 +1,269 @@
+/**
+ * reBB - Retro Style (Dark Mode)
+ * Easier on the eyes with a soft dark theme while maintaining retro UI elements
+ */
+
+/* Base container styling */
+body.dark-mode #form-container {
+    background-color: #222222;
+    border: 3px solid #555555;
+    box-shadow: inset 1px 1px 0 #333333, 2px 2px 6px rgba(0, 0, 0, 0.5);
+    color: #dddddd;
+}
+
+/* Window title bar */
+body.dark-mode #form-container::before {
+    background: linear-gradient(to right, #333333, #444444);
+    border-bottom: 1px solid #555555;
+}
+
+/* Form title styling */
+body.dark-mode #form-container h2 {
+    color: #ffffff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* Component container styling */
+body.dark-mode .formio-component {
+    margin-bottom: 15px;
+}
+
+/* Panel/fieldset styling */
+body.dark-mode .formio-component-fieldset {
+    border: 2px solid #555555;
+    background-color: #2a2a2a;
+    box-shadow: inset 1px 1px 0 #333333, 1px 1px 0 #1a1a1a;
+}
+
+/* Legend styling */
+body.dark-mode .formio-component-fieldset legend {
+    color: #dddddd;
+    background-color: #2a2a2a;
+}
+
+/* Label styling */
+body.dark-mode .formio-component label {
+    color: #cccccc;
+}
+
+/* Input styling - soft retro inputs */
+body.dark-mode .form-control,
+body.dark-mode input.form-control,
+body.dark-mode textarea.form-control,
+body.dark-mode select.form-control {
+    background-color: #333333;
+    color: #cccccc;
+    border: 2px solid;
+    border-color: #555555 #444444 #444444 #555555;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Input focus state */
+body.dark-mode .form-control:focus {
+    border-color: #777777;
+    box-shadow: inset 1px 1px 3px rgba(120, 120, 120, 0.3);
+    outline: none;
+}
+
+/* Radio and checkbox styling */
+body.dark-mode .form-check-input {
+    background-color: #333333;
+    border: 1px solid #555555;
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: #666666;
+}
+
+body.dark-mode .form-check-label {
+    color: #dddddd;
+}
+
+/* Submit button styling - classic button with dark theme */
+body.dark-mode .btn-primary {
+    background: linear-gradient(to bottom, #444444, #333333);
+    color: #dddddd;
+    border-color: #666666 #444444 #444444 #666666;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode .btn-primary:hover {
+    background: linear-gradient(to bottom, #555555, #444444);
+    color: #ffffff;
+}
+
+body.dark-mode .btn-primary:active {
+    background: #444444;
+    border-color: #444444 #666666 #666666 #444444;
+}
+
+/* Table styling */
+body.dark-mode .table {
+    border: 2px solid #555555;
+    background-color: #333333;
+}
+
+body.dark-mode .table th {
+    background: linear-gradient(to bottom, #444444, #3a3a3a);
+    border-color: #555555;
+    color: #dddddd;
+}
+
+body.dark-mode .table td {
+    border-color: #444444;
+    color: #cccccc;
+}
+
+/* Data Grid styling */
+body.dark-mode .formio-component-datagrid .table {
+    border: 2px solid #555555;
+}
+
+body.dark-mode .formio-component-datagrid .table th {
+    background: linear-gradient(to bottom, #444444, #3a3a3a);
+}
+
+body.dark-mode .formio-component-datagrid .table td {
+    background-color: #333333;
+}
+
+body.dark-mode .formio-component-datagrid .btn-secondary {
+    background: linear-gradient(to bottom, #444444, #333333);
+    color: #dddddd;
+    border-color: #666666 #444444 #444444 #666666;
+}
+
+/* Special component styling */
+body.dark-mode .card {
+    border-color: #555555 #444444 #444444 #555555;
+    background-color: #2a2a2a;
+}
+
+body.dark-mode .card-header {
+    background: linear-gradient(to bottom, #444444, #3a3a3a);
+    border-bottom: 1px solid #555555;
+    color: #dddddd;
+}
+
+/* Output container styling */
+body.dark-mode #output-container {
+    background-color: #222222;
+    border: 3px solid #555555;
+    box-shadow: inset 1px 1px 0 #333333, 2px 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+/* Output window title bar */
+body.dark-mode #output-container::before {
+    background: linear-gradient(to right, #333333, #444444);
+    border-bottom: 1px solid #555555;
+}
+
+body.dark-mode #output-container h4 {
+    color: #ffffff;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+body.dark-mode #output {
+    background-color: #333333;
+    color: #cccccc;
+    border-color: #555555 #444444 #444444 #555555;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Copy button classic style */
+body.dark-mode #copyOutputBtn {
+    background: linear-gradient(to bottom, #444444, #333333);
+    color: #dddddd;
+    border-color: #666666 #444444 #444444 #666666;
+}
+
+body.dark-mode #copyOutputBtn:hover {
+    background: linear-gradient(to bottom, #555555, #444444);
+}
+
+/* Alert styling */
+body.dark-mode .alert {
+    border-color: #555555 #444444 #444444 #555555;
+    background-color: #2a2a2a;
+    color: #dddddd;
+}
+
+body.dark-mode .alert-danger {
+    background-color: #442222;
+    border-color: #663333;
+}
+
+body.dark-mode .alert-success {
+    background-color: #224422;
+    border-color: #336633;
+}
+
+/* Required field marker */
+body.dark-mode .field-required:after {
+    color: #cc7777;
+}
+
+/* Error styling */
+body.dark-mode .has-error .form-control {
+    border-color: #aa5555;
+    background-color: #442222;
+}
+
+body.dark-mode .has-error .help-block {
+    color: #cc7777;
+}
+
+/* Scrollbar styling */
+body.dark-mode ::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+body.dark-mode ::-webkit-scrollbar-track {
+    background-color: #222222;
+    border: 1px solid #555555;
+}
+
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background-color: #444444;
+    border: 1px solid #555555;
+    box-shadow: inset 1px 1px 0 #555555, inset -1px -1px 0 #333333;
+}
+
+body.dark-mode ::-webkit-scrollbar-button {
+    background-color: #333333;
+    border: 1px solid #555555;
+    box-shadow: inset 1px 1px 0 #555555, inset -1px -1px 0 #333333;
+}
+
+/* Classic placeholder text */
+body.dark-mode ::placeholder {
+    color: #777777;
+    opacity: 0.7;
+}
+
+/* Classic focus outline */
+body.dark-mode :focus {
+    outline: 1px dotted #aaaaaa;
+}
+
+/* Footer styling in classic theme */
+body.dark-mode .footer {
+    background-color: #222222;
+    border-top: 2px solid;
+    border-color: #555555 #444444 #444444 #555555;
+    color: #bbbbbb;
+}
+
+body.dark-mode .footer a {
+    color: #999999;
+}
+
+body.dark-mode .footer a:hover {
+    color: #cccccc;
+}
+
+/* DataGrid specific styling - maintaining first row hiding */
+body.dark-mode .formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}

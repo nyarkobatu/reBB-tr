@@ -67,6 +67,45 @@ ob_start();
                     </div>
                 </div>
             </label>
+            <label class="style-option" for="styleVector">
+                <input class="form-check-input" type="radio" name="formStyle" id="styleVector" value="vector">
+                <span class="form-check-label">Vector</span>
+                <div class="style-tooltip">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="tooltip-content">
+                        <p>Clean, professional style resembling a fillable PDF document.</p>
+                        <div class="tooltip-image">
+                            <img src="<?php echo asset_path('images/form-types/vector.png'); ?>" alt="PDF Form style preview">
+                        </div>
+                    </div>
+                </div>
+            </label>
+            <label class="style-option" for="styleRetro">
+                <input class="form-check-input" type="radio" name="formStyle" id="styleRetro" value="retro">
+                <span class="form-check-label">Retro</span>
+                <div class="style-tooltip">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="tooltip-content">
+                        <p>Classic, nostalgic retro-style theme resembling an old program.</p>
+                        <div class="tooltip-image">
+                            <img src="<?php echo asset_path('images/form-types/retro.png'); ?>" alt="Retro style preview">
+                        </div>
+                    </div>
+                </div>
+            </label>
+            <label class="style-option" for="styleModern">
+                <input class="form-check-input" type="radio" name="formStyle" id="styleModern" value="modern">
+                <span class="form-check-label">Modern</span>
+                <div class="style-tooltip">
+                    <i class="bi bi-info-circle"></i>
+                    <div class="tooltip-content">
+                        <p>Modern, slick style with a clean, minimalist aesthetic.</p>
+                        <div class="tooltip-image">
+                            <img src="<?php echo asset_path('images/form-types/modern.png'); ?>" alt="Modern style preview">
+                        </div>
+                    </div>
+                </div>
+            </label>
         </div>
     </div>
 

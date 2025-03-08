@@ -1,0 +1,350 @@
+/**
+ * reBB - Retro Style
+ * Inspired by classic Windows XP and legacy operating system interfaces
+ */
+
+/* Base container styling */
+#form-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 10px;
+    flex-grow: 1;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ECE9D8;
+    border: 3px solid #0054E3; 
+    box-shadow: inset 1px 1px 0px white, 2px 2px 6px rgba(0, 0, 0, 0.3);
+    font-family: "Tahoma", "MS Sans Serif", sans-serif;
+    color: #000000;
+}
+
+/* Window title bar */
+#form-container::before {
+    content: "";
+    display: block;
+    height: 28px;
+    background: linear-gradient(to right, #0A246A, #3A6EA5);
+    margin: -10px -10px 10px -10px;
+    border-bottom: 1px solid #003C74;
+}
+
+/* Form title styling */
+#form-container h2 {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    margin: -38px 0 20px 0;
+    padding: 7px 10px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+/* Component container styling */
+.formio-component {
+    margin-bottom: 15px;
+}
+
+/* Panel/fieldset styling */
+.formio-component-fieldset {
+    border: 2px solid #919B9C;
+    border-radius: 0;
+    padding: 10px;
+    margin-bottom: 15px;
+    background-color: #ECE9D8;
+    box-shadow: inset 1px 1px 0px white, 1px 1px 0 #DFD8C8;
+}
+
+/* Legend styling */
+.formio-component-fieldset legend {
+    font-weight: bold;
+    font-size: 11px;
+    padding: 0 5px;
+    color: #000000;
+}
+
+/* Label styling */
+.formio-component label {
+    display: block;
+    font-weight: normal;
+    font-size: 11px;
+    margin-bottom: 3px;
+    color: #000000;
+}
+
+/* Input styling - classic form controls */
+.form-control,
+input.form-control,
+textarea.form-control,
+select.form-control {
+    font-family: "Tahoma", "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    border: 2px solid;
+    border-color: #919B9C #C5C2B8 #C5C2B8 #919B9C;
+    padding: 3px 5px;
+    background-color: white;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+/* Input focus state */
+.form-control:focus {
+    border-color: #0054E3;
+    box-shadow: inset 1px 1px 3px rgba(0, 84, 227, 0.2);
+}
+
+/* Radio and checkbox styling */
+.form-check-input {
+    margin-right: 5px;
+    border: 1px solid #919B9C;
+}
+
+.form-check-label {
+    font-size: 11px;
+}
+
+/* Submit button styling - classic XP button */
+.btn {
+    border-radius: 0;
+}
+
+.btn-primary {
+    font-family: "Tahoma", "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+    color: #000000;
+    border: 2px solid;
+    border-color: #FFFFFF #919B9C #919B9C #FFFFFF;
+    padding: 3px 10px;
+    font-weight: normal;
+    text-shadow: none;
+    box-shadow: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(to bottom, #D5E4F3, #C5D9ED);
+    border-color: #FFFFFF #919B9C #919B9C #FFFFFF;
+    color: #000000;
+}
+
+.btn-primary:active {
+    background: #D5E4F3;
+    border-color: #919B9C #FFFFFF #FFFFFF #919B9C;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Table styling */
+.table {
+    border: 2px solid #919B9C;
+    background-color: white;
+}
+
+.table th {
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+    border-color: #919B9C;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 5px;
+}
+
+.table td {
+    border-color: #C5C2B8;
+    font-size: 11px;
+    padding: 3px 5px;
+}
+
+/* Data Grid styling */
+.formio-component-datagrid .table {
+    border: 2px solid #919B9C;
+}
+
+.formio-component-datagrid .table th {
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+}
+
+.formio-component-datagrid .table td {
+    background-color: white;
+}
+
+.formio-component-datagrid .btn-secondary {
+    font-size: 11px;
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+    color: #000000;
+    border-color: #FFFFFF #919B9C #919B9C #FFFFFF;
+}
+
+/* Special component styling */
+.card {
+    border-radius: 0;
+    border: 2px solid;
+    border-color: #919B9C #C5C2B8 #C5C2B8 #919B9C;
+    background-color: #ECE9D8;
+}
+
+.card-header {
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+    font-size: 11px;
+    font-weight: bold;
+    border-bottom: 1px solid #919B9C;
+    padding: 5px 10px;
+}
+
+/* Output container styling */
+#output-container {
+    max-width: 800px;
+    margin: 20px auto;
+    width: 100%;
+    box-sizing: border-box;
+    background-color: #ECE9D8;
+    border: 3px solid #0054E3;
+    padding: 10px;
+    box-shadow: inset 1px 1px 0px white, 2px 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Output window title bar */
+#output-container::before {
+    content: "";
+    display: block;
+    height: 28px;
+    background: linear-gradient(to right, #0A246A, #3A6EA5);
+    margin: -10px -10px 10px -10px;
+    border-bottom: 1px solid #003C74;
+}
+
+#output-container h4 {
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    margin: -38px 0 20px 0;
+    padding: 7px 10px;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
+    position: relative;
+}
+
+#output {
+    background-color: white;
+    border: 2px solid;
+    border-color: #919B9C #C5C2B8 #C5C2B8 #919B9C;
+    font-family: "Courier New", monospace;
+    box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.1);
+    white-space: pre-wrap;
+    padding: 10px;
+    font-size: 11px;
+}
+
+/* Copy button classic style */
+#copyOutputBtn {
+    font-family: "Tahoma", "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    background: linear-gradient(to bottom, #EBF4FA, #D5E4F3);
+    color: #000000;
+    border: 2px solid;
+    border-color: #FFFFFF #919B9C #919B9C #FFFFFF;
+    padding: 3px 10px;
+    margin-top: 5px;
+}
+
+#copyOutputBtn:hover {
+    background: linear-gradient(to bottom, #D5E4F3, #C5D9ED);
+}
+
+/* Alert styling */
+.alert {
+    border-radius: 0;
+    border: 2px solid;
+    border-color: #919B9C #C5C2B8 #C5C2B8 #919B9C;
+    background-color: #ECE9D8;
+    font-size: 11px;
+    padding: 10px;
+    margin-bottom: 15px;
+    margin-top: 20px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.alert-danger {
+    background-color: #FFD8D8;
+    border-color: #FF0000;
+}
+
+.alert-success {
+    background-color: #D8FFD8;
+    border-color: #00FF00;
+}
+
+/* Required field marker */
+.field-required:after {
+    content: " *";
+    color: #FF0000;
+}
+
+/* Error styling */
+.has-error .form-control {
+    border-color: #FF0000;
+    background-color: #FFD8D8;
+}
+
+.has-error .help-block {
+    color: #FF0000;
+    font-size: 10px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #D4D0C8;
+    border: 1px solid #919B9C;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #D4D0C8;
+    border: 1px solid #919B9C;
+    box-shadow: inset 1px 1px 0 white, inset -1px -1px 0 #919B9C;
+}
+
+::-webkit-scrollbar-button {
+    background-color: #D4D0C8;
+    border: 1px solid #919B9C;
+    box-shadow: inset 1px 1px 0 white, inset -1px -1px 0 #919B9C;
+    display: block;
+    height: 16px;
+    width: 16px;
+}
+
+/* DataGrid specific styling - hiding first row */
+.formio-component-datagrid .datagrid-table tbody tr:first-child {
+    display: none !important;
+}
+
+/* Classic placeholder text */
+::placeholder {
+    color: #808080;
+    opacity: 0.7;
+}
+
+/* Classic focus outline */
+:focus {
+    outline: 1px dotted #000000;
+}
+
+/* Footer styling in classic theme */
+.footer {
+    background-color: #D4D0C8;
+    border-top: 2px solid;
+    border-color: #FFFFFF #919B9C #919B9C #FFFFFF;
+    font-family: "Tahoma", "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    padding: 10px;
+    text-align: center;
+}
+
+.footer a {
+    color: #0A246A;
+    text-decoration: underline;
+}
+
+.footer a:hover {
+    color: #3A6EA5;
+}
