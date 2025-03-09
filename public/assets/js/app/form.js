@@ -1,17 +1,46 @@
 function processTemplate(template, data) {
-  // Create a recursive decode function to handle multiple levels of HTML entity encoding
-  function decodeHTMLEntities(text) {
-      const textArea = document.createElement('textarea');
-      textArea.innerHTML = text;
-      const decoded = textArea.value;
-      
-      // If the decoded text is different from the input, it might have more entities to decode
-      if (decoded !== text && decoded.includes('&')) {
-          // Recursively decode until no more changes
-          return decodeHTMLEntities(decoded);
-      }
-      return decoded;
-  }
+    // Create a recursive decode function to handle multiple levels of HTML entity encoding
+    function decodeHTMLEntities(text) {
+        const textArea = document.createElement('textarea');
+        textArea.innerHTML = text;
+        const decoded = textArea.value;
+        
+        // If the decoded text is different from the input, it might have more entities to decode
+        if (decoded !== text && decoded.includes('&')) {
+            // Recursively decode until no more changes
+            return decodeHTMLEntities(decoded);
+        }
+        return decoded;
+    }
+
+    // Process survey components to create individual question wildcards
+    function processSurveyData(formData) {
+        const processedData = {...formData};
+        
+        // Look for survey components in the data
+        Object.keys(formData).forEach(key => {
+            const value = formData[key];
+            
+            // If the value is an object and not an array, it might be a survey component
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                // For each question in the survey
+                Object.keys(value).forEach(questionKey => {
+                    // Create a new key combining survey key and question key
+                    const combinedKey = `${key}_${questionKey}`;
+                    // Add the selected value for this question to the processed data
+                    processedData[combinedKey] = value[questionKey];
+                });
+            }
+        });
+        
+        return processedData;
+    }
+
+    // Decode the template before processing it
+    template = decodeHTMLEntities(template);
+
+    // Process survey data to create individual question wildcards
+    data = processSurveyData(data);
 
   // Decode the template before processing it
   template = decodeHTMLEntities(template);

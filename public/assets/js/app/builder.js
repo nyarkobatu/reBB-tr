@@ -311,6 +311,22 @@
             keys.push(`@START_${component.key}@`, `@END_${component.key}@`);
         }
 
+        // Special handling for survey components
+        if (component.type === 'survey' && component.key) {
+            // For the overall survey value
+            //keys.push(component.key);
+            
+            // Generate wildcards for each question in the survey
+            if (component.questions && Array.isArray(component.questions)) {
+                component.questions.forEach(question => {
+                    if (question.value) {
+                        // Create a wildcard for each question using survey key and question value
+                        keys.push(`${component.key}_${question.value}`);
+                    }
+                });
+            }
+        }
+
         if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden', 'datetime', 'day', 'time'].includes(component.type)) {
             if (component.key) {
                 keys.push(component.key);
