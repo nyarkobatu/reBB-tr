@@ -9,6 +9,7 @@
 // Load core files
 require_once ROOT_DIR . '/core/helpers.php';
 require_once ROOT_DIR . '/core/routing.php';
+require_once ROOT_DIR . '/core/analytics.php';
 
 // Load route definitions
 require_once ROOT_DIR . '/routes.php';

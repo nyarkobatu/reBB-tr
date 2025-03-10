@@ -404,6 +404,7 @@ ob_start();
         <div class="page-header">
             <h1>Admin Dashboard</h1>
             <div>
+                <a href="<?php echo site_url('analytics'); ?>" class="btn btn-primary"><i class="bi bi-graph-up"></i> View Analytics Dashboard</a>
                 <a href="?" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
                 <a href="?action=logout" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
             </div>

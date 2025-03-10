@@ -201,6 +201,42 @@ if ($requestType === 'schema') {
     
     echo json_encode($responseData);
     exit;
+} elseif ($requestType === 'analytics') {
+    $analytics = new Analytics();
+
+    if (!$analytics->isEnabled()) {
+        echo json_encode(['success' => true, 'analyticsEnabled' => false]);
+        exit;
+    }
+    
+    $action = isset($requestData['action']) ? $requestData['action'] : null;
+    
+    switch ($action) {
+        case 'track_pageview':
+            $page = isset($requestData['page']) ? $requestData['page'] : '';
+            $analytics->trackPageView($page);
+            break;
+            
+        case 'track_component':
+            $component = isset($requestData['component']) ? $requestData['component'] : '';
+            $analytics->trackComponentUsage($component);
+            break;
+            
+        case 'track_theme':
+            $theme = isset($requestData['theme']) ? $requestData['theme'] : '';
+            $analytics->trackThemeUsage($theme);
+            break;
+            
+        case 'track_form':
+            $formId = isset($requestData['formId']) ? $requestData['formId'] : '';
+            $isSubmission = isset($requestData['isSubmission']) ? 
+                $requestData['isSubmission'] : false;
+            $analytics->trackFormUsage($formId, $isSubmission);
+            break;
+    }
+    
+    echo json_encode(['success' => true]);
+    exit;
 } else {
     logAttempt('Invalid request type: ' . $requestType);
     echo json_encode(['success' => false, 'error' => 'Invalid request type.']);

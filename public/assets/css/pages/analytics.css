@@ -1,0 +1,154 @@
+/**
+ * reBB - Analytics Dashboard Styles
+ */
+
+ .chart-container {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.date-range-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.date-range-selector select {
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+/* Stats cards enhancements */
+.stats-card {
+    transition: all 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #007bff;
+}
+
+.stats-card .stat-label {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    color: #6c757d;
+}
+
+/* Table enhancements */
+.table th {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* Dark mode support */
+body.dark-mode .chart-container canvas {
+    filter: invert(0.85) hue-rotate(180deg);
+}
+
+body.dark-mode .stats-card .stat-value {
+    color: #4da3ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .chart-container {
+        height: 220px;
+    }
+    
+    .stats-card .stat-value {
+        font-size: 2rem;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .page-header div {
+        margin-top: 10px;
+    }
+}
+
+/* Real-time visitors indicator */
+.visitor-indicator {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: #e9f7fe;
+    border-radius: 50px;
+    margin-bottom: 20px;
+}
+
+.visitor-indicator .pulse {
+    width: 10px;
+    height: 10px;
+    background-color: #28a745;
+    border-radius: 50%;
+    margin-right: 10px;
+    position: relative;
+}
+
+.visitor-indicator .pulse:before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(40, 167, 69, 0.6);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+/* Export button styling */
+#exportFormDataBtn {
+    transition: all 0.2s ease;
+}
+
+#exportFormDataBtn:hover {
+    background-color: #007bff;
+    color: white;
+}
+
+/* Conversion rate coloring */
+.conversion-high {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.conversion-medium {
+    color: #ffc107;
+}
+
+.conversion-low {
+    color: #dc3545;
+}

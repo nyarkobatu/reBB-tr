@@ -9,7 +9,7 @@
 
 // Define the base path for the application
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', 'v1.4.2b');
+    define('APP_VERSION', 'v1.4.3');
 }
 
 // Define the public path for the application
@@ -131,7 +131,12 @@ $required_constants = [
     'DEBUG_MODE',
     'MAX_REQUESTS_PER_HOUR',
     'COOLDOWN_PERIOD',
-    'IP_BLACKLIST'
+    'IP_BLACKLIST',
+    'ENABLE_ANALYTICS',
+    'TRACK_VISITORS',
+    'TRACK_COMPONENTS',
+    'TRACK_THEMES',
+    'TRACK_FORM_USAGE'
 ];
 
 $missing_constants = [];

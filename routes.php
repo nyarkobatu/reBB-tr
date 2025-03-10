@@ -63,3 +63,8 @@ if(DEBUG_MODE === true) {
         view('debug');
     });
 }
+
+// Analytics dashboard route
+any('/analytics', function() {
+    view('analytics');
+});

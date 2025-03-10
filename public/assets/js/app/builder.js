@@ -434,72 +434,38 @@
             builderInstance.redraw();
             setTimeout(updateWildcards, 0);
         }
-    }
 
-    // Updates to builder.js for the form style selector
-
-    // Add to the saveForm function to include style selection
-    async function saveForm() {
-        const formSchema = builderInstance?.form;
-        if (!formSchema) return alert('No form schema found');
-
-        const formName = formNameInput.value;
-        const formStyle = document.querySelector('input[name="formStyle"]:checked').value;
-
-        try {
-            // Get the last returned CSRF token if it exists
-            const csrfToken = window.lastCsrfToken || '';
-
-            const response = await fetch('ajax', {
+        function trackComponentUsage(componentType) {
+            fetch('ajax', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    type: 'schema',
-                    schema: formSchema,
-                    template: templateInput.value,
-                    formName: formName,
-                    formStyle: formStyle, // Add the form style
-                    csrf_token: csrfToken // Include CSRF token
+                    type: 'analytics',
+                    action: 'track_component',
+                    component: componentType
                 })
-            });
-
-            const data = await response.json();
-            if (!data.success) throw new Error(data.error);
-
-            // Store the new CSRF token for next request
-            if (data.csrf_token) {
-                window.lastCsrfToken = data.csrf_token;
-            }
-
-            // Extract just the form ID from the filename
-            let formId = data.filename.replace('forms/', '').replace('_schema.json', '');
-            
-            // Make sure we don't include any directory paths in the formId
-            if (formId.includes('/') || formId.includes('\\')) {
-                formId = formId.split(/[\/\\]/).pop();
-            }
-            
-            const shareUrl = siteURL + `form?f=${formId}`;
-
-            document.getElementById('shareable-link').textContent = shareUrl;
-            document.getElementById('shareable-link').href = shareUrl;
-            document.getElementById('go-to-form-button').href = shareUrl;
-            document.getElementById('success-message').style.display = 'block';
-        } catch (error) {
-            console.error('Save error:', error);
-            alert('Error saving form: ' + (error.message || 'Unknown error'));
+            }).catch(err => console.warn('Analytics error:', err));
         }
+
+
+        trackComponentUsage(component.type);
     }
-
-    // Updates to builder.js for the form style selector
-
-    // Add to the saveForm function to include style selection
     async function saveForm() {
         const formSchema = builderInstance?.form;
         if (!formSchema) return alert('No form schema found');
 
         const formName = formNameInput.value;
         const formStyle = document.querySelector('input[name="formStyle"]:checked').value;
+
+        fetch('ajax', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'analytics',
+                action: 'track_theme',
+                theme: formStyle
+            })
+        }).catch(err => console.warn('Analytics error:', err));
 
         try {
             // Get the last returned CSRF token if it exists
@@ -579,7 +545,6 @@
                 }
             });
         });
-
         // Initialize form style from existing data
         initFormStyle();
     }

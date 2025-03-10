@@ -44,6 +44,19 @@ define('IP_BLACKLIST', ['192.0.2.1']);  // Example blacklisted IPs (replace with
 // Feature flags
 define('DEBUG_MODE',         ENVIRONMENT === 'development');
 
+// ╔════════════════════════════════════════╗
+// ║         ANALYTICS CONFIGURATION        ║
+// ╚════════════════════════════════════════╝
+
+// Enable or disable the analytics system globally
+define('ENABLE_ANALYTICS',    true);
+
+// Configure what to track
+define('TRACK_VISITORS',      true);    // Track page views and visitor counts
+define('TRACK_COMPONENTS',    true);    // Track component usage statistics
+define('TRACK_THEMES',        true);    // Track theme selection statistics
+define('TRACK_FORM_USAGE',    true);    // Track form views and submissions
+
 /**
  * End of configuration
  */

@@ -128,6 +128,25 @@ function processTemplate(template, data) {
   return processedTemplate;
 }
 
+function trackFormUsage(isSubmission = false) {
+    // Extract form ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const formId = urlParams.get('f');
+    
+    if (formId) {
+        fetch('ajax', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'analytics',
+                action: 'track_form',
+                formId: formId,
+                isSubmission: isSubmission
+            })
+        }).catch(err => console.warn('Analytics error:', err));
+    }
+}
+
 /**
 * Copy text to clipboard function
 * @param {string} text - The text to copy
@@ -212,6 +231,7 @@ Formio.createForm(document.getElementById('formio'), formSchema, { noAlerts: tru
     const submissionCopy = JSON.parse(JSON.stringify(submission.data));
     const generatedOutput = processTemplate(formTemplate, submissionCopy);
     outputField.value = generatedOutput;
+    trackFormUsage(true);
     form.emit('submitDone');
   });
 })
@@ -241,3 +261,7 @@ function getCookie(name) {
   }
   return null;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    trackFormUsage(false);
+});

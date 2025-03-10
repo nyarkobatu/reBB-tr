@@ -132,6 +132,7 @@ function is_homepage() {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script><?php yield_js_vars(); ?></script>
     <script src="<?php echo asset_path('js/common.js'); ?>?v=<?php echo APP_VERSION; ?>"></script>
+    <script src="<?php echo asset_path('js/analytics.js'); ?>?v=<?php echo APP_VERSION; ?>"></script>
     <?php yield_javascript(); ?>
 </body>
 </html>
