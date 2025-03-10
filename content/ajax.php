@@ -36,8 +36,18 @@ if (!is_dir($logsDir)) {
     mkdir($logsDir, 0755, true);
 }
 
-// Get client IP address - define this before using it
-$ip = getClientIP();
+// Debug IP variables - to help troubleshoot issues
+if (defined('DEBUG_MODE') && DEBUG_MODE) {
+    $raw_remote_addr = $_SERVER['REMOTE_ADDR'] ?? 'Not available';
+    $raw_client_ip = $_SERVER['HTTP_CLIENT_IP'] ?? 'Not available';
+    $raw_forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'Not available';
+    
+    $debug_file = ROOT_DIR . '/logs/ip_debug.log';
+    file_put_contents($debug_file, "[" . date('Y-m-d H:i:s') . "] IP Debug Info:\n" . 
+        "REMOTE_ADDR: {$raw_remote_addr}\n" .
+        "HTTP_CLIENT_IP: {$raw_client_ip}\n" .
+        "HTTP_X_FORWARDED_FOR: {$raw_forwarded_for}\n\n", FILE_APPEND);
+}
 
 // Check if request method is valid
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -45,6 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['success' => false, 'error' => 'Invalid request method. Only POST allowed.']);
     exit;
 }
+
+// Get client IP address - get it for each use rather than storing globally
+$ip = getClientIP();
 
 // Check if IP is blacklisted
 if (in_array($ip, $ajax_config['ip_blacklist'])) {
@@ -199,6 +212,35 @@ if ($requestType === 'schema') {
  * @return string The IP address
  */
 function getClientIP() {
+    // Try each common IP source variable
+    $ip_sources = [
+        'HTTP_CLIENT_IP', 
+        'HTTP_X_FORWARDED_FOR', 
+        'HTTP_X_FORWARDED', 
+        'HTTP_FORWARDED_FOR', 
+        'HTTP_FORWARDED', 
+        'REMOTE_ADDR'
+    ];
+    
+    foreach ($ip_sources as $source) {
+        if (!empty($_SERVER[$source])) {
+            // For forwarded IPs that might contain multiple IPs
+            if ($source === 'HTTP_X_FORWARDED_FOR') {
+                $ips = explode(',', $_SERVER[$source]);
+                $ip = trim($ips[0]);
+            } else {
+                $ip = $_SERVER[$source];
+            }
+            
+            // If it's a valid IP that's not a private range, use it
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return $ip;
+            }
+        }
+    }
+    
+    // If we didn't find any valid IP in the preferred sources,
+    // just return REMOTE_ADDR as a last resort
     return $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
 }
 
@@ -208,7 +250,10 @@ function getClientIP() {
  * @param bool $isFailure Whether this is a failed attempt (default: true)
  */
 function logAttempt($message, $isFailure = true) {
-    global $ajax_config, $ip;
+    global $ajax_config;
+    
+    // Get IP directly in this function to ensure it's always available
+    $ip = getClientIP();
     
     // Safety check - make sure log_file is defined
     if (empty($ajax_config) || empty($ajax_config['log_file'])) {
