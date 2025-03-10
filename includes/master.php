@@ -76,6 +76,64 @@ function is_homepage() {
     // Check if we're at the root
     return ($path === '/' || $path === '/index.php');
 }
+
+/**
+ * Add this function to includes/master.php, just before the closing </head> tag
+ */
+function generate_meta_tags() {
+    // Default values
+    $title = get_page_title();
+    $description = SITE_DESCRIPTION ?? 'BBCode done differently';
+    $image = site_url('resources/android-chrome-512x512.png');
+    $url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+    $type = 'website';
+    
+    // Get specific page information
+    if (isset($_GET['f']) && !empty($_GET['f'])) {
+        // We're on a form page - get the form name if available
+        $formId = $_GET['f'];
+        $filename = ROOT_DIR . '/forms/' . $formId . '_schema.json';
+        
+        if (file_exists($filename)) {
+            $formData = json_decode(file_get_contents($filename), true);
+            if ($formData && isset($formData['formName']) && !empty($formData['formName'])) {
+                $title = htmlspecialchars($formData['formName']) . " - " . SITE_NAME;
+                $description = "Fill out this form to generate formatted BBCode content.";
+            }
+        }
+    } elseif (isset($GLOBALS['page_title']) && strpos($GLOBALS['page_title'], 'Documentation') !== false) {
+        // Documentation page
+        $description = "reBB Documentation - Learn how to create and use forms for formatted BBCode content.";
+    } elseif (is_homepage()) {
+        // Homepage
+        $title = SITE_NAME . ' - ' . SITE_DESCRIPTION;
+        $description = "Create custom forms without any coding knowledge. Generate structured BBCode content with a simple drag-and-drop interface.";
+    } elseif (isset($GLOBALS['page_title']) && strpos($GLOBALS['page_title'], 'Builder') !== false) {
+        // Form Builder page
+        $description = "Create your own custom form with our easy-to-use form builder. Design forms to generate BBCode templates.";
+    } elseif (isset($GLOBALS['page_title']) && strpos($GLOBALS['page_title'], 'Admin') !== false) {
+        // Admin page - might want to have no meta for this page
+        return "";
+    }
+
+    // Generate the meta tags
+    $meta = "\n    <!-- Open Graph / Social Media Meta Tags -->\n";
+    $meta .= '    <meta property="og:title" content="' . htmlspecialchars($title) . '" />' . "\n";
+    $meta .= '    <meta property="og:description" content="' . htmlspecialchars($description) . '" />' . "\n";
+    $meta .= '    <meta property="og:image" content="' . htmlspecialchars($image) . '" />' . "\n";
+    $meta .= '    <meta property="og:url" content="' . htmlspecialchars($url) . '" />' . "\n";
+    $meta .= '    <meta property="og:type" content="' . $type . '" />' . "\n";
+    $meta .= '    <meta property="og:site_name" content="' . htmlspecialchars(SITE_NAME) . '" />' . "\n";
+    
+    // Twitter Card meta tags
+    $meta .= '    <meta name="twitter:card" content="summary_large_image" />' . "\n";
+    $meta .= '    <meta name="twitter:title" content="' . htmlspecialchars($title) . '" />' . "\n";
+    $meta .= '    <meta name="twitter:description" content="' . htmlspecialchars($description) . '" />' . "\n";
+    $meta .= '    <meta name="twitter:image" content="' . htmlspecialchars($image) . '" />' . "\n";
+    
+    return $meta;
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,10 +141,11 @@ function is_homepage() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo get_page_title(); ?></title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo site_url(); ?>/resources/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo site_url(); ?>/resources/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo site_url(); ?>/resources/favicon-16x16.png">
-    <link rel="manifest" href="<?php echo site_url(); ?>/resources/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?php echo site_url(); ?>resources/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?php echo site_url(); ?>resources/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo site_url(); ?>resources/favicon-16x16.png">
+    <link rel="manifest" href="<?php echo site_url(); ?>resources/site.webmanifest">
+    <?php echo generate_meta_tags(); ?>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="<?php echo asset_path('css/app.css'); ?>?v=<?php echo APP_VERSION; ?>">
