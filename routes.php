@@ -58,13 +58,13 @@ get('/docs/:id', function($params) {
     view('documentation');
 });
 
+// Analytics dashboard route
+any('/analytics', function() {
+    view('analytics');
+});
+
 if(DEBUG_MODE === true) {
     get('/debug', function() {
         view('debug');
     });
 }
-
-// Analytics dashboard route
-any('/analytics', function() {
-    view('analytics');
-});

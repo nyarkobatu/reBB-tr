@@ -104,9 +104,13 @@ class Router {
             $path = '/' . ltrim($path, '/');
         }
         
+        // Normalize path by removing trailing slashes (except for root "/")
+        if ($path !== '/' && substr($path, -1) === '/') {
+            $path = rtrim($path, '/');
+        }
+        
         return $path;
     }
-    
     /**
      * Check for legacy URLs and redirect if needed
      *
