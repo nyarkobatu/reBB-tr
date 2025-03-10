@@ -248,6 +248,21 @@ Formio.createForm(document.getElementById('formio'), formSchema, { noAlerts: tru
   form.on('submit', function(submission) {
     // Clone the data to prevent any issues with form reset
     const submissionCopy = JSON.parse(JSON.stringify(submission.data));
+    
+    // Find and process all date inputs in the form
+    document.querySelectorAll('input[type="hidden"][value*="T00:00:00"]').forEach(hiddenInput => {
+      const key = hiddenInput.name.replace('data[', '').replace(']', '');
+      
+      // Find the visible input next to this hidden input
+      const visibleInput = hiddenInput.nextElementSibling;
+      
+      if (visibleInput && visibleInput.classList.contains('input') && key in submissionCopy) {
+        // Replace the ISO date with the displayed date value
+        submissionCopy[key] = visibleInput.value;
+      }
+    });
+    
+    // Process the template with our updated data
     const generatedOutput = processTemplate(formTemplate, submissionCopy);
     outputField.value = generatedOutput;
     
