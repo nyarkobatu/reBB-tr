@@ -26,6 +26,40 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
     }
 }
 
+$formStyles = [
+    [
+        'id' => 'styleDefault',
+        'value' => 'default',
+        'label' => 'Default',
+        'description' => 'Standard form layout with clean design.',
+        'default' => true
+    ],
+    [
+        'id' => 'stylePaperwork',
+        'value' => 'paperwork',
+        'label' => 'Paperwork',
+        'description' => 'Form styled like an official document or paperwork.'
+    ],
+    [
+        'id' => 'styleVector',
+        'value' => 'vector',
+        'label' => 'Vector',
+        'description' => 'Clean, professional style resembling a fillable PDF document.'
+    ],
+    [
+        'id' => 'styleRetro',
+        'value' => 'retro',
+        'label' => 'Retro',
+        'description' => 'Classic, nostalgic retro-style theme resembling an old program.'
+    ],
+    [
+        'id' => 'styleModern',
+        'value' => 'modern',
+        'label' => 'Modern',
+        'description' => 'Modern, slick style with a clean, minimalist aesthetic.'
+    ]
+];
+
 // Define the page content to be yielded in the master layout
 ob_start();
 ?>
@@ -41,71 +75,26 @@ ob_start();
     <div id='form-style-container' style="margin-top: 20px;">
         <h3>Form Style:</h3>
         <div class="form-style-options">
-            <label class="style-option" for="styleDefault">
-                <input class="form-check-input" type="radio" name="formStyle" id="styleDefault" value="default" checked>
-                <span class="form-check-label">Default</span>
+        <?php
+        foreach ($formStyles as $style) {?>
+            <label class="style-option" for="<?php echo $style['id']; ?>">
+                <input class="form-check-input" type="radio" name="formStyle" 
+                       id="<?php echo $style['id']; ?>" value="<?php echo $style['value']; ?>">
+                <span class="form-check-label"><?php echo $style['label']; ?></span>
                 <div class="style-tooltip">
                     <i class="bi bi-info-circle"></i>
                     <div class="tooltip-content">
-                        <p>Standard form layout with clean design.</p>
+                        <p><?php echo $style['description']; ?></p>
                         <div class="tooltip-image">
-                            <img src="<?php echo asset_path('images/form-types/default.png'); ?>" alt="Default style preview">
+                            <img src="<?php echo asset_path('images/form-types/' . $style['value'] . '.png'); ?>" 
+                                 alt="<?php echo $style['label']; ?> style preview">
                         </div>
                     </div>
                 </div>
             </label>
-            <label class="style-option" for="stylePaperwork">
-                <input class="form-check-input" type="radio" name="formStyle" id="stylePaperwork" value="paperwork">
-                <span class="form-check-label">Paperwork</span>
-                <div class="style-tooltip">
-                    <i class="bi bi-info-circle"></i>
-                    <div class="tooltip-content">
-                        <p>Form styled like an official document or paperwork.</p>
-                        <div class="tooltip-image">
-                            <img src="<?php echo asset_path('images/form-types/paperwork.png'); ?>" alt="Paperwork style preview">
-                        </div>
-                    </div>
-                </div>
-            </label>
-            <label class="style-option" for="styleVector">
-                <input class="form-check-input" type="radio" name="formStyle" id="styleVector" value="vector">
-                <span class="form-check-label">Vector</span>
-                <div class="style-tooltip">
-                    <i class="bi bi-info-circle"></i>
-                    <div class="tooltip-content">
-                        <p>Clean, professional style resembling a fillable PDF document.</p>
-                        <div class="tooltip-image">
-                            <img src="<?php echo asset_path('images/form-types/vector.png'); ?>" alt="PDF Form style preview">
-                        </div>
-                    </div>
-                </div>
-            </label>
-            <label class="style-option" for="styleRetro">
-                <input class="form-check-input" type="radio" name="formStyle" id="styleRetro" value="retro">
-                <span class="form-check-label">Retro</span>
-                <div class="style-tooltip">
-                    <i class="bi bi-info-circle"></i>
-                    <div class="tooltip-content">
-                        <p>Classic, nostalgic retro-style theme resembling an old program.</p>
-                        <div class="tooltip-image">
-                            <img src="<?php echo asset_path('images/form-types/retro.png'); ?>" alt="Retro style preview">
-                        </div>
-                    </div>
-                </div>
-            </label>
-            <label class="style-option" for="styleModern">
-                <input class="form-check-input" type="radio" name="formStyle" id="styleModern" value="modern">
-                <span class="form-check-label">Modern</span>
-                <div class="style-tooltip">
-                    <i class="bi bi-info-circle"></i>
-                    <div class="tooltip-content">
-                        <p>Modern, slick style with a clean, minimalist aesthetic.</p>
-                        <div class="tooltip-image">
-                            <img src="<?php echo asset_path('images/form-types/modern.png'); ?>" alt="Modern style preview">
-                        </div>
-                    </div>
-                </div>
-            </label>
+            <?php
+        }
+        ?>
         </div>
     </div>
 

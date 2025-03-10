@@ -199,15 +199,7 @@ if ($requestType === 'schema') {
  * @return string The IP address
  */
 function getClientIP() {
-    if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-        return $_SERVER['HTTP_CLIENT_IP'];
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        // Get the first IP in case of multiple proxies
-        $ips = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
-        return trim($ips[0]);
-    } else {
-        return $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-    }
+    return $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
 }
 
 /**

@@ -136,29 +136,14 @@ $GLOBALS['page_settings'] = [
     'footer' => 'form'
 ];
 
-if ($formStyle === 'default') {
-    // Include both the default CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/default.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/default-dark.css') .'?v=' . APP_VERSION . '">';
-} elseif ($formStyle === 'paperwork') {
-    // Include both the paperwork CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/paperwork.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/paperwork-dark.css') .'?v=' . APP_VERSION . '">';
-} elseif ($formStyle === 'vector') {
-    // Include both the vector CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/vector.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/vector-dark.css') .'?v=' . APP_VERSION . '">';
-}
-elseif ($formStyle === 'retro') {
-    // Include both the retro CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/retro.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/retro-dark.css') .'?v=' . APP_VERSION . '">';
-}
-elseif ($formStyle === 'modern') {
-    // Include both the modern CSS and the dark mode version
-    $formStyleCSS = '<link rel="stylesheet" href="' . asset_path('css/forms/modern.css') . '?v=' . APP_VERSION . '">' . PHP_EOL;
-    $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path('/css/forms/modern-dark.css') .'?v=' . APP_VERSION . '">';
-} // yes i know this fucking sucks, i'll do it better another time, rn i just wanna get this done it's 1am
+// Define allowed styles and set default
+$allowedStyles = ['default', 'paperwork', 'vector', 'retro', 'modern'];
+$formStyle = in_array($formStyle, $allowedStyles) ? $formStyle : 'default';
+
+// Generate CSS links - base style and dark mode version
+$formStyleCSS = '<link rel="stylesheet" href="' . asset_path("css/forms/{$formStyle}.css") . '?v=' . APP_VERSION . '">' . PHP_EOL;
+$formStyleCSS .= '<link rel="stylesheet" href="' . asset_path("css/forms/{$formStyle}-dark.css") . '?v=' . APP_VERSION . '">';
+
 $GLOBALS['page_css'] = $formStyleCSS;
 
 // Add page-specific JavaScript
