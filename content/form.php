@@ -217,23 +217,30 @@ if ($isJsonRequest) {
     header('Content-Type: text/html');
     $formSchema = null;
     $formTemplate = '';
+    $formTemplateTitle = ''; 
+    $formTemplateLink = '';  
+    $enableTemplateTitle = false; // Add variable for template title toggle
+    $enableTemplateLink = false;  // Add variable for template link toggle
     $formNameDisplay = '';
     $formStyle = 'default'; // Default value
     $showAlert = false; // Flag to control sensitive information banner display
     $bypassSecurityCheck = isset($_GET['confirm']) && $_GET['confirm'] === '1';
-
+  
     if (isset($_GET['f'])) {
         $formName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['f']);
         $filename = ROOT_DIR . '/forms/' . $formName . '_schema.json';
-
+  
         if (file_exists($filename)) {
             $fileContents = file_get_contents($filename);
             $formData = json_decode($fileContents, true);
             $formSchema = $formData['schema'] ?? null;
             $formTemplate = $formData['template'] ?? '';
+            $formTemplateTitle = $formData['templateTitle'] ?? '';
+            $formTemplateLink = $formData['templateLink'] ?? '';
+            $enableTemplateTitle = $formData['enableTemplateTitle'] ?? false;
+            $enableTemplateLink = $formData['enableTemplateLink'] ?? false;
             $formStyle = $formData['formStyle'] ?? 'default';
             $formNameDisplay = $formData['formName'] ?? '';
-
             // Enhanced sensitive information detection
             if ($formSchema) {
                 // Check both the schema and template for sensitive information
@@ -305,11 +312,20 @@ ob_start();
 
   <div id="output-container">
     <h4>Generated Output:</h4>
+    <!-- Template Title Field (displays only if template title exists) -->
+    <div id="template-title-container" class="mb-3" style="display: <?php echo ($enableTemplateTitle && !empty($formTemplateTitle)) ? 'block' : 'none'; ?>">
+        <small class="text-muted">Title</small>
+        <input type="text" id="generated-title" class="form-control mb-2" readonly>
+    </div>
+    <small class="text-muted">Content</small>
     <textarea id="output" class="form-control" rows="5" readonly></textarea>
     <div class="mt-2 text-end">
       <button id="copyOutputBtn" class="btn btn-primary">
         <i class="bi bi-clipboard"></i> Copy to Clipboard
       </button>
+      <a id="postContentBtn" class="btn btn-success ms-2" style="display: <?php echo ($enableTemplateLink && !empty($formTemplateLink)) ? 'inline-block' : 'none'; ?>" target="_blank">
+        <i class="bi bi-box-arrow-up-right"></i> Post Content
+      </a>
     </div>
   </div>
 <?php endif; ?>
@@ -349,9 +365,17 @@ if (!$dangerousJSDetected || $bypassSecurityCheck) {
         JSON_HEX_TAG
     );
     $formTemplate = json_encode($formTemplate, JSON_UNESCAPED_SLASHES);
+    $formTemplateTitle = $enableTemplateTitle ? json_encode($formTemplateTitle, JSON_UNESCAPED_SLASHES) : 'null';
+    $formTemplateLink = $enableTemplateLink ? json_encode($formTemplateLink, JSON_UNESCAPED_SLASHES) : 'null';
+    $enableTemplateTitleJS = $enableTemplateTitle ? 'true' : 'false';
+    $enableTemplateLinkJS = $enableTemplateLink ? 'true' : 'false';
     $GLOBALS['page_js_vars'] = <<<JSVARS
 const formSchema = $formSchema;
 const formTemplate = $formTemplate;
+const formTemplateTitle = $formTemplateTitle;
+const formTemplateLink = $formTemplateLink;
+const enableTemplateTitle = $enableTemplateTitleJS;
+const enableTemplateLink = $enableTemplateLinkJS;
 JSVARS;
     $GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/form.js') .'?v=' . APP_VERSION . '"></script>';
 } else {

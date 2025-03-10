@@ -146,6 +146,12 @@ if ($requestType === 'schema') {
     $formTemplate = isset($requestData['template']) ? $requestData['template'] : ''; 
     $formName = isset($requestData['formName']) ? $requestData['formName'] : '';
     $formStyle = isset($requestData['formStyle']) ? $requestData['formStyle'] : 'default'; // Get form style
+    
+    // Get the template title and link fields with toggle states
+    $enableTemplateTitle = isset($requestData['enableTemplateTitle']) ? (bool)$requestData['enableTemplateTitle'] : false;
+    $enableTemplateLink = isset($requestData['enableTemplateLink']) ? (bool)$requestData['enableTemplateLink'] : false;
+    $templateTitle = $enableTemplateTitle && isset($requestData['templateTitle']) ? $requestData['templateTitle'] : '';
+    $templateLink = $enableTemplateLink && isset($requestData['templateLink']) ? $requestData['templateLink'] : '';
 
     if ($formSchema === null) {
         logAttempt('No form schema data received');
@@ -163,6 +169,8 @@ if ($requestType === 'schema') {
 
     // Sanitize template to prevent malicious content
     $formTemplate = htmlspecialchars($formTemplate, ENT_QUOTES, 'UTF-8');
+    $templateTitle = htmlspecialchars($templateTitle, ENT_QUOTES, 'UTF-8');
+    $templateLink = htmlspecialchars($templateLink, ENT_QUOTES, 'UTF-8');
     
     // Validate form style (only allow valid options)
     $allowedStyles = ['default', 'paperwork', 'vector', 'retro', 'modern'];
@@ -177,7 +185,11 @@ if ($requestType === 'schema') {
         'formName' => $formName,
         'schema' => $formSchema,
         'template' => $formTemplate,
-        'formStyle' => $formStyle, // Include form style in the saved data
+        'templateTitle' => $templateTitle,
+        'templateLink' => $templateLink,
+        'enableTemplateTitle' => $enableTemplateTitle,
+        'enableTemplateLink' => $enableTemplateLink,
+        'formStyle' => $formStyle,
     ], JSON_PRETTY_PRINT);
 
     if (!file_put_contents($filename, $fileContent)) {

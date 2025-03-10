@@ -185,6 +185,59 @@
         setupTemplateListener();
         updateWildcards();
         
+        // Set up template title toggle
+        const templateTitleToggle = document.getElementById('templateTitleToggle');
+        const templateTitleSection = document.getElementById('templateTitleSection');
+        const templateTitle = document.getElementById('templateTitle');
+        
+        if (templateTitleToggle) {
+            // Initialize from PHP value
+            if (typeof enableTemplateTitlePHP !== 'undefined') {
+                templateTitleToggle.checked = enableTemplateTitlePHP;
+                templateTitleSection.style.display = enableTemplateTitlePHP ? 'block' : 'none';
+            }
+            
+            // Set up toggle event listener
+            templateTitleToggle.addEventListener('change', function() {
+                templateTitleSection.style.display = this.checked ? 'block' : 'none';
+                // Clear the field if disabled
+                if (!this.checked) {
+                    templateTitle.value = '';
+                }
+            });
+        }
+        
+        // Set up template link toggle
+        const templateLinkToggle = document.getElementById('templateLinkToggle');
+        const templateLinkSection = document.getElementById('templateLinkSection');
+        const templateLink = document.getElementById('templateLink');
+        
+        if (templateLinkToggle) {
+            // Initialize from PHP value
+            if (typeof enableTemplateLinkPHP !== 'undefined') {
+                templateLinkToggle.checked = enableTemplateLinkPHP;
+                templateLinkSection.style.display = enableTemplateLinkPHP ? 'block' : 'none';
+            }
+            
+            // Set up toggle event listener
+            templateLinkToggle.addEventListener('change', function() {
+                templateLinkSection.style.display = this.checked ? 'block' : 'none';
+                // Clear the field if disabled
+                if (!this.checked) {
+                    templateLink.value = '';
+                }
+            });
+        }
+        
+        // Initialize values from PHP if they exist
+        if (typeof existingTemplateTitlePHP !== 'undefined' && existingTemplateTitlePHP) {
+            templateTitle.value = existingTemplateTitlePHP;
+        }
+        
+        if (typeof existingTemplateLinkPHP !== 'undefined' && existingTemplateLinkPHP) {
+            templateLink.value = existingTemplateLinkPHP;
+        }
+        
         // Create a help text element that we'll show/hide as needed
         const wildcardContainer = document.getElementById('wildcard-container');
         const helpText = document.createElement('div');
@@ -450,12 +503,22 @@
 
         trackComponentUsage(component.type);
     }
+    // Update the saveForm function to include the toggle states
     async function saveForm() {
         const formSchema = builderInstance?.form;
         if (!formSchema) return alert('No form schema found');
 
         const formName = formNameInput.value;
         const formStyle = document.querySelector('input[name="formStyle"]:checked').value;
+        
+        // Get template title and link values with toggle states
+        const templateTitleToggle = document.getElementById('templateTitleToggle');
+        const templateLinkToggle = document.getElementById('templateLinkToggle');
+        const enableTemplateTitle = templateTitleToggle ? templateTitleToggle.checked : false;
+        const enableTemplateLink = templateLinkToggle ? templateLinkToggle.checked : false;
+        
+        const templateTitle = enableTemplateTitle ? document.getElementById('templateTitle').value || '' : '';
+        const templateLink = enableTemplateLink ? document.getElementById('templateLink').value || '' : '';
 
         fetch('ajax', {
             method: 'POST',
@@ -478,9 +541,13 @@
                     type: 'schema',
                     schema: formSchema,
                     template: templateInput.value,
+                    templateTitle: templateTitle,
+                    templateLink: templateLink,
+                    enableTemplateTitle: enableTemplateTitle,
+                    enableTemplateLink: enableTemplateLink,
                     formName: formName,
-                    formStyle: formStyle, // Add the form style
-                    csrf_token: csrfToken // Include CSRF token
+                    formStyle: formStyle,
+                    csrf_token: csrfToken
                 })
             });
 

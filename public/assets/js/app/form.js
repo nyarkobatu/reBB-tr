@@ -188,6 +188,25 @@ Formio.createForm(document.getElementById('formio'), formSchema, { noAlerts: tru
   const outputContainer = document.getElementById('output-container');
   const outputField = document.getElementById('output');
   const copyButton = document.getElementById('copyOutputBtn');
+  const templateTitleContainer = document.getElementById('template-title-container');
+  const generatedTitleField = document.getElementById('generated-title');
+  const postContentBtn = document.getElementById('postContentBtn');
+  
+  // Initialize template title and link features based on toggle states
+  if (typeof enableTemplateTitle !== 'undefined' && enableTemplateTitle && 
+    typeof formTemplateTitle !== 'undefined' && formTemplateTitle) {
+        templateTitleContainer.style.display = 'block';
+    } else {
+        templateTitleContainer.style.display = 'none';
+    }
+
+    if (typeof enableTemplateLink !== 'undefined' && enableTemplateLink && 
+        typeof formTemplateLink !== 'undefined' && formTemplateLink) {
+            postContentBtn.style.display = 'inline-block';
+            postContentBtn.href = formTemplateLink;
+    } else {
+        postContentBtn.style.display = 'none';
+  }
   
   // Initialize the copy button functionality
   if (copyButton) {
@@ -231,6 +250,15 @@ Formio.createForm(document.getElementById('formio'), formSchema, { noAlerts: tru
     const submissionCopy = JSON.parse(JSON.stringify(submission.data));
     const generatedOutput = processTemplate(formTemplate, submissionCopy);
     outputField.value = generatedOutput;
+    
+    // Process template title if it's enabled and exists
+    if (typeof enableTemplateTitle !== 'undefined' && enableTemplateTitle && 
+        typeof formTemplateTitle !== 'undefined' && formTemplateTitle) {
+      const generatedTitle = processTemplate(formTemplateTitle, submissionCopy);
+      generatedTitleField.value = generatedTitle;
+      templateTitleContainer.style.display = 'block';
+    }
+    
     trackFormUsage(true);
     form.emit('submitDone');
   });

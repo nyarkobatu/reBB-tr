@@ -8,6 +8,10 @@
 $existingSchema = null;
 $existingFormName = '';
 $existingTemplate = '';
+$existingTemplateTitle = ''; // New variable for template title
+$existingTemplateLink = '';  // New variable for template link
+$enableTemplateTitle = false; // New variable for title toggle
+$enableTemplateLink = false;  // New variable for link toggle
 $existingFormStyle = 'default'; // Default style
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
@@ -21,6 +25,10 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             $existingSchema = json_encode($formData['schema']);
             $existingFormName = isset($formData['formName']) ? $formData['formName'] : '';
             $existingTemplate = isset($formData['template']) ? $formData['template'] : '';
+            $existingTemplateTitle = isset($formData['templateTitle']) ? $formData['templateTitle'] : ''; 
+            $existingTemplateLink = isset($formData['templateLink']) ? $formData['templateLink'] : '';
+            $enableTemplateTitle = isset($formData['enableTemplateTitle']) ? $formData['enableTemplateTitle'] : false;
+            $enableTemplateLink = isset($formData['enableTemplateLink']) ? $formData['enableTemplateLink'] : false;
             $existingFormStyle = isset($formData['formStyle']) ? $formData['formStyle'] : 'default';
         }
     }
@@ -108,6 +116,47 @@ ob_start();
                     placeholder='Paste your BBCode / HTML / Template here, use the wildcards above, example: [b]Name:[/b] {NAME_ABC1}.'><?php echo htmlspecialchars($existingTemplate); ?></textarea>
     </div>
 
+        <!-- New Template Title and Link Fields with Toggles -->
+        <div id='template-extra-container' style="margin-top: 20px;">
+        <h3>Additional Template Options:</h3>
+        
+        <!-- Template Title Toggle & Section -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Template Title</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="templateTitleToggle" 
+                           <?php echo $enableTemplateTitle ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="templateTitleToggle">Enable</label>
+                </div>
+            </div>
+            <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
+                <small class="form-text text-muted d-block mb-2">You can use the same wildcards as in the template itself</small>
+                <input type='text' id='templateTitle' class='form-control' 
+                       placeholder='Generally used to create dynamic topic names' 
+                       value="<?php echo htmlspecialchars($existingTemplateTitle); ?>">
+            </div>
+        </div>
+        
+        <!-- Template Link Toggle & Section -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Template Link</h5>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="templateLinkToggle" 
+                           <?php echo $enableTemplateLink ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="templateLinkToggle">Enable</label>
+                </div>
+            </div>
+            <div class="card-body" id="templateLinkSection" style="<?php echo $enableTemplateLink ? '' : 'display: none;'; ?>">
+                <small class="form-text text-muted d-block mb-2">You cannot use wildcards within this section, this will display a button next to the copy text button</small>
+                <input type='text' id='templateLink' class='form-control' 
+                       placeholder='Generally used to offer the user a link as to where to post the generated content' 
+                       value="<?php echo htmlspecialchars($existingTemplateLink); ?>">
+            </div>
+        </div>
+    </div>
+
     <div id='button-container'>
         <button id='saveFormButton' class='btn btn-primary'>Save Form</button>
     </div>
@@ -147,12 +196,20 @@ $GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/bu
 // Add page-specific JavaScript
 $existingSchema = $existingSchema ? $existingSchema : 'null';
 $existingTemplate = json_encode($existingTemplate, JSON_UNESCAPED_SLASHES);
+$existingTemplateTitle = json_encode($existingTemplateTitle, JSON_UNESCAPED_SLASHES);
+$existingTemplateLink = json_encode($existingTemplateLink, JSON_UNESCAPED_SLASHES);
+$enableTemplateTitleJS = $enableTemplateTitle ? 'true' : 'false';
+$enableTemplateLinkJS = $enableTemplateLink ? 'true' : 'false';
 $existingStyleJS = json_encode($existingFormStyle);
 $siteURL = site_url();
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
 let existingTemplatePHP = $existingTemplate;
+let existingTemplateTitlePHP = $existingTemplateTitle;
+let existingTemplateLinkPHP = $existingTemplateLink;
+let enableTemplateTitlePHP = $enableTemplateTitleJS;
+let enableTemplateLinkPHP = $enableTemplateLinkJS;
 let existingFormStyle = $existingStyleJS;
 let siteURL = "$siteURL";
 JSVARS;

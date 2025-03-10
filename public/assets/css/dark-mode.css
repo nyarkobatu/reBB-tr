@@ -670,3 +670,8 @@ body.dark-mode .btn-info:active {
     border-color: #094066 !important;
     color: #ffffff !important;
 }
+
+/* Make text-muted visible in darkmode */
+body.dark-mode .text-muted {
+    color: #888 !important;
+}
