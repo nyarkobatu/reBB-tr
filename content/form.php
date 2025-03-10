@@ -33,21 +33,146 @@ $dangerousPatterns = [
     '\bdata:' => 'data: URI scheme detected'
 ];
 
-$isJsonRequest = false;
-$formName = '';
-$detectedThreats = [];
-$dangerousJSDetected = false;
-
-if (isset($_GET['f'])) {
-    $formName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $_GET['f']); // Allow slash for /json
-
-    if (str_ends_with($formName, '/json')) {
-        $isJsonRequest = true;
-        $formName = substr($formName, 0, -5); // Remove "/json" to get the base form name
+/**
+ * Enhanced function to detect sensitive information in forms
+ * This provides more comprehensive detection than the original implementation
+ */
+function detectSensitiveInformation($data, $template = '') {
+    // Expanded list of sensitive keywords
+    $sensitiveKeywords = [
+        "password", "passcode", "passwd", "pwd", 
+        "secret", "pin", "ssn", "social security",
+        "credit card", "cc number", "ccnumber", "card number", "cardnumber",
+        "cvv", "cvc", "security code", "securitycode",
+        "credentials", "login", "private key", "privatekey",
+        "authenticate", "token", "api key", "apikey", "access key"
+    ];
+    
+    // Convert data to a JSON string for comprehensive text search
+    $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+    
+    // Flatten everything to lowercase for case-insensitive matching
+    $jsonDataLower = strtolower($jsonData);
+    $templateLower = strtolower($template);
+    
+    // Check for exact field types and patterns that indicate sensitive data collection
+    $fieldPatterns = [
+        '"type":\s*"password"',
+        'password',
+        'type=[\'"]{1}password[\'"]{1}',
+        '<input[^>]*type=[\'"]password[\'"]',
+        'inputmode=[\'"]numeric[\'"][^>]*pattern=[\'"][0-9\*]+[\'"]',  // PIN pattern
+        '\bpin\b',
+        'secret',
+        'ssn',
+        'secure',
+        'credentials'
+    ];
+    
+    // Check schema against patterns
+    foreach ($fieldPatterns as $pattern) {
+        if (preg_match('/' . $pattern . '/i', $jsonDataLower)) {
+            return true;
+        }
     }
+    
+    // Check template against patterns if provided
+    if (!empty($template)) {
+        foreach ($fieldPatterns as $pattern) {
+            if (preg_match('/' . $pattern . '/i', $templateLower)) {
+                return true;
+            }
+        }
+    }
+    
+    // Check for sensitive keywords in both schema and template
+    foreach ($sensitiveKeywords as $keyword) {
+        // Use word boundary checks to avoid partial matches
+        $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i';
+        
+        if (preg_match($pattern, $jsonDataLower) || 
+            (!empty($template) && preg_match($pattern, $templateLower))) {
+            return true;
+        }
+    }
+    
+    // Additional check for form components that might collect sensitive data
+    $componentPatterns = [
+        '"key":\s*"[^"]*pass[^"]*"',
+        '"key":\s*"[^"]*secure[^"]*"',
+        '"key":\s*"[^"]*pin[^"]*"',
+        '"key":\s*"[^"]*auth[^"]*"',
+        '"label":\s*"[^"]*password[^"]*"',
+        '"label":\s*"[^"]*secret[^"]*"',
+        '"placeholder":\s*"[^"]*enter.*password[^"]*"',
+        '"placeholder":\s*"[^"]*enter.*pin[^"]*"',
+        '"description":\s*"[^"]*security[^"]*"'
+    ];
+    
+    foreach ($componentPatterns as $pattern) {
+        if (preg_match('/' . $pattern . '/i', $jsonDataLower)) {
+            return true;
+        }
+    }
+    
+    // Perform deep scan on arrays to catch nested sensitive information
+    if (is_array($data)) {
+        return recursiveKeyScan($data, $sensitiveKeywords);
+    }
+    
+    return false;
 }
 
-// Function to scan for dangerous JavaScript patterns
+/**
+ * Helper function to recursively scan array keys and values
+ */
+function recursiveKeyScan($array, $keywords) {
+    foreach ($array as $key => $value) {
+        // Check key names
+        if (is_string($key)) {
+            $keyLower = strtolower($key);
+            foreach ($keywords as $keyword) {
+                // Use word boundary for more accurate matches
+                if (preg_match('/\b' . preg_quote($keyword, '/') . '\b/i', $keyLower)) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check string values
+        if (is_string($value)) {
+            $valueLower = strtolower($value);
+            foreach ($keywords as $keyword) {
+                if (preg_match('/\b' . preg_quote($keyword, '/') . '\b/i', $valueLower)) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check component properties that might indicate password fields
+        if (is_array($value) && isset($value['type']) && $value['type'] === 'password') {
+            return true;
+        }
+        
+        // Check for masked input patterns (often used for sensitive data)
+        if (is_array($value) && isset($value['inputMask']) && !empty($value['inputMask'])) {
+            return true;
+        }
+        
+        // Continue recursive scanning for nested arrays
+        if (is_array($value)) {
+            if (recursiveKeyScan($value, $keywords)) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+}
+
+/**
+ * Function to scan for dangerous JavaScript patterns
+ */
 function scanForDangerousPatterns($content, $patterns) {
     $threats = [];
     if (is_string($content)) {
@@ -65,6 +190,20 @@ function scanForDangerousPatterns($content, $patterns) {
         }
     }
     return array_unique($threats);
+}
+
+$isJsonRequest = false;
+$formName = '';
+$detectedThreats = [];
+$dangerousJSDetected = false;
+
+if (isset($_GET['f'])) {
+    $formName = preg_replace('/[^a-zA-Z0-9_\-\/]/', '', $_GET['f']); // Allow slash for /json
+
+    if (str_ends_with($formName, '/json')) {
+        $isJsonRequest = true;
+        $formName = substr($formName, 0, -5); // Remove "/json" to get the base form name
+    }
 }
 
 if ($isJsonRequest) {
@@ -100,38 +239,10 @@ if ($isJsonRequest) {
             $formStyle = $formData['formStyle'] ?? 'default';
             $formNameDisplay = $formData['formName'] ?? '';
 
-            // Check for sensitive keywords in formSchema
-            $sensitiveKeywords = ["password", "passcode", "secret", "pin"];
+            // Enhanced sensitive information detection
             if ($formSchema) {
-                function searchKeywords($array, $keywords) {
-                    foreach ($array as $key => $value) {
-                        if (is_array($value)) {
-                            if (searchKeywords($value, $keywords)) {
-                                return true;
-                            }
-                        } else if (is_string($value)) {
-                            $lowerValue = strtolower($value);
-                            foreach ($keywords as $keyword) {
-                                if (strpos($lowerValue, $keyword) !== false) {
-                                    return true;
-                                }
-                            }
-                        }
-                        if (is_string($key)) {
-                            $lowerKey = strtolower($key);
-                            foreach ($keywords as $keyword) {
-                                if (strpos($lowerKey, $keyword) !== false) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                    return false;
-                }
-
-                if (searchKeywords($formSchema, $sensitiveKeywords)) {
-                    $showAlert = true;
-                }
+                // Check both the schema and template for sensitive information
+                $showAlert = detectSensitiveInformation($formSchema, $formTemplate);
             }
 
             // Scan for dangerous JavaScript patterns
@@ -234,7 +345,7 @@ $GLOBALS['page_css'] = $formStyleCSS;
 
 // Add page-specific JavaScript
 if (!$dangerousJSDetected || $bypassSecurityCheck) {
-    $formSchema = $formSchema = json_encode(
+    $formSchema = json_encode(
         $formSchema, 
         JSON_PRETTY_PRINT | 
         JSON_UNESCAPED_SLASHES | 
