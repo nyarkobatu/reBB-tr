@@ -234,7 +234,14 @@ $GLOBALS['page_css'] = $formStyleCSS;
 
 // Add page-specific JavaScript
 if (!$dangerousJSDetected || $bypassSecurityCheck) {
-    $formSchema = json_encode($formSchema, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    $formSchema = $formSchema = json_encode(
+        $formSchema, 
+        JSON_PRETTY_PRINT | 
+        JSON_UNESCAPED_SLASHES | 
+        JSON_UNESCAPED_UNICODE | 
+        JSON_HEX_QUOT | 
+        JSON_HEX_TAG
+    );
     $formTemplate = json_encode($formTemplate, JSON_UNESCAPED_SLASHES);
     $GLOBALS['page_js_vars'] = <<<JSVARS
 const formSchema = $formSchema;
@@ -246,9 +253,6 @@ JSVARS;
     $GLOBALS['page_js_vars'] = '';
     $GLOBALS['page_javascript'] = '';
 }
-
-// Include the master layout
-require_once ROOT_DIR . '/includes/master.php';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';
