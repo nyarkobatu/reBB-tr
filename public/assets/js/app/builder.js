@@ -313,15 +313,15 @@
 
         // Special handling for survey components
         if (component.type === 'survey' && component.key) {
-            // For the overall survey value
-            //keys.push(component.key);
-            
             // Generate wildcards for each question in the survey
             if (component.questions && Array.isArray(component.questions)) {
-                component.questions.forEach(question => {
+                component.questions.forEach((question, index) => {
                     if (question.value) {
-                        // Create a wildcard for each question using survey key and question value
-                        keys.push(`${component.key}_${question.value}`);
+                        // Create a more concise wildcard format
+                        // Extract first few characters of the value for readability
+                        const shortValue = question.value.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
+                        // Add question number (1-based index)
+                        keys.push(`${component.key}_${shortValue}${index + 1}`);
                     }
                 });
             }

@@ -23,12 +23,19 @@ function processTemplate(template, data) {
             
             // If the value is an object and not an array, it might be a survey component
             if (value && typeof value === 'object' && !Array.isArray(value)) {
-                // For each question in the survey
-                Object.keys(value).forEach(questionKey => {
-                    // Create a new key combining survey key and question key
-                    const combinedKey = `${key}_${questionKey}`;
-                    // Add the selected value for this question to the processed data
-                    processedData[combinedKey] = value[questionKey];
+                // Get the question values and find out how many questions there are
+                const questionKeys = Object.keys(value);
+                
+                questionKeys.forEach((questionKey, index) => {
+                    // Create the traditional combined key for backward compatibility
+                    const traditionalKey = `${key}_${questionKey}`;
+                    processedData[traditionalKey] = value[questionKey];
+                    
+                    // Create the new shortened key format with question number
+                    // Extract the base question key (without long text)
+                    const shortKey = questionKey.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
+                    const numberedKey = `${key}_${shortKey}${index + 1}`;
+                    processedData[numberedKey] = value[questionKey];
                 });
             }
         });

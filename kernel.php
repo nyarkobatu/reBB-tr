@@ -9,7 +9,7 @@
 
 // Define the base path for the application
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', 'v1.4.2');
+    define('APP_VERSION', 'v1.4.2a');
 }
 
 // Define the public path for the application
