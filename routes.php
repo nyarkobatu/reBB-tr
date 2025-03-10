@@ -93,4 +93,8 @@ if(DEBUG_MODE === true) {
     get('/debug', function() {
         view('debug');
     });
+
+    get('/test', function() {
+        echo 'Hello World!';
+    });
 }
