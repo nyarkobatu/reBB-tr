@@ -40,12 +40,7 @@ $dangerousPatterns = [
 function detectSensitiveInformation($data, $template = '') {
     // Expanded list of sensitive keywords
     $sensitiveKeywords = [
-        "password", "passcode", "passwd", "pwd", 
-        "secret", "pin", "ssn", "social security",
-        "credit card", "cc number", "ccnumber", "card number", "cardnumber",
-        "cvv", "cvc", "security code", "securitycode",
-        "credentials", "login", "private key", "privatekey",
-        "authenticate", "token", "api key", "apikey", "access key"
+        "password", "passcode", "passwd", "pwd"
     ];
     
     // Convert data to a JSON string for comprehensive text search
