@@ -118,12 +118,12 @@ ob_start();
 
         <!-- New Template Title and Link Fields with Toggles -->
         <div id='template-extra-container' style="margin-top: 20px;">
-        <h3>Additional Template Options:</h3>
+        <h3>Additional Form Options:</h3>
         
         <!-- Template Title Toggle & Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Template Title</h5>
+                <h5 class="mb-0">Dynamic Form Title</h5>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="templateTitleToggle" 
                            <?php echo $enableTemplateTitle ? 'checked' : ''; ?>>
@@ -131,7 +131,7 @@ ob_start();
                 </div>
             </div>
             <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
-                <small class="form-text text-muted d-block mb-2">You can use the same wildcards as in the template itself</small>
+                <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form, you <b>can</b> use wildcards.</small>
                 <input type='text' id='templateTitle' class='form-control' 
                        placeholder='Generally used to create dynamic topic names' 
                        value="<?php echo htmlspecialchars($existingTemplateTitle); ?>">
@@ -141,7 +141,7 @@ ob_start();
         <!-- Template Link Toggle & Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Template Link</h5>
+                <h5 class="mb-0">Form Link</h5>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="templateLinkToggle" 
                            <?php echo $enableTemplateLink ? 'checked' : ''; ?>>
@@ -149,7 +149,7 @@ ob_start();
                 </div>
             </div>
             <div class="card-body" id="templateLinkSection" style="<?php echo $enableTemplateLink ? '' : 'display: none;'; ?>">
-                <small class="form-text text-muted d-block mb-2">You cannot use wildcards within this section, this will display a button next to the copy text button</small>
+                <small class="form-text text-muted d-block mb-2">Offer users a link to post their generated content, you <b>cannot</b> use wildcards.</small>
                 <input type='text' id='templateLink' class='form-control' 
                        placeholder='Generally used to offer the user a link as to where to post the generated content' 
                        value="<?php echo htmlspecialchars($existingTemplateLink); ?>">
