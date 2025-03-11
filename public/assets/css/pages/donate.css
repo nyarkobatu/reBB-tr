@@ -368,7 +368,7 @@ body.dark-mode .donate-action h2,
 body.dark-mode .ko-fi-button,
 body.dark-mode .ko-fi-button:active,
 body.dark-mode .ko-fi-button:hover {
-    color: #e2e8f0;
+    color: #e2e8f0 !important;
 }
 
 body.dark-mode .highlight {
