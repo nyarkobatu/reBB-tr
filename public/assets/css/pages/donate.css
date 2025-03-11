@@ -364,7 +364,10 @@ body.dark-mode .donate-header h1,
 body.dark-mode .donate-section h2,
 body.dark-mode .feature-card h3,
 body.dark-mode .note-box h3,
-body.dark-mode .donate-action h2 {
+body.dark-mode .donate-action h2,
+body.dark-mode .ko-fi-button,
+body.dark-mode .ko-fi-button:active,
+body.dark-mode .ko-fi-button:hover {
     color: #e2e8f0;
 }
 
