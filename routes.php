@@ -126,6 +126,16 @@ any('/admin', function() {
     view('admin/admin');
 });
 
+// User management
+any('/admin/users', function() {
+    view('admin/users');
+});
+
+// Account sharing
+any('/admin/share', function() {
+    view('admin/share');
+});
+
 // Analytics dashboard
 any('/analytics', function() {
     view('admin/analytics');

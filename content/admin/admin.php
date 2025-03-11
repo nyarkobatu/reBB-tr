@@ -18,8 +18,37 @@ $forms = [];
 $stats = [
     'total_forms' => 0,
     'recent_forms' => 0,
-    'total_size' => 0
+    'total_size' => 0,
+    'total_users' => 0
 ];
+
+/**
+ * Log admin actions
+ * @param string $action The action to log
+ * @param bool $success Whether the action was successful
+ */
+function logAdminAction($action, $success = true) {
+    $logFile = STORAGE_DIR . '/logs/admin_activity.log';
+    $logsDir = dirname($logFile);
+    
+    // Create logs directory if it doesn't exist
+    if (!is_dir($logsDir)) {
+        mkdir($logsDir, 0755, true);
+    }
+    
+    $timestamp = date('Y-m-d H:i:s');
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
+    
+    // Get current authenticated user
+    $user = auth()->getUser();
+    $username = $user ? $user['username'] : 'Unknown';
+    
+    $status = $success ? 'SUCCESS' : 'FAILED';
+    $logEntry = "[$timestamp] [$status] [IP: $ip] [User: $username] $action" . PHP_EOL;
+    
+    // Try to write to log file, silently fail if unable
+    @file_put_contents($logFile, $logEntry, FILE_APPEND);
+}
 
 // Handle form deletion
 if (isset($_POST['delete_form']) && isset($_POST['form_id'])) {
@@ -97,6 +126,16 @@ if (is_dir($formsDir)) {
     }
 }
 
+// Count users
+$dbPath = ROOT_DIR . '/db';
+if (is_dir($dbPath) && is_dir($dbPath . '/users')) {
+    $userStore = new \SleekDB\Store('users', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    $stats['total_users'] = $userStore->count();
+}
+
 // Format total size to be more readable
 if ($stats['total_size'] < 1024) {
     $stats['total_size_formatted'] = $stats['total_size'] . ' B';
@@ -116,7 +155,7 @@ ob_start();
         <h1>Admin Dashboard</h1>
         <div>
             <span class="text-muted me-3">Welcome, <?php echo htmlspecialchars($currentUser['username']); ?></span>
-            <a href="<?php echo site_url('analytics'); ?>" class="btn btn-primary"><i class="bi bi-graph-up"></i> View Analytics</a>
+            <a href="<?php echo site_url('analytics'); ?>" class="btn btn-primary"><i class="bi bi-graph-up"></i> Analytics</a>
             <a href="?" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
             <a href="<?php echo site_url('logout'); ?>" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </div>
@@ -131,7 +170,7 @@ ob_start();
     
     <!-- Stats Row -->
     <div class="row mb-4">
-        <div class="col-md-4 mb-3 mb-md-0">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card stats-card h-100">
                 <div class="card-body">
                     <div class="stat-value"><?php echo $stats['total_forms']; ?></div>
@@ -139,7 +178,7 @@ ob_start();
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3 mb-md-0">
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card stats-card h-100">
                 <div class="card-body">
                     <div class="stat-value"><?php echo $stats['recent_forms']; ?></div>
@@ -147,7 +186,15 @@ ob_start();
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3 mb-md-0">
+        <div class="col-md-3 mb-3 mb-md-0">
+            <div class="card stats-card h-100">
+                <div class="card-body">
+                    <div class="stat-value"><?php echo $stats['total_users']; ?></div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3 mb-md-0">
             <div class="card stats-card h-100">
                 <div class="card-body">
                     <div class="stat-value"><?php echo $stats['total_size_formatted']; ?></div>
@@ -157,23 +204,46 @@ ob_start();
         </div>
     </div>
     
-    <!-- Log Viewing Buttons -->
-    <div class="card mb-4">
-        <div class="card-header">
-            <h4 class="mb-0">View System Logs</h4>
+    <!-- User Management & Log Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="mb-0">User Management</h4>
+                </div>
+                <div class="card-body">
+                    <p>Manage user accounts and permissions:</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="<?php echo site_url('admin/users'); ?>" class="btn btn-primary">
+                            <i class="bi bi-people-fill"></i> Manage Users
+                        </a>
+                        <a href="<?php echo site_url('admin/share'); ?>" class="btn btn-success">
+                            <i class="bi bi-person-plus-fill"></i> Create & Share Account
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <p>Access system logs to monitor activity:</p>
-            <div class="log-actions">
-                <a href="?logs=admin" class="btn btn-info log-button" target="_blank">
-                    <i class="bi bi-file-text"></i> View Admin Logs
-                </a>
-                <a href="?logs=forms" class="btn btn-info log-button" target="_blank">
-                    <i class="bi bi-file-text"></i> View Form Submission Logs
-                </a>
-                <a href="?logs=docs" class="btn btn-info log-button" target="_blank">
-                    <i class="bi bi-file-text"></i> View Documentation Activity Logs
-                </a>
+        
+        <div class="col-md-6 mb-3 mb-md-0">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h4 class="mb-0">System Logs</h4>
+                </div>
+                <div class="card-body">
+                    <p>Access system logs to monitor activity:</p>
+                    <div class="log-actions">
+                        <a href="?logs=admin" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> Admin Logs
+                        </a>
+                        <a href="?logs=forms" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> Form Logs
+                        </a>
+                        <a href="?logs=docs" class="btn btn-info log-button" target="_blank">
+                            <i class="bi bi-file-text"></i> Docs Logs
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -233,7 +303,7 @@ ob_start();
                                         </a>
                                         
                                         <?php if (isset($form['createdBy']) && $form['createdBy'] === $currentUser['_id'] || $currentUser['role'] === 'admin'): ?>
-                                            <a href="<?php echo site_url('edit/' . htmlspecialchars($form['id'])); ?>" class="btn btn-sm btn-outline-secondary">
+                                            <a href="<?php echo site_url('edit?f=' . htmlspecialchars($form['id'])); ?>" class="btn btn-sm btn-outline-secondary">
                                                 <i class="bi bi-pencil"></i> Edit
                                             </a>
                                         <?php else: ?>
