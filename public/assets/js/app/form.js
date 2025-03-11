@@ -27,15 +27,18 @@ function processTemplate(template, data) {
                 const questionKeys = Object.keys(value);
                 
                 questionKeys.forEach((questionKey, index) => {
-                    // Create the traditional combined key for backward compatibility
-                    const traditionalKey = `${key}_${questionKey}`;
-                    processedData[traditionalKey] = value[questionKey];
-                    
-                    // Create the new shortened key format with question number
-                    // Extract the base question key (without long text)
-                    const shortKey = questionKey.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
-                    const numberedKey = `${key}_${shortKey}${index + 1}`;
-                    processedData[numberedKey] = value[questionKey];
+                    // Only create keys for questions that have answers (not undefined, null, or empty)
+                    if (value[questionKey] !== undefined && value[questionKey] !== null && value[questionKey] !== '') {
+                        // Create the traditional combined key for backward compatibility
+                        const traditionalKey = `${key}_${questionKey}`;
+                        processedData[traditionalKey] = value[questionKey];
+                        
+                        // Create the new shortened key format with question number
+                        // Extract the base question key (without long text)
+                        const shortKey = questionKey.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
+                        const numberedKey = `${key}_${shortKey}${index + 1}`;
+                        processedData[numberedKey] = value[questionKey];
+                    }
                 });
             }
         });
@@ -121,8 +124,9 @@ function processTemplate(template, data) {
   processedTemplate += template.substring(currentIndex);
   
   // Process regular placeholders outside of START/END blocks
+  // Always replace undefined or null values with empty string instead of keeping the placeholder
   processedTemplate = processedTemplate.replace(/\{(\w+)\}/g, (match, key) => {
-      return data[key] !== undefined ? data[key] : match;
+      return (data[key] !== undefined && data[key] !== null) ? data[key] : '';
   });
   
   return processedTemplate;
@@ -288,7 +292,7 @@ Formio.createForm(document.getElementById('formio'), formSchema, { noAlerts: tru
 });
 function setCookie(name, value, daysToLive = 7) {
   const date = new Date();
-  date.setTime(date.getTime() + (daysToLive * 24 * 60 * 60 * 1000));
+  date.setTime(date.getTime() + (daysToLive * 24 * 60 * 60 * 1000)); // 1 year
   const expires = "expires=" + date.toUTCString();
   document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
 }
