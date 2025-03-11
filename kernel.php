@@ -109,6 +109,82 @@ function kernel_panic($message) {
     exit;
 }
 
+/**
+ * Kernel panic function - terminates execution and displays error message
+ * 
+ * @param string $message The error message to display
+ * @return void
+ */
+function maintenance_mode($message) {
+    // Clean any output buffers
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    // Set HTTP response code
+    http_response_code(500);
+    
+    // Display error message with minimal styling
+    echo '<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>reBB - Maintenance Mode</title>
+        <style>
+            body { 
+                font-family: sans-serif; 
+                background: #f8f8f8; 
+                color: #333; 
+                margin: 0; 
+                padding: 0; 
+                display: flex; 
+                justify-content: center; 
+                align-items: center; 
+                height: 100vh; 
+            }
+            .panic-container { 
+                background: #fff; 
+                border-left: 5px solid rgb(220, 181, 53); 
+                padding: 30px; 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+                max-width: 600px; 
+                width: 100%; 
+            }
+            h1 { 
+                color:rgb(220, 181, 53); 
+                margin-top: 0; 
+            }
+            .message { 
+                background:rgb(248, 244, 215); 
+                border: 1px solid rgb(245, 225, 198); 
+                color:rgb(114, 77, 28); 
+                padding: 15px; 
+                border-radius: 4px; 
+                margin: 20px 0; 
+            }
+            .info {
+                font-size: 0.9em;
+                color: #6c757d;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="panic-container">
+            <h1>Maintenance Mode</h1>
+            <div class="message">' . htmlspecialchars($message) . '</div>
+            <div class="info">
+                The application execution is currently paused.
+            </div>
+        </div>
+    </body>
+    </html>';
+    
+    // Terminate script execution
+    exit;
+}
+
+
 // Attempt to load configuration
 if (!file_exists(ROOT_DIR . '/includes/config.php')) {
     kernel_panic('Critical error: Configuration file not found (/includes/config.php)');
@@ -153,6 +229,10 @@ foreach ($required_constants as $constant) {
 
 if (!empty($missing_constants)) {
     kernel_panic('Kernel panic: Configuration missing required constants: ' . implode(', ', $missing_constants));
+}
+
+if(defined('MAINTENANCE_MODE')) {
+    maintenance_mode(MAINTENANCE_MODE);
 }
 
 // Set error reporting based on environment
