@@ -119,6 +119,14 @@ any('/ajax', function() {
 });
 
 // ===================================
+// User Routes
+// ===================================
+// Profile
+any('/profile', function() {
+    view('user/profile');
+});
+
+// ===================================
 // Admin & Management Routes
 // ===================================
 // Admin panel

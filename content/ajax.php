@@ -217,6 +217,46 @@ if ($requestType === 'schema') {
             exit;
         }
         
+        // Update the form data in SleekDB only if authenticated
+        if (auth()->isLoggedIn()) {
+            $currentUser = auth()->getUser();
+            $userId = $currentUser['_id'];
+
+            try {
+                // Initialize the SleekDB store for user forms
+                $dbPath = ROOT_DIR . '/db';
+                $userFormsStore = new \SleekDB\Store('user_forms', $dbPath, [
+                    'auto_cache' => false,
+                    'timeout' => false
+                ]);
+                
+                // Look up existing record for this form
+                $existingRecord = $userFormsStore->findOneBy([['form_id', '=', $editingFormId], 'AND', ['user_id', '=', $userId]]);
+                
+                if ($existingRecord) {
+                    // Update existing record
+                    $userFormsStore->updateById($existingRecord['_id'], [
+                        'form_name' => $formName,
+                        'last_updated' => time()
+                    ]);
+                } else if ($formCreator === $userId) {
+                    // Create new record only if user is the creator
+                    $userFormsStore->insert([
+                        'user_id' => $userId,
+                        'form_id' => $editingFormId,
+                        'form_name' => $formName,
+                        'created_at' => $existingFormData['created'] ?? time(),
+                        'last_updated' => time()
+                    ]);
+                }
+                
+                logAttempt("Updated form in database: $editingFormId by user: " . $currentUser['username']);
+            } catch (\Exception $e) {
+                // Log the error but don't stop the process
+                logAttempt("Error updating form in database: " . $e->getMessage(), false);
+            }
+        }
+        
         // Update rate limiting counters
         $_SESSION['last_submission_time'] = time();
         $_SESSION['hourly_submissions']['count']++;
@@ -255,6 +295,35 @@ if ($requestType === 'schema') {
             echo json_encode(['success' => false, 'error' => 'Failed to save form schema to file.']);
             exit;
         }
+        
+        // Store the form data in SleekDB if the user is authenticated
+        if (auth()->isLoggedIn()) {
+            $currentUser = auth()->getUser();
+            $userId = $currentUser['_id'];
+            
+            try {
+                // Initialize the SleekDB store for user forms
+                $dbPath = ROOT_DIR . '/db';
+                $userFormsStore = new \SleekDB\Store('user_forms', $dbPath, [
+                    'auto_cache' => false,
+                    'timeout' => false
+                ]);
+                
+                // Insert the form record
+                $userFormsStore->insert([
+                    'user_id' => $userId,
+                    'form_id' => $randomString,
+                    'form_name' => $formName,
+                    'created_at' => time(),
+                    'last_updated' => time()
+                ]);
+                
+                logAttempt("Added form to database: $randomString by user: " . $currentUser['username']);
+            } catch (\Exception $e) {
+                // Log the error but don't stop the process
+                logAttempt("Error adding form to database: " . $e->getMessage(), false);
+            }
+        }
 
         // Update rate limiting counters
         $_SESSION['last_submission_time'] = time();
@@ -265,6 +334,7 @@ if ($requestType === 'schema') {
         logAttempt("Successful form schema submission - Form ID: $randomString$userInfo", false);
         
         $responseData = json_decode($fileContent, true);
+        $responseData['formId'] = $randomString; // Add formId to the response
         echo json_encode($responseData);
         exit;
     }

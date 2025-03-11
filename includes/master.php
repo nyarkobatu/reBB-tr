@@ -169,15 +169,19 @@ function generate_meta_tags() {
                 <?php if (isset($_GET['f']) && !empty($_GET['f'])): ?>
                     <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
                     <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
-                    <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
-                <?php else: ?>
-                    <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
                 <?php endif; ?>
+                <?php if (auth()->isLoggedIn()): ?>
+                    <a href="<?php echo site_url('profile'); ?>">My Forms</a> • 
+                <?php endif; ?>
+                <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
                 <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
             </footer>
         <?php else: ?>
             <footer class="footer">
                 <p>Made with ❤️ by <a href="https://booskit.dev/" target="_blank">booskit</a></br>
+                <?php if (auth()->isLoggedIn()): ?>
+                    <a href="<?php echo site_url('profile'); ?>">My Forms</a> • 
+                <?php endif; ?>
                 <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
                 <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
                 <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>

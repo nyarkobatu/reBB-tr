@@ -8,7 +8,7 @@
 // Define the page content to be yielded in the master layout
 ob_start();
 
-if(auth()->isLoggedIn()) return redirect('/');
+if(auth()->isLoggedIn()) return redirect('/profile');
 
 // Process login if form submitted
 $error = '';
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         // Attempt login
         if (auth()->login($username, $password)) {
             // Check for redirect URL
-            $redirect = isset($_SESSION['auth_redirect']) ? $_SESSION['auth_redirect'] : site_url();
+            $redirect = isset($_SESSION['auth_redirect']) ? $_SESSION['auth_redirect'] : site_url('/profile');
             unset($_SESSION['auth_redirect']);
             header("Location: " . $redirect);
             exit;
