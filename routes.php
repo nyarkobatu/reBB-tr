@@ -14,6 +14,21 @@ legacy('form.php', 'form');
 legacy('builder.php', 'builder');
 legacy('documentation.php', 'docs');
 
+
+// ===================================
+// Authentication Routes
+// ===================================
+// Login page
+any('/login', function() {
+    view('auth/login');
+});
+
+// Logout action
+any('/logout', function() {
+    auth()->logout();
+    redirect('');
+});
+
 // ===================================
 // Public-facing Routes
 // ===================================
@@ -98,3 +113,22 @@ if(DEBUG_MODE === true) {
         echo 'Hello World!';
     });
 }
+
+// Setup page - only accessible if no users exist
+any('/setup', function() {
+    // Check if users exist without requiring Auth class
+    function checkUsersExist() {
+        $dbPath = ROOT_DIR . '/db/users';
+        if (!is_dir($dbPath)) {
+            return false;
+        } else return true;
+    }
+    
+    // Redirect if users already exist
+    if (checkUsersExist()) {
+        header('Location: ' . site_url());
+        exit;
+    }
+    
+    view('setup');
+});

@@ -6,11 +6,6 @@
  */
 header('Content-Type: application/json');
 
-// Initialize session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
-
 // Make sure constants are defined
 if (!defined('MAX_REQUESTS_PER_HOUR')) {
     // Default values as fallback
@@ -18,7 +13,6 @@ if (!defined('MAX_REQUESTS_PER_HOUR')) {
     define('COOLDOWN_PERIOD', 5);
     define('IP_BLACKLIST', []);
     define('DEBUG_MODE', false);
-    define('ENABLE_CSRF', true);
 }
 
 // Anti-spam configuration - define it globally to be accessible in functions
@@ -26,7 +20,7 @@ global $ajax_config;
 $ajax_config = [
     'max_requests_per_hour' => MAX_REQUESTS_PER_HOUR,          // Maximum form submissions per hour per IP
     'cooldown_period' => COOLDOWN_PERIOD,                      // Seconds between submissions
-    'log_file' => ROOT_DIR . '/logs/form_submissions.log',     // Path to log file (relative to script)
+    'log_file' => STORAGE_DIR . '/logs/form_submissions.log',     // Path to log file (relative to script)
     'ip_blacklist' => IP_BLACKLIST,
 ];
 
@@ -42,7 +36,7 @@ if (defined('DEBUG_MODE') && DEBUG_MODE) {
     $raw_client_ip = $_SERVER['HTTP_CLIENT_IP'] ?? 'Not available';
     $raw_forwarded_for = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? 'Not available';
     
-    $debug_file = ROOT_DIR . '/logs/ip_debug.log';
+    $debug_file = STORAGE_DIR . '/logs/ip_debug.log';
     file_put_contents($debug_file, "[" . date('Y-m-d H:i:s') . "] IP Debug Info:\n" . 
         "REMOTE_ADDR: {$raw_remote_addr}\n" .
         "HTTP_CLIENT_IP: {$raw_client_ip}\n" .
@@ -74,23 +68,6 @@ if ($requestData === null && json_last_error() !== JSON_ERROR_NONE) {
     logAttempt('Invalid JSON data received');
     echo json_encode(['success' => false, 'error' => 'Invalid JSON data received.']);
     exit;
-}
-
-// CSRF protection based on application configuration
-$tokenExpired = false;
-if (defined('ENABLE_CSRF') && ENABLE_CSRF) {
-    if (isset($_SESSION['csrf_token'])) {
-        if (!isset($requestData['csrf_token']) || $requestData['csrf_token'] !== $_SESSION['csrf_token']) {
-            // Log the invalid token but continue processing
-            logAttempt('CSRF token expired or invalid, generating new one');
-            $tokenExpired = true;
-        }
-    }
-
-    // Generate a new CSRF token if it doesn't exist or was expired
-    if (!isset($_SESSION['csrf_token']) || $tokenExpired) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
 }
 
 // Rate limiting: Check submission cooldown
@@ -130,7 +107,7 @@ if ($_SESSION['hourly_submissions']['count'] >= $ajax_config['max_requests_per_h
 $requestType = isset($requestData['type']) ? $requestData['type'] : null;
 
 $randomString = bin2hex(random_bytes(16)); // Generate a random string
-$formsDir = ROOT_DIR . '/forms';
+$formsDir = STORAGE_DIR . '/forms';
 
 if (!is_dir($formsDir)) {
     if (!mkdir($formsDir, 0777, true)) { // Create directory with write permissions
@@ -205,12 +182,7 @@ if ($requestType === 'schema') {
     // Log successful submission with form ID
     logAttempt("Successful form schema submission - Form ID: $randomString", false);
     
-    // Include the CSRF token in response only if CSRF is enabled
     $responseData = json_decode($fileContent, true);
-    if (defined('ENABLE_CSRF') && ENABLE_CSRF) {
-        $responseData['csrf_token'] = $_SESSION['csrf_token'];
-    }
-    
     echo json_encode($responseData);
     exit;
 } elseif ($requestType === 'analytics') {
@@ -306,7 +278,7 @@ function logAttempt($message, $isFailure = true) {
     // Safety check - make sure log_file is defined
     if (empty($ajax_config) || empty($ajax_config['log_file'])) {
         // Fallback log file location
-        $log_file = ROOT_DIR . '/logs/form_submissions.log';
+        $log_file = STORAGE_DIR . '/logs/form_submissions.log';
     } else {
         $log_file = $ajax_config['log_file'];
     }

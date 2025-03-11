@@ -52,10 +52,6 @@ define('SITE_URL',         'https://your-domain.com');
 // Environment: 'development' or 'production'
 define('ENVIRONMENT',      'production');
 
-// Security settings
-define('ENABLE_CSRF',      true);
-define('SESSION_LIFETIME', 86400);      // 24 hours in seconds
-
 // Rate limiting
 define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum submissions per hour per IP
 define('COOLDOWN_PERIOD', 5);           // Seconds between submissions

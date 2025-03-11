@@ -16,7 +16,7 @@ $existingFormStyle = 'default'; // Default style
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
     $formId = $_GET['f'];
-    $filename = ROOT_DIR . '/forms/' . $formId . '_schema.json';
+    $filename = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
 
     if (file_exists($filename)) {
         $fileContent = file_get_contents($filename);

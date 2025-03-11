@@ -202,7 +202,7 @@ if (isset($_GET['f'])) {
 }
 
 if ($isJsonRequest) {
-    $filename = ROOT_DIR . '/forms/' . $formName . '_schema.json';
+    $filename = STORAGE_DIR . '/forms/' . $formName . '_schema.json';
     if (file_exists($filename)) {
         header('Content-Type: application/json');
         $fileContents = file_get_contents($filename);
@@ -228,7 +228,7 @@ if ($isJsonRequest) {
   
     if (isset($_GET['f'])) {
         $formName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['f']);
-        $filename = ROOT_DIR . '/forms/' . $formName . '_schema.json';
+        $filename = STORAGE_DIR . '/forms/' . $formName . '_schema.json';
   
         if (file_exists($filename)) {
             $fileContents = file_get_contents($filename);

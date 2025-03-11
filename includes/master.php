@@ -92,7 +92,7 @@ function generate_meta_tags() {
     if (isset($_GET['f']) && !empty($_GET['f'])) {
         // We're on a form page - get the form name if available
         $formId = $_GET['f'];
-        $filename = ROOT_DIR . '/forms/' . $formId . '_schema.json';
+        $filename = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
         
         if (file_exists($filename)) {
             $formData = json_decode(file_get_contents($filename), true);

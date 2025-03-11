@@ -531,9 +531,6 @@
         }).catch(err => console.warn('Analytics error:', err));
 
         try {
-            // Get the last returned CSRF token if it exists
-            const csrfToken = window.lastCsrfToken || '';
-
             const response = await fetch('ajax', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -546,18 +543,12 @@
                     enableTemplateTitle: enableTemplateTitle,
                     enableTemplateLink: enableTemplateLink,
                     formName: formName,
-                    formStyle: formStyle,
-                    csrf_token: csrfToken
+                    formStyle: formStyle
                 })
             });
 
             const data = await response.json();
             if (!data.success) throw new Error(data.error);
-
-            // Store the new CSRF token for next request
-            if (data.csrf_token) {
-                window.lastCsrfToken = data.csrf_token;
-            }
 
             // Extract just the form ID from the filename
             let formId = data.filename.replace('forms/', '').replace('_schema.json', '');

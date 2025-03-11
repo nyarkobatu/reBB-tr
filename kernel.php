@@ -9,7 +9,7 @@
 
 // Define the base path for the application
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', 'v1.4.4a');
+    define('APP_VERSION', 'v1.5.0');
 }
 
 // Define the public path for the application
@@ -26,6 +26,11 @@ if (!defined('ROOT_DIR')) {
         // Otherwise, assume PUBLIC_DIR is already at the root
         define('ROOT_DIR', PUBLIC_DIR);
     }
+}
+
+// Define the public path for the application
+if (!defined('STORAGE_DIR')) {
+    define('STORAGE_DIR', ROOT_DIR . '/storage');
 }
 
 /**
@@ -126,11 +131,11 @@ $required_constants = [
     'FOOTER_GITHUB',
     'ASSETS_DIR',
     'ENVIRONMENT',
-    'ENABLE_CSRF',
     'SESSION_LIFETIME',
     'DEBUG_MODE',
     'MAX_REQUESTS_PER_HOUR',
     'COOLDOWN_PERIOD',
+    'SESSION_LIFETIME',
     'IP_BLACKLIST',
     'ENABLE_ANALYTICS',
     'TRACK_VISITORS',
@@ -159,19 +164,6 @@ if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
     ini_set('display_errors', 0);
 }
 
-// *** FIX: Start output buffering before session start to prevent headers already sent errors ***
-ob_start();
-
-// Initialize session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    if (headers_sent($file, $line)) {
-        // Log this error instead of showing a warning
-        error_log("Warning: Headers already sent in $file:$line - Unable to start session");
-    } else {
-        @session_start();
-    }
-}
-
 // Set default timezone if specified in config
 if (defined('TIMEZONE') && TIMEZONE) {
     date_default_timezone_set(TIMEZONE);
@@ -184,6 +176,19 @@ if (defined('TIMEZONE') && TIMEZONE) {
 $autorun_file = ROOT_DIR . '/core/autorun.php';
 if (file_exists($autorun_file)) {
     require_once $autorun_file;
+}
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => SESSION_LIFETIME,
+        'path' => '/',
+        'domain' => '',
+        'secure' => isset($_SERVER['HTTPS']),
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
+    session_start();
 }
 
 // Kernel successfully initialized

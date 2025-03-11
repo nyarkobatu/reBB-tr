@@ -1,7 +1,4 @@
-forms/*
-logs/*
-documentation/*
+storage/*
+db/*
 lib/*
-analytics/*
 includes/config.php
-.htpasswd

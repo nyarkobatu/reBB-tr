@@ -32,9 +32,8 @@ define('ASSETS_DIR',       SITE_URL . '/assets');
 // Environment: 'development' or 'production'
 define('ENVIRONMENT',      'production');
 
-// Security settings
-define('ENABLE_CSRF',      true);
-define('SESSION_LIFETIME', 86400);      // 24 hours in seconds
+// Session Lifetime
+define('SESSION_LIFETIME', 86400);
 
 // Form Builder Submission settings
 define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum form submissions per hour per IP

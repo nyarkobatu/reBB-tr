@@ -5,7 +5,7 @@ class Analytics {
     
     public function __construct() {
         $this->analyticsEnabled = defined('ENABLE_ANALYTICS') ? ENABLE_ANALYTICS : false;
-        $this->storageDir = ROOT_DIR . '/analytics';
+        $this->storageDir = STORAGE_DIR . '/analytics';
         if (!is_dir($this->storageDir)) {
             mkdir($this->storageDir, 0755, true);
         }

@@ -105,7 +105,7 @@ function fix_router() {
 echo "<!DOCTYPE html>
 <html>
 <head>
-    <title>reBB Routing Debugger</title>
+    <title>reBB Debugger</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; margin: 20px; }
         h1, h2, h3 { color: #333; }
@@ -122,7 +122,7 @@ echo "<!DOCTYPE html>
     </style>
 </head>
 <body>
-    <h1>reBB Routing Debugger</h1>";
+    <h1>reBB Debugger</h1>";
 
 // Check if config.php exists and try to load it
 $config_file = ROOT_DIR . '/includes/config.php';
@@ -157,6 +157,23 @@ echo "<h3>Apache Configuration</h3>
     <ul>";
 check_mod_rewrite();
 echo "</ul></div>";
+
+// Debug Routing
+echo "<div class='block'>
+    <h2>Session Information</h2>";
+
+    $auth = auth()->getUser();
+
+echo "<ul>
+    <li><strong>Session save path:</strong> ". session_save_path() ."</li>
+    <li><strong>Session cookie parameters:</strong> ". print_r(session_get_cookie_params()) ."</li>
+    <li><strong>Session ID:</strong> ". session_id() ."</li>
+    <li><strong>Session Token:</strong> ". $_SESSION['auth_token'] ."</li>
+    <li><strong>CSRF Token:</strong> ". $_SESSION['csrf_token'] ."</li>
+    <li><strong>Auth Information:</strong> ". $auth ."</li>
+</ul>";
+
+echo "</div>";
 
 // Directory Structure
 echo "<div class='block'>

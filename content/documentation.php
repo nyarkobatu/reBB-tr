@@ -5,16 +5,6 @@
  * This file serves as the render point for documentation.
  */
 
-// Make sure SESSION_LIFETIME is defined
-if (!defined('SESSION_LIFETIME')) {
-    define('SESSION_LIFETIME', 1800); // Default to 30 minutes
-}
-
-// Initialize session if not already started
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
-
 // Define the libraries directory
 $libDir = ROOT_DIR . '/lib';
 $parsedownPath = $libDir . '/Parsedown.php';
@@ -41,8 +31,8 @@ if (file_exists($parsedownPath)) {
 // Configuration - make it global so it's accessible in functions
 global $config;
 $config = [
-    'docs_dir' => ROOT_DIR . '/documentation',
-    'log_file' => ROOT_DIR . '/logs/documentation_activity.log', // Fixed missing slash here
+    'docs_dir' => STORAGE_DIR . '/documentation',
+    'log_file' => STORAGE_DIR . '/logs/documentation_activity.log', // Fixed missing slash here
     'allowed_extensions' => ['md'],
     'default_doc' => 'getting-started.md',
     'session_timeout' => SESSION_LIFETIME
@@ -88,7 +78,7 @@ function logDocAction($action, $success = true) {
     // Safety check - ensure log file path exists
     if (empty($config) || empty($config['log_file'])) {
         // Fallback log path
-        $log_file = ROOT_DIR . '/logs/documentation_activity.log';
+        $log_file = STORAGE_DIR . '/logs/documentation_activity.log';
     } else {
         $log_file = $config['log_file'];
     }

@@ -5,6 +5,9 @@
  * This file provides a dashboard for viewing site analytics
  */
 
+// Require admin authentication before processing anything else
+auth()->requireRole('admin', 'login');
+
 // Make sure analytics is enabled
 $analytics = new Analytics();
 if (!$analytics->isEnabled()) {
@@ -27,12 +30,6 @@ if (!$analytics->isEnabled()) {
     
     // Include the master layout
     require_once ROOT_DIR . '/includes/master.php';
-    exit;
-}
-
-// Check if user is logged in as admin
-if (!isset($_SESSION['admin_username'])) {
-    header('Location: admin');
     exit;
 }
 
