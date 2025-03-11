@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
         // Attempt login
         if (auth()->login($username, $password)) {
             // Check for redirect URL
-            $redirect = isset($_SESSION['auth_redirect']) ? $_SESSION['auth_redirect'] : site_url('/profile');
+            $redirect = isset($_SESSION['auth_redirect']) ? $_SESSION['auth_redirect'] : site_url('profile');
             unset($_SESSION['auth_redirect']);
             header("Location: " . $redirect);
             exit;

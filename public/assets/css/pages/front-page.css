@@ -66,6 +66,18 @@
     z-index: 1;
 }
 
+/* Remove login button from original location */
+.landing-info .login-button {
+    display: none;
+}
+
+.landing-actions .login-button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 2;
+}
+
 /* Left side - Info section */
 .landing-info {
     flex: 3;
@@ -143,6 +155,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    position: relative; /* Add this for absolute positioning context */
 }
 
 .actions-card {

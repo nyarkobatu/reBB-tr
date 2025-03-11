@@ -20,15 +20,15 @@ ob_start();
         <!-- Left side with description -->
         <div class="landing-info">
             <h1><?php echo SITE_NAME; ?></h1>
-            <p class="tagline">BBCode done differently</p>
+            <p class="tagline"><?php echo SITE_DESCRIPTION; ?></p>
             
             <div class="description">
-                <p>Create custom forms without any coding knowledge. Generate structured BBCode content with a simple drag-and-drop interface.</p>
+                <p>Create custom forms without any coding knowledge. Generate structured HTML/BBCode content with a simple drag-and-drop interface.</p>
                 <ul>
                     <li><i class="bi bi-check-circle"></i> Easy form creation</li>
                     <li><i class="bi bi-check-circle"></i> Shareable unique URLs</li>
-                    <li><i class="bi bi-check-circle"></i> Customizable templates</li>
-                    <li><i class="bi bi-check-circle"></i> Consistent formatted output</li>
+                    <li><i class="bi bi-check-circle"></i> No login required</li>
+                    <li><i class="bi bi-check-circle"></i> Minimalistic form styles</li>
                 </ul>
             </div>
             
@@ -72,6 +72,19 @@ ob_start();
                     <a href="#" class="dark-mode-toggle text-decoration-none">
                         <i class="bi bi-moon"></i> Dark Mode
                     </a>
+                </div>
+
+                <!-- Login button -->
+                <div class="login-button">
+                    <?php if (!auth()->isLoggedIn()): ?>
+                    <a href="<?php echo site_url('login'); ?>" class="btn btn-outline-primary">
+                        <i class="bi bi-person"></i> Login
+                    </a>
+                    <?php else: ?>
+                    <a href="<?php echo site_url('profile'); ?>" class="btn btn-outline-primary">
+                        <i class="bi bi-person"></i> <?php echo htmlspecialchars(auth()->getUser()['username']); ?>
+                    </a>
+                    <?php endif ?>
                 </div>
             </div>
         </div>
