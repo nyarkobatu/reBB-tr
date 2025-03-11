@@ -123,6 +123,9 @@ if ($requestType === 'schema') {
     $formTemplate = isset($requestData['template']) ? $requestData['template'] : ''; 
     $formName = isset($requestData['formName']) ? $requestData['formName'] : '';
     $formStyle = isset($requestData['formStyle']) ? $requestData['formStyle'] : 'default'; // Get form style
+    $isEditMode = isset($requestData['editMode']) && $requestData['editMode'] === true;
+    $editingFormId = isset($requestData['editingForm']) ? $requestData['editingForm'] : '';
+    
     $createdBy = null;
     if(auth()->isLoggedIn()) {
         $currentUser = auth()->getUser();
@@ -160,37 +163,111 @@ if ($requestType === 'schema') {
         $formStyle = 'default'; // Default fallback
     }
     
-    $filename = $formsDir . '/' . $randomString . '_schema.json';
-    $fileContent = json_encode([
-        'success' => true,
-        'filename' => $filename,
-        'formName' => $formName,
-        'schema' => $formSchema,
-        'template' => $formTemplate,
-        'templateTitle' => $templateTitle,
-        'templateLink' => $templateLink,
-        'enableTemplateTitle' => $enableTemplateTitle,
-        'enableTemplateLink' => $enableTemplateLink,
-        'formStyle' => $formStyle,
-        'createdBy' => $createdBy
-    ], JSON_PRETTY_PRINT);
+    // Determine if we're editing or creating a new form
+    if ($isEditMode && !empty($editingFormId)) {
+        // Handle form editing - verify ownership
+        $existingFilename = $formsDir . '/' . $editingFormId . '_schema.json';
+        
+        if (!file_exists($existingFilename)) {
+            logAttempt('Edit attempt for non-existent form: ' . $editingFormId);
+            echo json_encode(['success' => false, 'error' => 'Form not found.']);
+            exit;
+        }
+        
+        // Load the existing form data
+        $existingFormData = json_decode(file_get_contents($existingFilename), true);
+        
+        // Check if user has permission to edit this form
+        if (!auth()->isLoggedIn()) {
+            logAttempt('Unauthenticated edit attempt for form: ' . $editingFormId);
+            echo json_encode(['success' => false, 'error' => 'Authentication required to edit forms.']);
+            exit;
+        }
+        
+        $currentUser = auth()->getUser();
+        $formCreator = isset($existingFormData['createdBy']) ? $existingFormData['createdBy'] : null;
+        
+        if ($formCreator !== $currentUser['_id'] && $currentUser['role'] !== 'admin') {
+            logAttempt('Unauthorized edit attempt for form: ' . $editingFormId . ' by user: ' . $currentUser['username']);
+            echo json_encode(['success' => false, 'error' => 'You do not have permission to edit this form.']);
+            exit;
+        }
+        
+        // User has permission, proceed with update
+        // Keep the original creation data but update everything else
+        $fileContent = json_encode([
+            'success' => true,
+            'filename' => $existingFilename,
+            'formName' => $formName,
+            'schema' => $formSchema,
+            'template' => $formTemplate,
+            'templateTitle' => $templateTitle,
+            'templateLink' => $templateLink,
+            'enableTemplateTitle' => $enableTemplateTitle,
+            'enableTemplateLink' => $enableTemplateLink,
+            'formStyle' => $formStyle,
+            'createdBy' => $formCreator, // Maintain original creator
+            'created' => $existingFormData['created'] ?? time(), // Maintain original creation time
+            'updated' => time() // Add update timestamp
+        ], JSON_PRETTY_PRINT);
+        
+        if (!file_put_contents($existingFilename, $fileContent)) {
+            logAttempt('Failed to update form: ' . $editingFormId);
+            echo json_encode(['success' => false, 'error' => 'Failed to update form.']);
+            exit;
+        }
+        
+        // Update rate limiting counters
+        $_SESSION['last_submission_time'] = time();
+        $_SESSION['hourly_submissions']['count']++;
+        
+        // Log successful update
+        logAttempt("Successful form update - Form ID: $editingFormId by user: " . ($currentUser['username'] ?? 'Unknown'), false);
+        
+        // Return success response with original form ID
+        echo json_encode([
+            'success' => true,
+            'filename' => $existingFilename,
+            'formId' => $editingFormId,
+            'isUpdate' => true
+        ]);
+        exit;
+    } else {
+        // This is a new form creation
+        $filename = $formsDir . '/' . $randomString . '_schema.json';
+        $fileContent = json_encode([
+            'success' => true,
+            'filename' => $filename,
+            'formName' => $formName,
+            'schema' => $formSchema,
+            'template' => $formTemplate,
+            'templateTitle' => $templateTitle,
+            'templateLink' => $templateLink,
+            'enableTemplateTitle' => $enableTemplateTitle,
+            'enableTemplateLink' => $enableTemplateLink,
+            'formStyle' => $formStyle,
+            'createdBy' => $createdBy,
+            'created' => time()
+        ], JSON_PRETTY_PRINT);
 
-    if (!file_put_contents($filename, $fileContent)) {
-        logAttempt('Failed to save form schema to file');
-        echo json_encode(['success' => false, 'error' => 'Failed to save form schema to file.']);
+        if (!file_put_contents($filename, $fileContent)) {
+            logAttempt('Failed to save form schema to file');
+            echo json_encode(['success' => false, 'error' => 'Failed to save form schema to file.']);
+            exit;
+        }
+
+        // Update rate limiting counters
+        $_SESSION['last_submission_time'] = time();
+        $_SESSION['hourly_submissions']['count']++;
+        
+        // Log successful submission with form ID
+        $userInfo = auth()->isLoggedIn() ? " by user: " . auth()->getUser()['username'] : "";
+        logAttempt("Successful form schema submission - Form ID: $randomString$userInfo", false);
+        
+        $responseData = json_decode($fileContent, true);
+        echo json_encode($responseData);
         exit;
     }
-
-    // Update rate limiting counters
-    $_SESSION['last_submission_time'] = time();
-    $_SESSION['hourly_submissions']['count']++;
-    
-    // Log successful submission with form ID
-    logAttempt("Successful form schema submission - Form ID: $randomString", false);
-    
-    $responseData = json_decode($fileContent, true);
-    echo json_encode($responseData);
-    exit;
 } elseif ($requestType === 'analytics') {
     $analytics = new Analytics();
 
@@ -223,9 +300,14 @@ if ($requestType === 'schema') {
                 $requestData['isSubmission'] : false;
             $analytics->trackFormUsage($formId, $isSubmission);
             break;
+            
+        case 'get_live_visitors':
+            $count = $analytics->getLiveVisitors();
+            echo json_encode(['success' => true, 'count' => $count]);
+            exit;
     }
     
-    echo json_encode(['success' => true]);
+    echo json_encode(['success' => true, 'analyticsEnabled' => true]);
     exit;
 } else {
     logAttempt('Invalid request type: ' . $requestType);

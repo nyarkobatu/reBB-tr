@@ -503,7 +503,7 @@
 
         trackComponentUsage(component.type);
     }
-    // Update the saveForm function to include the toggle states
+
     async function saveForm() {
         const formSchema = builderInstance?.form;
         if (!formSchema) return alert('No form schema found');
@@ -520,6 +520,7 @@
         const templateTitle = enableTemplateTitle ? document.getElementById('templateTitle').value || '' : '';
         const templateLink = enableTemplateLink ? document.getElementById('templateLink').value || '' : '';
 
+        // Track theme usage
         fetch('ajax', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -529,6 +530,10 @@
                 theme: formStyle
             })
         }).catch(err => console.warn('Analytics error:', err));
+
+        // Check if this is an edit operation
+        isEditMode = typeof isEditMode !== 'undefined' && isEditMode;
+        const editingForm = document.getElementById('editingForm')?.value;
 
         try {
             const response = await fetch('ajax', {
@@ -543,15 +548,17 @@
                     enableTemplateTitle: enableTemplateTitle,
                     enableTemplateLink: enableTemplateLink,
                     formName: formName,
-                    formStyle: formStyle
+                    formStyle: formStyle,
+                    editMode: isEditMode,
+                    editingForm: editingForm
                 })
             });
 
             const data = await response.json();
             if (!data.success) throw new Error(data.error);
 
-            // Extract just the form ID from the filename
-            let formId = data.filename.replace('forms/', '').replace('_schema.json', '');
+            // Extract form ID - either the one from the update or a new one
+            let formId = data.formId || data.filename.replace('forms/', '').replace('_schema.json', '');
             
             // Make sure we don't include any directory paths in the formId
             if (formId.includes('/') || formId.includes('\\')) {
@@ -559,7 +566,6 @@
             }
             
             const shareUrl = siteURL + `form?f=${formId}`;
-
             document.getElementById('shareable-link').textContent = shareUrl;
             document.getElementById('shareable-link').href = shareUrl;
             document.getElementById('go-to-form-button').href = shareUrl;

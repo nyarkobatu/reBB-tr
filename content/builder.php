@@ -13,6 +13,9 @@ $existingTemplateLink = '';  // New variable for template link
 $enableTemplateTitle = false; // New variable for title toggle
 $enableTemplateLink = false;  // New variable for link toggle
 $existingFormStyle = 'default'; // Default style
+$editMode = isset($_GET['edit_mode']) && $_GET['edit_mode'] === 'true';
+$formCreator = null;
+$isOwnForm = false;
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
     $formId = $_GET['f'];
@@ -30,6 +33,13 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             $enableTemplateTitle = isset($formData['enableTemplateTitle']) ? $formData['enableTemplateTitle'] : false;
             $enableTemplateLink = isset($formData['enableTemplateLink']) ? $formData['enableTemplateLink'] : false;
             $existingFormStyle = isset($formData['formStyle']) ? $formData['formStyle'] : 'default';
+            $formCreator = isset($formData['createdBy']) ? $formData['createdBy'] : null;
+            
+            // Check if the current user is the creator of this form
+            if (auth()->isLoggedIn()) {
+                $currentUser = auth()->getUser();
+                $isOwnForm = ($formCreator === $currentUser['_id'] || $currentUser['role'] === 'admin');
+            }
         }
     }
 }
@@ -68,11 +78,34 @@ $formStyles = [
     ]
 ];
 
+// Check if this is in edit mode and if the user has permission
+if ($editMode && !$isOwnForm) {
+    // Define the page content to be yielded in the master layout
+    ob_start();
+    echo '<div class="container">';
+    echo '<div class="alert alert-danger mt-4">';
+    echo '<h4><i class="bi bi-exclamation-triangle"></i> Permission Denied</h4>';
+    echo '<p>You do not have permission to edit this form. You must be logged in as the form creator or an administrator.</p>';
+    echo '<a href="' . site_url() . '" class="btn btn-primary">Return to Home</a>';
+    echo '</div>';
+    echo '</div>';
+    $GLOBALS['page_content'] = ob_get_clean();
+    $GLOBALS['page_title'] = 'Permission Denied';
+    require_once ROOT_DIR . '/includes/master.php';
+    exit;
+}
+
 // Define the page content to be yielded in the master layout
 ob_start();
 ?>
 
 <div id="content-wrapper">
+    <?php if ($editMode && $isOwnForm): ?>
+    <div class="alert alert-info">
+        <i class="bi bi-pencil-square"></i> <strong>Edit Mode:</strong> You are editing your form. Changes will be saved to the original form.
+    </div>
+    <?php endif; ?>
+
     <div id='builder'></div>
 
     <div id='form-name-container' style="margin-top: 20px;">
@@ -158,7 +191,13 @@ ob_start();
     </div>
 
     <div id='button-container'>
-        <button id='saveFormButton' class='btn btn-primary'>Save Form</button>
+        <?php if ($editMode && $isOwnForm): ?>
+            <input type="hidden" id="editingForm" value="<?php echo htmlspecialchars($_GET['f']); ?>">
+            <input type="hidden" id="editMode" value="true">
+            <button id='saveFormButton' class='btn btn-primary'>Update Form</button>
+        <?php else: ?>
+            <button id='saveFormButton' class='btn btn-primary'>Save Form</button>
+        <?php endif; ?>
     </div>
 
     <div id="documentation-link" class="text-center mt-3">
@@ -168,8 +207,13 @@ ob_start();
     </div>
 
     <div id="success-message" class="alert alert-success mt-3">
-        <p>Form saved successfully! Share this link:</p>
-        <a id="shareable-link" class="text-primary" target="_blank"></a>
+        <?php if ($editMode && $isOwnForm): ?>
+            <p>Form updated successfully!</p>
+            <a id="shareable-link" class="text-primary" target="_blank"></a>
+        <?php else: ?>
+            <p>Form saved successfully! Share this link:</p>
+            <a id="shareable-link" class="text-primary" target="_blank"></a>
+        <?php endif; ?>
         <div class="mt-2">
             <a id="go-to-form-button" class="btn btn-primary" target="_blank">
                 <i class="bi bi-box-arrow-up-right"></i> Go to Form
@@ -183,7 +227,7 @@ ob_start();
 $GLOBALS['page_content'] = ob_get_clean();
 
 // Define a page title
-$GLOBALS['page_title'] = 'Form Builder';
+$GLOBALS['page_title'] = $editMode ? 'Edit Form' : 'Form Builder';
 
 // Page-specific settings
 $GLOBALS['page_settings'] = [
@@ -202,6 +246,7 @@ $enableTemplateTitleJS = $enableTemplateTitle ? 'true' : 'false';
 $enableTemplateLinkJS = $enableTemplateLink ? 'true' : 'false';
 $existingStyleJS = json_encode($existingFormStyle);
 $siteURL = site_url();
+$isEditModeJS = $editMode && $isOwnForm ? 'true' : 'false';
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
@@ -212,6 +257,7 @@ let enableTemplateTitlePHP = $enableTemplateTitleJS;
 let enableTemplateLinkPHP = $enableTemplateLinkJS;
 let existingFormStyle = $existingStyleJS;
 let siteURL = "$siteURL";
+let isEditMode = $isEditModeJS;
 JSVARS;
 $GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>';
 

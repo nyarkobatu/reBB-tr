@@ -50,25 +50,33 @@ if (is_dir($formsDir)) {
         $fileSize = filesize($filePath);
         $stats['total_size'] += $fileSize;
         
+        // Extract form data (add this inside the loop where forms are being processed)
         $formId = str_replace('_schema.json', '', $file);
         $creationTime = filectime($filePath);
         $modificationTime = filemtime($filePath);
-        
-        // Try to get form name from the file
+
+        // Try to get form name and creator info from the file
         $formName = "";
+        $createdById = null;
         $fileContent = file_get_contents($filePath);
         $formData = json_decode($fileContent, true);
-        if ($formData && isset($formData['formName'])) {
-            $formName = $formData['formName'];
+        if ($formData) {
+            if (isset($formData['formName'])) {
+                $formName = $formData['formName'];
+            }
+            if (isset($formData['createdBy'])) {
+                $createdById = $formData['createdBy'];
+            }
         }
-        
+
         $forms[] = [
             'id' => $formId,
             'name' => $formName,
             'created' => $creationTime,
             'modified' => $modificationTime,
             'size' => $fileSize,
-            'url' => site_url('form') . '?f=' . $formId
+            'url' => site_url('form') . '?f=' . $formId,
+            'createdBy' => $createdById
         ];
     }
     
@@ -223,9 +231,17 @@ ob_start();
                                         <a href="<?php echo htmlspecialchars($form['url']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                                             <i class="bi bi-eye"></i> View
                                         </a>
-                                        <a href="builder?f=<?php echo htmlspecialchars($form['id']); ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
-                                            <i class="bi bi-pencil"></i> Edit
-                                        </a>
+                                        
+                                        <?php if (isset($form['createdBy']) && $form['createdBy'] === $currentUser['_id'] || $currentUser['role'] === 'admin'): ?>
+                                            <a href="<?php echo site_url('edit/' . htmlspecialchars($form['id'])); ?>" class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i> Edit
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="builder?f=<?php echo htmlspecialchars($form['id']); ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="bi bi-pencil"></i> Use as Template
+                                            </a>
+                                        <?php endif; ?>
+                                        
                                         <button type="button" class="btn btn-sm btn-outline-danger" 
                                                 data-bs-toggle="modal" 
                                                 data-bs-target="#deleteModal" 
