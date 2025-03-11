@@ -123,6 +123,11 @@ if ($requestType === 'schema') {
     $formTemplate = isset($requestData['template']) ? $requestData['template'] : ''; 
     $formName = isset($requestData['formName']) ? $requestData['formName'] : '';
     $formStyle = isset($requestData['formStyle']) ? $requestData['formStyle'] : 'default'; // Get form style
+    $createdBy = null;
+    if(auth()->isLoggedIn()) {
+        $currentUser = auth()->getUser();
+        $createdBy = $currentUser['_id'];
+    }
     
     // Get the template title and link fields with toggle states
     $enableTemplateTitle = isset($requestData['enableTemplateTitle']) ? (bool)$requestData['enableTemplateTitle'] : false;
@@ -167,6 +172,7 @@ if ($requestType === 'schema') {
         'enableTemplateTitle' => $enableTemplateTitle,
         'enableTemplateLink' => $enableTemplateLink,
         'formStyle' => $formStyle,
+        'createdBy' => $createdBy
     ], JSON_PRETTY_PRINT);
 
     if (!file_put_contents($filename, $fileContent)) {

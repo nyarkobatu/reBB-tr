@@ -78,12 +78,12 @@ any('/ajax', function() {
 // ===================================
 // Admin panel
 any('/admin', function() {
-    view('admin');
+    view('admin/admin');
 });
 
 // Analytics dashboard
 any('/analytics', function() {
-    view('analytics');
+    view('admin/analytics');
 });
 
 // ===================================
