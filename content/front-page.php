@@ -69,6 +69,9 @@ ob_start();
                     <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank" class="text-decoration-none">
                         <i class="bi bi-github"></i> GitHub
                     </a>
+                    <a href="<?php echo site_url('donate'); ?>" class="text-decoration-none donate-link">
+                        <i class="bi bi-heart"></i> Donate
+                    </a>
                     <a href="#" class="dark-mode-toggle text-decoration-none">
                         <i class="bi bi-moon"></i> Dark Mode
                     </a>

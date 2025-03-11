@@ -337,3 +337,43 @@ body.dark-mode .docs-link a {
         align-items: center;
     }
 }
+
+.additional-links .dark-mode-toggle {
+    cursor: pointer;
+}
+
+/* Donate link styling */
+.additional-links .donate-link {
+    color: #ff6b6b;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.additional-links .donate-link i {
+    animation: heartbeat 1.5s infinite;
+}
+
+.additional-links .donate-link:hover {
+    color: #ff5252;
+}
+
+@keyframes heartbeat {
+    0% {
+        transform: scale(1);
+    }
+    15% {
+        transform: scale(1.25);
+    }
+    30% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.25);
+    }
+    60% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}

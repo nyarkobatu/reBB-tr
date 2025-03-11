@@ -67,6 +67,13 @@ get('/builder/:id', function($params) {
 });
 
 // ===================================
+// Donation Route
+// ===================================
+any('/donate', function() {
+    view('donate');
+});
+
+// ===================================
 // Edit Form Routes - For authenticated editing of forms
 // ===================================
 // Edit form - authenticated edit of existing form with ownership check

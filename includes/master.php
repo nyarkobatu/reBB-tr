@@ -170,9 +170,7 @@ function generate_meta_tags() {
                     <a href="?f=<?php echo htmlspecialchars($_GET['f']) ?>/json">View form in json</a> • 
                     <a href="<?php echo site_url('builder'); ?>?f=<?php echo htmlspecialchars($_GET['f']) ?>">Use this form as a template</a> • 
                 <?php endif; ?>
-                <?php if (auth()->isLoggedIn()): ?>
-                    <a href="<?php echo site_url('profile'); ?>">My Forms</a> • 
-                <?php endif; ?>
+                <a href="<?php echo site_url('donate'); ?>" class="donate-footer-link"><i class="bi bi-heart-fill"></i> Donate</a> • 
                 <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a><br/>
                 <a href="<?php echo FOOTER_GITHUB; ?>">Github</a></p>
             </footer>
@@ -184,6 +182,7 @@ function generate_meta_tags() {
                 <?php endif; ?>
                 <a href="<?php echo FOOTER_GITHUB; ?>" target="_blank">Github</a> • 
                 <a href="<?php echo site_url('docs'); ?>" target="_blank">Documentation</a> • 
+                <a href="<?php echo site_url('donate'); ?>" class="donate-footer-link"><i class="bi bi-heart-fill"></i> Donate</a> • 
                 <a href="#" class="dark-mode-toggle">🌙 Dark Mode</a></br>
                 <span style="font-size: 12px;"><?php echo APP_VERSION; ?></span></p>
             </footer>

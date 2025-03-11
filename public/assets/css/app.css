@@ -109,3 +109,21 @@ body {
         padding-right: 12px;
     }
 }
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Donate footer link styling */
+.donate-footer-link {
+    color: #ff6b6b !important;
+    transition: all 0.3s ease;
+}
+
+.donate-footer-link:hover {
+    color: #ff5252 !important;
+}
+
+.donate-footer-link i {
+    font-size: 0.8em;
+}
