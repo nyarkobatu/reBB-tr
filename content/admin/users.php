@@ -363,7 +363,7 @@ ob_start();
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role" <?php echo $editingUser['_id'] === $currentUser['_id'] ? 'disabled' : ''; ?>>
                                     <option value="user" <?php echo $editingUser['role'] === 'user' ? 'selected' : ''; ?>>User</option>
-                                    <option value="editor" <?php echo $editingUser['role'] === 'editor' ? 'selected' : ''; ?>>User</option>
+                                    <option value="editor" <?php echo $editingUser['role'] === 'editor' ? 'selected' : ''; ?>>Editor</option>
                                     <option value="admin" <?php echo $editingUser['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
                                 </select>
                                 <?php if ($editingUser['_id'] === $currentUser['_id']): ?>
