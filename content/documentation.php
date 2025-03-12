@@ -51,9 +51,7 @@ if (!is_dir($logsDir)) {
 
 // Check if user is logged in as admin
 function isEditor() {
-    if(auth()->isLoggedIn()) {
-        return auth()->getUser()->hasRole('editor');
-    } else return false;
+    return (auth()->hasRole('editor') || auth()->hasRole('admin'));
 }
 
 /**
