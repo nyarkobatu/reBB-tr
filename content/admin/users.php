@@ -363,6 +363,7 @@ ob_start();
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role" <?php echo $editingUser['_id'] === $currentUser['_id'] ? 'disabled' : ''; ?>>
                                     <option value="user" <?php echo $editingUser['role'] === 'user' ? 'selected' : ''; ?>>User</option>
+                                    <option value="editor" <?php echo $editingUser['role'] === 'editor' ? 'selected' : ''; ?>>User</option>
                                     <option value="admin" <?php echo $editingUser['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
                                 </select>
                                 <?php if ($editingUser['_id'] === $currentUser['_id']): ?>
@@ -400,6 +401,7 @@ ob_start();
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role">
                                     <option value="user">User</option>
+                                    <option value="editor">Editor</option>
                                     <option value="admin">Admin</option>
                                 </select>
                             </div>
@@ -429,6 +431,14 @@ ob_start();
                             <li>Manage all forms</li>
                             <li>Create and manage users</li>
                             <li>View system analytics</li>
+                        </ul>
+
+                        <p><strong>Editor users</strong> can:</p>
+                        <ul class="mb-3">
+                            <li>Manage the documentation</li>
+                            <li>Create new documentation entries</li>
+                            <li>Modify existing documentation entries</li>
+                            <li>Delete documentation entries</li>
                         </ul>
                         
                         <p><strong>Regular users</strong> can:</p>

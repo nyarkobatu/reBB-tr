@@ -50,21 +50,10 @@ if (!is_dir($logsDir)) {
 }
 
 // Check if user is logged in as admin
-function isAdminLoggedIn() {
-    return isset($_SESSION['admin_username']) && !empty($_SESSION['admin_username']);
-}
-
-// Check if admin session has timed out
-if (isset($_SESSION['admin_last_activity']) && (time() - $_SESSION['admin_last_activity'] > $config['session_timeout'])) {
-    // Last activity was more than timeout period ago
-    session_unset();
-    session_destroy();
-    $loginError = 'Your session has expired. Please log in again.';
-}
-
-// Update admin last activity time if logged in
-if (isAdminLoggedIn()) {
-    $_SESSION['admin_last_activity'] = time();
+function isEditor() {
+    if(auth()->isLoggedIn()) {
+        return auth()->getUser()->hasRole('editor');
+    } else return false;
 }
 
 /**
@@ -91,7 +80,7 @@ function logDocAction($action, $success = true) {
     
     $timestamp = date('Y-m-d H:i:s');
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
-    $user = $_SESSION['admin_username'] ?? 'Unauthenticated';
+    $user = auth()->getUser()['username'];
     $status = $success ? 'SUCCESS' : 'FAILED';
     
     $logEntry = "[$timestamp] [$status] [IP: $ip] [User: $user] $action" . PHP_EOL;
@@ -277,7 +266,7 @@ if (isset($_GET['edit'])) {
 }
 
 // ADMIN FUNCTIONALITY (CREATE/EDIT/DELETE)
-if (isAdminLoggedIn()) {
+if (isEditor()) {
     // Create new documentation
     if (isset($_POST['create_doc']) && isset($_POST['doc_title']) && isset($_POST['doc_content'])) {
         $title = trim($_POST['doc_title']);
@@ -487,11 +476,11 @@ ob_start();
                 </a> 
                 <?php echo SITE_NAME; ?> Documentation
             </h1>
-            <?php if (isAdminLoggedIn() && $isViewMode): ?>
+            <?php if (isEditor() && $isViewMode): ?>
                 <a href="?<?php echo !empty($activeDoc) ? 'edit=' . urlencode($activeDoc) : ''; ?>" class="btn btn-primary">
                     <i class="bi bi-pencil"></i> Edit Documentation
                 </a>
-            <?php elseif (isAdminLoggedIn() && !$isViewMode): ?>
+            <?php elseif (isEditor() && !$isViewMode): ?>
                 <a href="?<?php echo !empty($activeDoc) ? 'doc=' . urlencode($activeDoc) : ''; ?>" class="btn btn-secondary">
                     <i class="bi bi-eye"></i> View Documentation
                 </a>
@@ -527,7 +516,7 @@ ob_start();
                     </ul>
                 <?php endif; ?>
                 
-                <?php if (isAdminLoggedIn()): ?>
+                <?php if (isEditor()): ?>
                     <div class="doc-actions">
                         <a href="?edit=new" class="btn btn-success btn-sm w-100 mb-2">
                             <i class="bi bi-plus-circle"></i> Create New Document
@@ -541,7 +530,7 @@ ob_start();
                     <div class="alert alert-info">
                         <?php if (empty($documentFiles)): ?>
                             No documentation available. 
-                            <?php if (isAdminLoggedIn()): ?>
+                            <?php if (isEditor()): ?>
                                 <a href="?edit=new">Create your first document</a>.
                             <?php endif; ?>
                         <?php else: ?>
@@ -557,7 +546,7 @@ ob_start();
         </div>
     <?php else: ?>
         <!-- DOCUMENTATION EDITOR MODE (Admin only) -->
-        <?php if (isAdminLoggedIn()): ?>
+        <?php if (isEditor()): ?>
             <div class="card card-documentation">
                 <div class="card-header">
                     <h3><?php echo isset($_GET['edit']) && $_GET['edit'] !== 'new' ? 'Edit Document' : 'Create New Document'; ?></h3>
