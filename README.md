@@ -10,13 +10,24 @@ reBB provides a drag-and-drop form builder interface for creating custom forms w
 
 - **Drag-and-Drop Form Builder**: Create forms without coding
 - **Custom Templates**: Define output templates using wildcards
+- **Multiple Form Styles**: Choose from different visual styles (Default, Paperwork, Vector, Retro, Modern)
 - **Shareable Forms**: Each form gets a unique URL that can be shared
-- **Browser Storage**: User data is saved in browser cookies for convenience
-- **Data Grid Support**: Create tables and repeatable sections
-- **Dark Mode**: Toggle between light and dark interface
+- **Custom Shareable Links**: Create memorable branded URLs for your forms
+- **User Management**: User accounts with form ownership and management
+- **Browser Storage**: Form data saved in browser cookies for convenience
 - **Mobile Responsive**: Works on desktop and mobile devices
-- **Admin Panel**: Manage forms and view system statistics
+- **Dark Mode**: Toggle between light and dark interface
+- **Admin Panel**: Manage forms, users, and view system statistics
 - **Documentation System**: Built-in markdown documentation
+- **Analytics System**: Track form usage, views, and submissions
+
+## Technical Stack
+
+- **Backend**: PHP 7.4+
+- **Database**: NoSQL (SleekDB) - No traditional SQL database required
+- **Frontend**: HTML5, CSS3, JavaScript, Bootstrap
+- **Form Building**: FormIO library
+- **Storage**: File-based storage for forms and configurations
 
 ## Installation
 
@@ -25,37 +36,22 @@ reBB provides a drag-and-drop form builder interface for creating custom forms w
    git clone https://github.com/booskit-codes/reBB.git
    ```
 
-2. Create a configuration file:
-   - Copy `includes/config.example.php` to `includes/config.php`
-   - Adjust the settings to match your environment
+2. Set up your web server with PHP 7.4+ support
+   - Ensure mod_rewrite is enabled for Apache
+   - Set document root to the application's root directory
+   - For Nginx, configure URL rewriting accordingly
 
-3. Ensure the web server has write permissions for these directories (these directories should automatically get made with the appropriate permissions):
-   - `/forms` (stores form definitions)
-   - `/logs` (stores system logs)
-   - `/documentation` (stores markdown docs)
+3. Create a configuration file:
+   - Copy `includes/config.example.php` to `includes/config.php`
+   - Update the settings to match your environment
+
+4. Ensure the web server has write permissions for these directories:
+   - `/storage` (stores form definitions, logs, etc.)
+   - `/db` (stores NoSQL database files)
    - `/lib` (stores libraries)
 
-4. Access the application through your web browser
-
-## Configuration
-
-The configuration system has been completely revamped. Key settings include:
-
-```php
-// Site identity
-define('SITE_NAME',        'reBB');
-define('SITE_DESCRIPTION', 'BBCode done differently');
-
-// URLs and paths
-define('SITE_URL',         'https://your-domain.com');
-
-// Environment: 'development' or 'production'
-define('ENVIRONMENT',      'production');
-
-// Rate limiting
-define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum submissions per hour per IP
-define('COOLDOWN_PERIOD', 5);           // Seconds between submissions
-```
+5. Access the application through your web browser and go to your setup page via `https://domain.com/setup`
+   - The setup will guide you through creating an admin account on first run
 
 ## Usage
 
@@ -63,7 +59,7 @@ define('COOLDOWN_PERIOD', 5);           // Seconds between submissions
 
 1. Click "Create a form" on the homepage
 2. Use the drag-and-drop interface to add form elements
-3. Give your form a name at the bottom
+3. Give your form a name and choose a style
 4. Create a template using wildcards that correspond to your form fields
 5. Click "Save Form" to generate a shareable link
 
@@ -95,23 +91,31 @@ Example template:
 {background}
 ```
 
+## User Management
+
+reBB includes a complete user management system:
+
+- **Authentication**: Secure user login and session management
+- **Role-Based Access**: Admin and regular user roles
+- **Form Ownership**: Users can create, edit, and manage their own forms
+- **Custom Links**: Create memorable branded URLs for forms
+- **Analytics**: View usage statistics for your forms
+
 ## Admin Features
 
-To access the admin panel, navigate to `/admin.php`. On first visit, you'll be prompted to create an admin account.
+Admin panel features include:
 
-Features:
-- View all created forms
-- Delete forms
-- View system logs
-- Monitor system usage
-
-## Custom Components
-
-The system supports custom components defined in `components.json`. This allows for pre-built form elements with special functionality, like sections that remember user input through browser cookies.
+- View all created forms and their usage statistics
+- Manage user accounts
+- Create and share user credentials
+- Monitor system logs and usage
+- Track analytics for forms, components, and themes
+- Delete or modify any content as needed
 
 ## Documentation System
 
 reBB includes a built-in documentation system with:
+
 - Markdown support
 - Admin editing interface
 - Automatic ordering of documentation pages
@@ -127,6 +131,16 @@ reBB includes a built-in documentation system with:
 - Blacklist support for malicious IPs
 - Session timeout controls
 
+## NoSQL Database
+
+reBB uses SleekDB, a NoSQL document store that operates directly with the file system:
+
+- No database server required
+- Simple JSON-based document storage
+- Fast and lightweight
+- Easy to backup (just copy the files)
+- Straightforward to deploy without complex configuration
+
 ## Browser Compatibility
 
 reBB works in all modern browsers:
@@ -141,4 +155,5 @@ reBB is licensed under the GNU General Public License v3.0 - see the LICENSE fil
 
 ## Credits
 
-Made with ❤️ by [booskit](https://booskit.dev)
+Created by [booskit](https://booskit.dev)
+Feel free to support this project by considering a [donation](https://rebb.booskit.dev/donate)
