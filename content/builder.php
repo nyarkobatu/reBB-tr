@@ -174,7 +174,7 @@ ob_start();
         <!-- Template Link Toggle & Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Form Link</h5>
+                <h5 class="mb-0">External Form Link</h5>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="templateLinkToggle" 
                            <?php echo $enableTemplateLink ? 'checked' : ''; ?>>

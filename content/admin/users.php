@@ -219,7 +219,7 @@ try {
                 'timeout' => false
             ]);
             
-            $userData['custom_links_count'] = $linkStore->count([['user_id', '=', $userData['_id']]]);
+            $userData['custom_links_count'] = 0;
         } catch (\Exception $e) {
             $userData['custom_links_count'] = 0;
         }
