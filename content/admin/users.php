@@ -18,11 +18,17 @@ $actionMessageType = 'info';
 $users = [];
 $editingUser = null;
 
+// Set default max links if not defined
+if (!defined('DEFAULT_MAX_UNIQUE_LINKS')) {
+    define('DEFAULT_MAX_UNIQUE_LINKS', 5);
+}
+
 // Handle user creation
 if (isset($_POST['create_user']) && isset($_POST['username']) && isset($_POST['password'])) {
     $username = trim($_POST['username']);
     $password = $_POST['password'];
     $role = isset($_POST['role']) ? $_POST['role'] : 'user';
+    $maxLinks = isset($_POST['max_links']) ? (int)$_POST['max_links'] : DEFAULT_MAX_UNIQUE_LINKS;
     
     // Validate username format
     if (!preg_match('/^[a-zA-Z0-9_]{3,20}$/', $username)) {
@@ -34,14 +40,22 @@ if (isset($_POST['create_user']) && isset($_POST['username']) && isset($_POST['p
         $actionMessage = "Password must be at least 8 characters long.";
         $actionMessageType = 'danger';
     }
+    // Validate max links value
+    elseif ($maxLinks < 0) {
+        $actionMessage = "Maximum links value cannot be negative.";
+        $actionMessageType = 'danger';
+    }
     else {
         // Try to create the user
-        $result = auth()->register($username, $password, ['role' => $role]);
+        $result = auth()->register($username, $password, [
+            'role' => $role,
+            'max_unique_links' => $maxLinks
+        ]);
         
         if ($result) {
             $actionMessage = "User '$username' created successfully.";
             $actionMessageType = 'success';
-            logAdminAction("Created user: $username with role: $role");
+            logAdminAction("Created user: $username with role: $role and max links: $maxLinks");
         } else {
             $actionMessage = "Failed to create user. Username may already exist.";
             $actionMessageType = 'danger';
@@ -93,12 +107,19 @@ if (isset($_POST['edit_user']) && isset($_POST['user_id'])) {
     $userId = $_POST['user_id'];
     $newRole = isset($_POST['role']) ? $_POST['role'] : 'user';
     $newPassword = isset($_POST['password']) && !empty($_POST['password']) ? $_POST['password'] : null;
+    $maxLinks = isset($_POST['max_links']) ? (int)$_POST['max_links'] : DEFAULT_MAX_UNIQUE_LINKS;
     
     // Don't allow changing your own role
     if ($userId == $currentUser['_id'] && $newRole !== $currentUser['role']) {
         $actionMessage = "You cannot change your own role.";
         $actionMessageType = 'danger';
-    } else {
+    } 
+    // Validate max links value
+    elseif ($maxLinks < 0) {
+        $actionMessage = "Maximum links value cannot be negative.";
+        $actionMessageType = 'danger';
+    }
+    else {
         // Access the database stores directly
         $dbPath = ROOT_DIR . '/db';
         $userStore = new \SleekDB\Store('users', $dbPath, [
@@ -108,7 +129,12 @@ if (isset($_POST['edit_user']) && isset($_POST['user_id'])) {
         
         // Try to update the user
         try {
-            $userData = ['role' => $newRole];
+            $userData = [
+                'role' => $newRole,
+                'max_unique_links' => $maxLinks,
+                'updated_at' => time()
+            ];
+            
             if ($newPassword !== null) {
                 // Validate password length
                 if (strlen($newPassword) < 8) {
@@ -126,7 +152,7 @@ if (isset($_POST['edit_user']) && isset($_POST['user_id'])) {
                     $username = $updatedUser['username'];
                     $actionMessage = "User '$username' updated successfully.";
                     $actionMessageType = 'success';
-                    logAdminAction("Updated user: $username");
+                    logAdminAction("Updated user: $username (max_links: $maxLinks)");
                 } else {
                     $actionMessage = "User not found.";
                     $actionMessageType = 'danger';
@@ -184,6 +210,18 @@ try {
         }
         if (isset($userData['updated_at'])) {
             $userData['updated_at_formatted'] = date('Y-m-d H:i:s', $userData['updated_at']);
+        }
+        
+        // Get custom links count
+        try {
+            $linkStore = new \SleekDB\Store('custom_links', $dbPath, [
+                'auto_cache' => false,
+                'timeout' => false
+            ]);
+            
+            $userData['custom_links_count'] = $linkStore->count([['user_id', '=', $userData['_id']]]);
+        } catch (\Exception $e) {
+            $userData['custom_links_count'] = 0;
         }
         
         $users[] = $userData;
@@ -245,6 +283,8 @@ ob_start();
                                     <tr>
                                         <th>Username</th>
                                         <th>Role</th>
+                                        <th>Max Links</th>
+                                        <th>Links Used</th>
                                         <th>Created</th>
                                         <th>Actions</th>
                                     </tr>
@@ -258,6 +298,13 @@ ob_start();
                                                     <?php echo htmlspecialchars($user['role']); ?>
                                                 </span>
                                             </td>
+                                            <td>
+                                                <?php 
+                                                    echo isset($user['max_unique_links']) ? 
+                                                        $user['max_unique_links'] : DEFAULT_MAX_UNIQUE_LINKS; 
+                                                ?>
+                                            </td>
+                                            <td><?php echo $user['custom_links_count']; ?></td>
                                             <td><?php echo $user['created_at_formatted'] ?? 'N/A'; ?></td>
                                             <td class="form-actions">
                                                 <a href="?edit=<?php echo $user['_id']; ?>" class="btn btn-sm btn-outline-primary">
@@ -323,6 +370,12 @@ ob_start();
                                 <?php endif; ?>
                             </div>
                             
+                            <div class="mb-3">
+                                <label for="max_links" class="form-label">Maximum Custom Links</label>
+                                <input type="number" class="form-control" id="max_links" name="max_links" min="0" value="<?php echo isset($editingUser['max_unique_links']) ? $editingUser['max_unique_links'] : DEFAULT_MAX_UNIQUE_LINKS; ?>">
+                                <div class="form-text">Maximum number of custom links this user can create. Default: <?php echo DEFAULT_MAX_UNIQUE_LINKS; ?></div>
+                            </div>
+                            
                             <div class="d-flex justify-content-between">
                                 <a href="<?php echo site_url('admin/users'); ?>" class="btn btn-secondary">Cancel</a>
                                 <button type="submit" name="edit_user" class="btn btn-primary">Update User</button>
@@ -351,6 +404,12 @@ ob_start();
                                 </select>
                             </div>
                             
+                            <div class="mb-3">
+                                <label for="max_links" class="form-label">Maximum Custom Links</label>
+                                <input type="number" class="form-control" id="max_links" name="max_links" min="0" value="<?php echo DEFAULT_MAX_UNIQUE_LINKS; ?>">
+                                <div class="form-text">Maximum number of custom links this user can create. Default: <?php echo DEFAULT_MAX_UNIQUE_LINKS; ?></div>
+                            </div>
+                            
                             <button type="submit" name="create_user" class="btn btn-success w-100">Create User</button>
                         </form>
                     <?php endif; ?>
@@ -376,6 +435,7 @@ ob_start();
                         <ul>
                             <li>Create and manage their own forms</li>
                             <li>Use the form builder</li>
+                            <li>Create custom short links (limited by Max Links setting)</li>
                         </ul>
                     </div>
                 </div>

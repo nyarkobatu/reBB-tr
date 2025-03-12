@@ -53,6 +53,40 @@ get('/form/:id', function($params) {
 });
 
 // ===================================
+// Custom Shareable Links Route
+// ===================================
+// Redirect custom links to the actual form
+get('/u', function() {
+    // Get the custom link
+    $customLink = isset($_GET['f']) ? $_GET['f'] : '';
+    
+    if (empty($customLink)) {
+        // No custom link provided, redirect to homepage
+        redirect('');
+        return;
+    }
+    
+    // Look up the custom link in the database
+    $dbPath = ROOT_DIR . '/db';
+    $linkStore = new \SleekDB\Store('custom_links', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    
+    // Find the custom link
+    $linkData = $linkStore->findOneBy([['custom_link', '=', $customLink]]);
+    
+    if ($linkData) {
+        // Link found, redirect to the actual form
+        redirect('form?f=' . $linkData['form_id']);
+    } else {
+        // Link not found, show 404 error
+        http_response_code(404);
+        view('errors/404');
+    }
+});
+
+// ===================================
 // Builder Routes - For creating and editing forms
 // ===================================
 // Form builder - create new form

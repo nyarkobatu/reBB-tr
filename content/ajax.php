@@ -342,6 +342,181 @@ if ($requestType === 'schema') {
         echo json_encode($responseData);
         exit;
     }
+} elseif ($requestType === 'custom_link') {
+    // Require authentication
+    if (!auth()->isLoggedIn()) {
+        echo json_encode(['success' => false, 'error' => 'Authentication required.']);
+        exit;
+    }
+    
+    $currentUser = auth()->getUser();
+    $userId = $currentUser['_id'];
+    $action = isset($requestData['action']) ? $requestData['action'] : null;
+    
+    // Initialize custom links store
+    $dbPath = ROOT_DIR . '/db';
+    $linkStore = new \SleekDB\Store('custom_links', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    
+    // Initialize users store to check link limits
+    $userStore = new \SleekDB\Store('users', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    
+    // Get user's max links limit
+    $userData = $userStore->findById($userId);
+    $maxLinks = isset($userData['max_unique_links']) ? $userData['max_unique_links'] : DEFAULT_MAX_UNIQUE_LINKS;
+    
+    switch ($action) {
+        case 'create':
+            // Get parameters
+            $formId = isset($requestData['form_id']) ? $requestData['form_id'] : '';
+            $customLink = isset($requestData['custom_link']) ? $requestData['custom_link'] : '';
+            
+            // Basic validation
+            if (empty($formId)) {
+                echo json_encode(['success' => false, 'error' => 'Form ID is required.']);
+                exit;
+            }
+            
+            if (empty($customLink)) {
+                echo json_encode(['success' => false, 'error' => 'Custom link is required.']);
+                exit;
+            }
+            
+            // Validate link format
+            if (!preg_match('/^[a-zA-Z0-9\-_]+$/', $customLink)) {
+                echo json_encode(['success' => false, 'error' => 'Custom link can only contain letters, numbers, hyphens and underscores.']);
+                exit;
+            }
+            
+            // Validate link length
+            $minLength = defined('CUSTOM_LINK_MIN_LENGTH') ? CUSTOM_LINK_MIN_LENGTH : 3;
+            $maxLength = defined('CUSTOM_LINK_MAX_LENGTH') ? CUSTOM_LINK_MAX_LENGTH : 30;
+            
+            if (strlen($customLink) < $minLength || strlen($customLink) > $maxLength) {
+                echo json_encode(['success' => false, 'error' => "Custom link must be between {$minLength} and {$maxLength} characters."]);
+                exit;
+            }
+            
+            // Check if the form exists
+            $formPath = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
+            if (!file_exists($formPath)) {
+                echo json_encode(['success' => false, 'error' => 'Form not found.']);
+                exit;
+            }
+            
+            // Get form data
+            $formData = json_decode(file_get_contents($formPath), true);
+            $formName = isset($formData['formName']) ? $formData['formName'] : 'Unnamed Form';
+            
+            // Check if custom link already exists
+            $existingLink = $linkStore->findOneBy([['custom_link', '=', $customLink]]);
+            if ($existingLink) {
+                echo json_encode(['success' => false, 'error' => 'This custom link is already in use. Please choose another.']);
+                exit;
+            }
+            
+            // Check if user has reached their link limit
+            $userLinks = $linkStore->findBy([['user_id', '=', $userId]]);
+            if (count($userLinks) >= $maxLinks) {
+                echo json_encode(['success' => false, 'error' => "You have reached your limit of {$maxLinks} custom links. Please delete some before creating new ones."]);
+                exit;
+            }
+            
+            // Create the custom link
+            try {
+                $linkStore->insert([
+                    'user_id' => $userId,
+                    'form_id' => $formId,
+                    'custom_link' => $customLink,
+                    'form_name' => $formName,
+                    'created_at' => time(),
+                    'use_count' => 0
+                ]);
+                
+                echo json_encode(['success' => true, 'message' => 'Custom link created successfully.']);
+                logAttempt("Created custom link: {$customLink} for form: {$formId}", false);
+            } catch (\Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'Failed to create custom link: ' . $e->getMessage()]);
+                logAttempt("Failed to create custom link: {$customLink} - " . $e->getMessage());
+            }
+            break;
+            
+        case 'list':
+            // Get all custom links for current user
+            try {
+                $links = $linkStore->findBy([['user_id', '=', $userId]]);
+                
+                // Add full URL to each link
+                foreach ($links as &$link) {
+                    $link['full_url'] = site_url('u') . '?f=' . $link['custom_link'];
+                }
+                
+                echo json_encode([
+                    'success' => true, 
+                    'data' => [
+                        'links' => $links,
+                        'links_used' => count($links),
+                        'max_links' => $maxLinks
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'Failed to fetch custom links: ' . $e->getMessage()]);
+                logAttempt("Failed to fetch custom links - " . $e->getMessage());
+            }
+            break;
+            
+        case 'delete':
+            // Get parameters
+            $customLink = isset($requestData['custom_link']) ? $requestData['custom_link'] : '';
+            
+            if (empty($customLink)) {
+                echo json_encode(['success' => false, 'error' => 'Custom link is required.']);
+                exit;
+            }
+            
+            // Check if link exists and belongs to user
+            $linkData = $linkStore->findOneBy([
+                ['custom_link', '=', $customLink],
+                'AND',
+                ['user_id', '=', $userId]
+            ]);
+            
+            if (!$linkData) {
+                // For admins, allow deleting any link
+                if ($currentUser['role'] === 'admin') {
+                    $linkData = $linkStore->findOneBy([['custom_link', '=', $customLink]]);
+                    
+                    if (!$linkData) {
+                        echo json_encode(['success' => false, 'error' => 'Custom link not found.']);
+                        exit;
+                    }
+                } else {
+                    echo json_encode(['success' => false, 'error' => 'You do not have permission to delete this link.']);
+                    exit;
+                }
+            }
+            
+            // Delete the link
+            try {
+                $linkStore->deleteById($linkData['_id']);
+                echo json_encode(['success' => true, 'message' => 'Custom link deleted successfully.']);
+                logAttempt("Deleted custom link: {$customLink}", false);
+            } catch (\Exception $e) {
+                echo json_encode(['success' => false, 'error' => 'Failed to delete custom link: ' . $e->getMessage()]);
+                logAttempt("Failed to delete custom link: {$customLink} - " . $e->getMessage());
+            }
+            break;
+            
+        default:
+            echo json_encode(['success' => false, 'error' => 'Invalid custom link action.']);
+            exit;
+    }
+    exit;
 } elseif ($requestType === 'analytics') {
     $analytics = new Analytics();
 

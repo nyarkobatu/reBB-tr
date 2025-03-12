@@ -19,7 +19,8 @@ $stats = [
     'total_forms' => 0,
     'recent_forms' => 0,
     'total_size' => 0,
-    'total_users' => 0
+    'total_users' => 0,
+    'total_custom_links' => 0
 ];
 
 /**
@@ -61,6 +62,31 @@ if (isset($_POST['delete_form']) && isset($_POST['form_id'])) {
     } else {
         $actionMessage = "Error: Unable to delete form $formId.";
         logAdminAction("Failed to delete form: $formId", false);
+    }
+}
+
+// Handle custom link deletion
+if (isset($_POST['delete_custom_link']) && isset($_POST['custom_link'])) {
+    $customLink = $_POST['custom_link'];
+    
+    // Access the database stores directly
+    $dbPath = ROOT_DIR . '/db';
+    $linkStore = new \SleekDB\Store('custom_links', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    
+    // Find the link
+    $link = $linkStore->findOneBy([['custom_link', '=', $customLink]]);
+    
+    if ($link) {
+        // Delete the link
+        $linkStore->deleteById($link['_id']);
+        $actionMessage = "Custom link '$customLink' has been deleted successfully.";
+        logAdminAction("Deleted custom link: $customLink");
+    } else {
+        $actionMessage = "Error: Custom link '$customLink' not found.";
+        logAdminAction("Failed to delete custom link: $customLink", false);
     }
 }
 
@@ -126,8 +152,41 @@ if (is_dir($formsDir)) {
     }
 }
 
-// Count users
+// Get custom links data
+$customLinks = [];
 $dbPath = ROOT_DIR . '/db';
+
+// Initialize the SleekDB store for custom links
+try {
+    $linkStore = new \SleekDB\Store('custom_links', $dbPath, [
+        'auto_cache' => false,
+        'timeout' => false
+    ]);
+    
+    // Get all custom links
+    $customLinks = $linkStore->findAll(['created_at' => 'desc']);
+    $stats['total_custom_links'] = count($customLinks);
+    
+    // Add site URL and username to each link
+    if (!empty($customLinks)) {
+        $userStore = new \SleekDB\Store('users', $dbPath, [
+            'auto_cache' => false,
+            'timeout' => false
+        ]);
+        
+        foreach ($customLinks as &$customLink) {
+            $customLink['full_url'] = site_url('u') . '?f=' . $customLink['custom_link'];
+            
+            // Look up username
+            $userData = $userStore->findById($customLink['user_id']);
+            $customLink['username'] = $userData ? $userData['username'] : 'Unknown';
+        }
+    }
+} catch (\Exception $e) {
+    $actionMessage = "Error loading custom links: " . $e->getMessage();
+}
+
+// Count users
 if (is_dir($dbPath) && is_dir($dbPath . '/users')) {
     $userStore = new \SleekDB\Store('users', $dbPath, [
         'auto_cache' => false,
@@ -181,16 +240,16 @@ ob_start();
         <div class="col-md-3 mb-3 mb-md-0">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="stat-value"><?php echo $stats['recent_forms']; ?></div>
-                    <div class="stat-label">Forms Created (24h)</div>
+                    <div class="stat-value"><?php echo $stats['total_users']; ?></div>
+                    <div class="stat-label">Total Users</div>
                 </div>
             </div>
         </div>
         <div class="col-md-3 mb-3 mb-md-0">
             <div class="card stats-card h-100">
                 <div class="card-body">
-                    <div class="stat-value"><?php echo $stats['total_users']; ?></div>
-                    <div class="stat-label">Total Users</div>
+                    <div class="stat-value"><?php echo $stats['total_custom_links']; ?></div>
+                    <div class="stat-label">Custom Links</div>
                 </div>
             </div>
         </div>
@@ -245,6 +304,69 @@ ob_start();
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- Custom Links Section -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Manage Custom Links</h4>
+        </div>
+        <div class="card-body">
+            <!-- Search box -->
+            <div class="search-box">
+                <input type="text" id="customLinkSearch" class="form-control" placeholder="Search custom links...">
+            </div>
+            
+            <?php if (empty($customLinks)): ?>
+                <div class="form-list-empty">
+                    <p><i class="bi bi-link"></i></p>
+                    <p>No custom links have been created yet.</p>
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Custom Link</th>
+                                <th>Target Form</th>
+                                <th>Created By</th>
+                                <th>Created Date</th>
+                                <th>Views</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customLinksList">
+                            <?php foreach ($customLinks as $link): ?>
+                                <tr>
+                                    <td>
+                                        <a href="<?php echo htmlspecialchars($link['full_url']); ?>" target="_blank">
+                                            <?php echo htmlspecialchars($link['custom_link']); ?>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo site_url('form') . '?f=' . htmlspecialchars($link['form_id']); ?>" target="_blank">
+                                            <?php echo htmlspecialchars($link['form_name']); ?>
+                                        </a>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($link['username']); ?></td>
+                                    <td><?php echo date('Y-m-d H:i', $link['created_at']); ?></td>
+                                    <td><?php echo isset($link['use_count']) ? $link['use_count'] : 0; ?></td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteLinkModal" 
+                                                data-customlink="<?php echo htmlspecialchars($link['custom_link']); ?>"
+                                                data-username="<?php echo htmlspecialchars($link['username']); ?>">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
     
@@ -329,7 +451,7 @@ ob_start();
         </div>
     </div>
     
-    <!-- Delete Confirmation Modal -->
+    <!-- Delete Form Confirmation Modal -->
     <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -351,7 +473,98 @@ ob_start();
             </div>
         </div>
     </div>
+    
+    <!-- Delete Custom Link Confirmation Modal -->
+    <div class="modal fade" id="deleteLinkModal" tabindex="-1" aria-labelledby="deleteLinkModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteLinkModalLabel">Confirm Custom Link Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the custom link "<span id="customLinkToDelete"></span>" created by <span id="customLinkOwner"></span>?
+                    <p class="text-danger mt-2">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="admin">
+                        <input type="hidden" name="custom_link" id="customLinkIdToDelete">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="delete_custom_link" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Delete modal handler for forms
+    $('#deleteModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const formId = button.data('formid');
+        const formName = button.data('formname');
+        
+        const modal = $(this);
+        modal.find('#formNameToDelete').text(formName);
+        modal.find('#formIdToDelete').val(formId);
+    });
+    
+    // Delete modal handler for custom links
+    $('#deleteLinkModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const customLink = button.data('customlink');
+        const username = button.data('username');
+        
+        const modal = $(this);
+        modal.find('#customLinkToDelete').text(customLink);
+        modal.find('#customLinkOwner').text(username);
+        modal.find('#customLinkIdToDelete').val(customLink);
+    });
+    
+    // Search functionality for forms
+    const formSearchBox = document.getElementById('formSearch');
+    if (formSearchBox) {
+        formSearchBox.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#formsList tr');
+            
+            rows.forEach(row => {
+                const formId = row.querySelector('td:first-child').textContent.toLowerCase();
+                const formName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                
+                if (formId.includes(searchTerm) || formName.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+    
+    // Search functionality for custom links
+    const linkSearchBox = document.getElementById('customLinkSearch');
+    if (linkSearchBox) {
+        linkSearchBox.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('#customLinksList tr');
+            
+            rows.forEach(row => {
+                const customLink = row.querySelector('td:first-child').textContent.toLowerCase();
+                const formName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const username = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                
+                if (customLink.includes(searchTerm) || formName.includes(searchTerm) || username.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+});
+</script>
 
 <?php
 // Store the content in a global variable

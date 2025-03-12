@@ -53,6 +53,11 @@ ob_start();
                         <p>Increased from 1MB to 10MB per form.</p>
                     </div>
                     <div class="feature-card">
+                        <div class="feature-icon"><i class="bi bi-link-45deg"></i></div>
+                        <h3>Custom Links</h3>
+                        <p>Ability to setup up to <?php echo DEFAULT_MAX_UNIQUE_LINKS; ?> custom links for forms.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon"><i class="bi bi-emoji-smile"></i></div>
                         <h3>Eternal Gratitude</h3>
                         <p>My sincere appreciation for supporting this project and keeping it alive!</p>

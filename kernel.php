@@ -219,7 +219,11 @@ $required_constants = [
     'TRACK_THEMES',
     'TRACK_FORM_USAGE',
     'MAX_SCHEMA_SIZE_GUEST',
-    'MAX_SCHEMA_SIZE_MEMBER'
+    'MAX_SCHEMA_SIZE_MEMBER',
+    'DEFAULT_MAX_UNIQUE_LINKS',
+    'CUSTOM_LINK_MIN_LENGTH',
+    'CUSTOM_LINK_MAX_LENGTH',
+    'LEGACY_URLS_ENABLED'
 ];
 
 $missing_constants = [];

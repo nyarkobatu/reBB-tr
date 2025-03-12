@@ -42,6 +42,14 @@ define('MAX_SCHEMA_SIZE_GUEST', 1000000);       // 1MB by default
 define('MAX_SCHEMA_SIZE_MEMBER', 10000000);     // 10MB by default
 define('IP_BLACKLIST', ['192.0.2.1']);  // Example blacklisted IPs (replace with actual ones)
 
+// Custom Shareable Links settings
+define('DEFAULT_MAX_UNIQUE_LINKS', 5);  // Default maximum number of custom links per user
+define('CUSTOM_LINK_MIN_LENGTH', 3);    // Minimum length for custom links
+define('CUSTOM_LINK_MAX_LENGTH', 30);   // Maximum length for custom links
+
+// Routing configuration
+define('LEGACY_URLS_ENABLED', true);  // Set to false to disable legacy URL support (form.php, etc.)
+
 // Feature flags
 define('DEBUG_MODE',         ENVIRONMENT === 'development');
 
