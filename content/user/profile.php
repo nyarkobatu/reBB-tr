@@ -110,6 +110,9 @@ ob_start();
             <a href="<?php echo site_url(); ?>" class="btn btn-outline-secondary me-2">
                 <i class="bi bi-house"></i> Home
             </a>
+            <a href="<?php echo site_url('account'); ?>" class="btn btn-outline-info me-2">
+                <i class="bi bi-gear"></i> Account Settings
+            </a>
             <a href="<?php echo site_url('logout'); ?>" class="btn btn-outline-danger">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>

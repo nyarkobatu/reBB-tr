@@ -133,6 +133,11 @@ any('/profile', function() {
     view('user/profile');
 });
 
+// Account management
+any('/account', function() {
+    view('user/account');
+});
+
 // ===================================
 // Admin & Management Routes
 // ===================================
