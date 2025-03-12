@@ -105,8 +105,6 @@ if ($_SESSION['hourly_submissions']['count'] >= $ajax_config['max_requests_per_h
 }
 
 $requestType = isset($requestData['type']) ? $requestData['type'] : null;
-
-$randomString = bin2hex(random_bytes(16)); // Generate a random string
 $formsDir = STORAGE_DIR . '/forms';
 
 if (!is_dir($formsDir)) {
@@ -117,6 +115,37 @@ if (!is_dir($formsDir)) {
     }
 }
 
+/**
+ * Generate a unique form ID string that doesn't collide with existing files
+ * 
+ * @param string $formsDir Directory where form schemas are stored
+ * @param int $maxAttempts Maximum number of attempts to generate a unique ID
+ * @return string|false The unique form ID or false if generation failed
+ */
+function generateUniqueFormId($formsDir, $maxAttempts = 10) {
+    $attempts = 0;
+    
+    while ($attempts < $maxAttempts) {
+        // Generate a random string
+        $randomString = bin2hex(random_bytes(16));
+        $filename = $formsDir . '/' . $randomString . '_schema.json';
+        
+        // Check if file already exists
+        if (!file_exists($filename)) {
+            return $randomString;
+        }
+        
+        // Log this rare collision
+        logAttempt("File collision detected: $filename - regenerating ID", true);
+        $attempts++;
+    }
+    
+    // If we've reached the maximum attempts, log this and return false
+    logAttempt("Failed to generate a unique form ID after $maxAttempts attempts", true);
+    return false;
+}
+
+// Later in the code where we handle the 'schema' type request
 if ($requestType === 'schema') {
     // Basic content validation
     $formSchema = isset($requestData['schema']) ? $requestData['schema'] : null;
@@ -277,7 +306,15 @@ if ($requestType === 'schema') {
         ]);
         exit;
     } else {
-        // This is a new form creation
+        // This is a new form creation - Generate a unique form ID
+        $randomString = generateUniqueFormId($formsDir);
+        
+        if ($randomString === false) {
+            logAttempt('Failed to generate a unique form ID');
+            echo json_encode(['success' => false, 'error' => 'Failed to generate a unique form ID. Please try again.']);
+            exit;
+        }
+        
         $filename = $formsDir . '/' . $randomString . '_schema.json';
         $fileContent = json_encode([
             'success' => true,
