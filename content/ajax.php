@@ -146,7 +146,11 @@ if ($requestType === 'schema') {
 
     // Check for very large submissions (potential DoS)
     $jsonSize = strlen(json_encode($formSchema));
-    if ($jsonSize > 1000000) { // ~1MB limit
+    $allowedSize = MAX_SCHEMA_SIZE_GUEST;
+    if(auth()->isLoggedIn()) {
+        $allowedSize = MAX_SCHEMA_SIZE_MEMBER;
+    }
+    if ($jsonSize > $allowedSize) {
         logAttempt('Form schema too large: ' . $jsonSize . ' bytes');
         echo json_encode(['success' => false, 'error' => 'Form schema exceeds maximum allowed size.']);
         exit;

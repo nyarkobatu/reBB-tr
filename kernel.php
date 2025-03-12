@@ -9,7 +9,7 @@
 
 // Define the base path for the application
 if (!defined('APP_VERSION')) {
-    define('APP_VERSION', 'v1.5.0a');
+    define('APP_VERSION', 'v1.5.1');
 }
 
 // Define the public path for the application
@@ -217,7 +217,9 @@ $required_constants = [
     'TRACK_VISITORS',
     'TRACK_COMPONENTS',
     'TRACK_THEMES',
-    'TRACK_FORM_USAGE'
+    'TRACK_FORM_USAGE',
+    'MAX_SCHEMA_SIZE_GUEST',
+    'MAX_SCHEMA_SIZE_MEMBER'
 ];
 
 $missing_constants = [];

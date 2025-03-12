@@ -38,6 +38,8 @@ define('SESSION_LIFETIME', 86400);
 // Form Builder Submission settings
 define('MAX_REQUESTS_PER_HOUR', 60);    // Maximum form submissions per hour per IP
 define('COOLDOWN_PERIOD', 5);           // Seconds between submissions
+define('MAX_SCHEMA_SIZE_GUEST', 1000000);       // 1MB by default
+define('MAX_SCHEMA_SIZE_MEMBER', 10000000);     // 10MB by default
 define('IP_BLACKLIST', ['192.0.2.1']);  // Example blacklisted IPs (replace with actual ones)
 
 // Feature flags
