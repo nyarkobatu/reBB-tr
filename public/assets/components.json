@@ -92,10 +92,23 @@
                     "type": "textarea",
                     "uniqueKey": false,
                     "input": true,
-                    "tableView": true,
-                    "rows": 3,
                     "customDefaultValue": "value = getCookie(component.key);",
                     "customConditional": "setCookie(component.key, value, 30);"
+                }
+            },
+            {
+                "key": "toggleSwitch",
+                "title": "Toggle Switch",
+                "icon": "toggle-on",
+                "direct": true,
+                "schema": {
+                    "label": "Toggle Switch",
+                    "key": "toggleSwitch",
+                    "type": "checkbox",
+                    "customClass": "form-switch",
+                    "uniqueKey": false,
+                    "input": true,
+                    "tableView": true
                 }
             }
         ]
