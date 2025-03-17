@@ -156,12 +156,30 @@ ob_start();
         <!-- Template Title Toggle & Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Dynamic Form Title</h5>
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Dynamic Title Field</h5>
+                    <div class="style-tooltip">
+                        <i class="bi bi-info-circle"></i>
+                        <div class="tooltip-content">
+                            <p>The Dynamic Title Field allows you to generate custom titles for your form. You can use wildcards to create dynamic and flexible title templates.</p>
+                            <div class="tooltip-image">
+                                <img src="<?php echo asset_path('images/form-types/dynamic-title.png'); ?>" 
+                                    alt="Dynamic Title Field preview">
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="templateTitleToggle" 
-                           <?php echo $enableTemplateTitle ? 'checked' : ''; ?>>
+                        <?php echo $enableTemplateTitle ? 'checked' : ''; ?>>
                     <label class="form-check-label" for="templateTitleToggle">Enable</label>
                 </div>
+            </div>
+            <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
+                <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form, you <b>can</b> use wildcards.</small>
+                <input type='text' id='templateTitle' class='form-control' 
+                    placeholder='Generally used to create dynamic topic names' 
+                    value="<?php echo htmlspecialchars($existingTemplateTitle); ?>">
             </div>
             <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
                 <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form, you <b>can</b> use wildcards.</small>
