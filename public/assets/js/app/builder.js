@@ -308,11 +308,11 @@
     function getComponentKeys(component) {
         if (component.type === 'button' && component.action === 'submit') return [];
         let keys = [];
-
+    
         if (component.type === 'datagrid' && component.key) {
             keys.push(`@START_${component.key}@`, `@END_${component.key}@`);
         }
-
+    
         // Special handling for survey components
         if (component.type === 'survey' && component.key) {
             // Generate wildcards for each question in the survey
@@ -328,7 +328,14 @@
                 });
             }
         }
-
+    
+        // Define layout components that should NOT generate wildcards
+        const layoutComponents = [
+            'columns', 'column', 'fieldset', 'panel', 'table', 
+            'tabs', 'tab', 'well', 'html', 'content',
+            'data', 'container', 'editgrid'
+        ];
+    
         // Handle standard input components
         if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden', 'datetime', 'day', 'time'].includes(component.type)) {
             if (component.key) {
@@ -338,17 +345,19 @@
         
         // For any other component with a key, include it as well
         // This ensures any custom component added later will still work
+        // BUT exclude layout components that don't represent user input
         if (component.key && !keys.includes(component.key) && 
             component.type !== 'button' && 
             component.type !== 'datagrid' &&
-            component.type !== 'survey') {
+            component.type !== 'survey' &&
+            !layoutComponents.includes(component.type)) {
             keys.push(component.key);
         }
-
+    
         // Recursively process components and columns, regardless of the current component's type
         if (component.components) keys.push(...component.components.flatMap(getComponentKeys));
         if (component.columns) keys.push(...component.columns.flatMap(col => col.components?.flatMap(getComponentKeys) || []));
-
+    
         return keys;
     }
 
