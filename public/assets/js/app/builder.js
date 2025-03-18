@@ -25,107 +25,6 @@
         }
     }
 
-    async function registerCustomComponents(builderOptions) {
-        try {
-            // Fetch the components.json file
-            const response = await fetch('assets/components.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const componentData = await response.json();
-
-            // Track registered component types to prevent duplicates
-            const registeredTypes = new Set();
-
-            componentData.forEach(groupData => {
-                // Create the Builder Group
-                builderOptions.builder[groupData.groupKey] = {
-                    title: groupData.groupTitle,
-                    default: false,
-                    weight: groupData.groupWeight,
-                    components: {}
-                };
-
-                groupData.components.forEach(componentDef => {
-                    // Check if this is a direct component or a section wrapper
-                    const isDirectComponent = componentDef.direct === true;
-                    
-                    if (isDirectComponent) {
-                        // For direct components, the schema IS the component
-                        const componentSchema = componentDef.schema;
-                        collectKeys(componentSchema, predefinedKeys);
-                        
-                        // Add the direct component to the builder panel
-                        builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
-                            title: componentDef.title,
-                            group: groupData.groupKey,
-                            icon: componentDef.icon,
-                            schema: componentSchema
-                        };
-                        
-                        // No need to register a new component type since we're using native types
-                    } else {
-                        // This is a section/container component (existing behavior)
-                        collectKeys(componentDef.schema, predefinedKeys);
-                        
-                        // Add section component definition to the builder
-                        builderOptions.builder[groupData.groupKey].components[componentDef.key] = {
-                            title: componentDef.title,
-                            group: groupData.groupKey,
-                            icon: componentDef.icon,
-                            schema: componentDef.schema
-                        };
-
-                        // Skip registration if this type is already registered
-                        if (registeredTypes.has(componentDef.schema.type)) {
-                            console.log(`Component type ${componentDef.schema.type} already registered, skipping duplicate registration`);
-                            return;
-                        }
-                        
-                        // Add this type to our registry
-                        registeredTypes.add(componentDef.schema.type);
-
-                        const isContainer = componentDef.schema.components && Array.isArray(componentDef.schema.components);
-                        const baseComponent = isContainer 
-                            ? Formio.Components.components.container 
-                            : Formio.Components.components.component;
-
-                        Formio.Components.addComponent(
-                            componentDef.schema.type,
-                            class extends baseComponent {
-                                static schema(...extend) {
-                                    return baseComponent.schema(
-                                        componentDef.schema,
-                                        ...extend
-                                    );
-                                }
-
-                                static get builderInfo() {
-                                    return {
-                                        title: componentDef.title,
-                                        group: groupData.groupKey,
-                                        icon: componentDef.icon,
-                                        weight: 10,
-                                        schema: this.schema()
-                                    };
-                                }
-                            },
-                            {
-                                template: isContainer 
-                                    ? `<div class="${componentDef.schema.type}-component"><div ref="components"></div></div>`
-                                    : `<div class="${componentDef.schema.type}-component">{{ view }}</div>`
-                            }
-                        );
-                    }
-                });
-            });
-        } catch (error) {
-            console.error("Error loading custom components:", error);
-            alert("Failed to load custom components. Check the console for details.");
-        }
-        return builderOptions;
-    }
-
     // Initial Builder Options
     let builderOptions = {
         builder: {
@@ -161,22 +60,72 @@
         }
     };
 
-    // Async function to initialize the builder *after* fetching components
-    async function initializeFormio() {
-        builderOptions = await registerCustomComponents(builderOptions); // Await the registration
-        Formio.builder(builderElement, existingFormData, builderOptions).then(builder => {
-            builderInstance = builder;
-            initializeBuilder();
-            if (existingFormNamePHP) {
-                formNameInput.value = existingFormNamePHP;
-            }
-            if (existingTemplatePHP) {
-                templateInput.value = existingTemplatePHP;
-            }
-        });
+    // Function to initialize the builder with the ComponentRegistry
+    function initializeBuilderWithRegistry() {
+        try {
+            // Get component groups from registry and add them to builder options
+            Object.assign(builderOptions.builder, ComponentRegistry.getBuilderGroups());
+            
+            console.log('Initializing builder with ComponentRegistry...');
+            
+            // Initialize the Form.io builder
+            Formio.builder(builderElement, existingFormData, builderOptions)
+                .then(builder => {
+                    builderInstance = builder;
+                    initializeBuilder();
+                    
+                    if (existingFormNamePHP) {
+                        formNameInput.value = existingFormNamePHP;
+                    }
+                    if (existingTemplatePHP) {
+                        templateInput.value = existingTemplatePHP;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error initializing builder:', error);
+                    alert('Error initializing form builder. Please check the console for details.');
+                });
+        } catch (error) {
+            console.error('Error setting up form builder:', error);
+            alert('There was an error setting up the form builder. Please check the console for details.');
+        }
     }
 
-    initializeFormio(); // Call the async initialization function
+    // Determine the asset base path based on the current script
+    function getAssetBasePath() {
+        // Try to get the base path from a global variable first
+        if (typeof ASSETS_BASE_PATH !== 'undefined') {
+            return ASSETS_BASE_PATH;
+        }
+        
+        // Default to a relative path
+        return '';
+    }
+
+    // Initialize the form builder
+    function startBuilderInitialization() {
+        // If ComponentRegistry is available, use it to load components
+        if (window.ComponentRegistry) {
+            const basePath = getAssetBasePath();
+            
+            // Initialize the registry with the base path
+            ComponentRegistry.init(basePath)
+                .then(() => {
+                    // When components are loaded, initialize the builder
+                    initializeBuilderWithRegistry();
+                })
+                .catch(error => {
+                    console.error('Error initializing ComponentRegistry:', error);
+                    alert('Error loading components. Please check the console for details.');
+                });
+        } else {
+            console.error('ComponentRegistry not available, cannot initialize builder');
+            alert('Component system not available. Please ensure ComponentRegistry.js is loaded before builder.js.');
+        }
+    }
+
+    // Start the initialization process
+    startBuilderInitialization();
 
     function initializeBuilder() {
         builderInstance.on('change', updateWildcards);
@@ -380,10 +329,20 @@
             }
         }
 
+        // Handle standard input components
         if (['textfield', 'textarea', 'checkbox', 'select', 'radio', 'hidden', 'datetime', 'day', 'time'].includes(component.type)) {
             if (component.key) {
                 keys.push(component.key);
             }
+        }
+        
+        // For any other component with a key, include it as well
+        // This ensures any custom component added later will still work
+        if (component.key && !keys.includes(component.key) && 
+            component.type !== 'button' && 
+            component.type !== 'datagrid' &&
+            component.type !== 'survey') {
+            keys.push(component.key);
         }
 
         // Recursively process components and columns, regardless of the current component's type
@@ -499,7 +458,6 @@
                 })
             }).catch(err => console.warn('Analytics error:', err));
         }
-
 
         trackComponentUsage(component.type);
     }

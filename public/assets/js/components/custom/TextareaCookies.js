@@ -1,0 +1,56 @@
+/**
+ * Textarea with Cookies Component
+ * A textarea that remembers user input using browser cookies
+ */
+(function() {
+  // Get the base TextAreaComponent class from Form.io
+  const TextAreaComponent = Formio.Components.components.textarea;
+
+  // Define our component class using ES6 class syntax
+  class TextareaCookiesComponent extends TextAreaComponent {
+    // Define the builder info as a static getter
+    static get builderInfo() {
+      return {
+        title: 'Textarea (Cookies)',
+        group: 'custom',
+        icon: 'book',
+        weight: 20,
+        schema: TextareaCookiesComponent.schema()
+      };
+    }
+
+    // Define the schema factory method
+    static schema() {
+      return TextAreaComponent.schema({
+        type: 'textareaCookies',
+        label: 'Textarea with Cookies',
+        key: 'textareaCookies',
+        uniqueKey: false,
+        customDefaultValue: 'value = getCookie(component.key);',
+        customConditional: 'setCookie(component.key, value, 30);'
+      });
+    }
+
+    // Inherit the edit form from the parent
+    static editForm() {
+      return TextAreaComponent.editForm();
+    }
+
+    // Constructor to initialize the component
+    constructor(component, options, data) {
+      super(component, options, data);
+      // Additional initialization can be added here
+    }
+  }
+
+  // Register the component
+  if (window.ComponentRegistry) {
+    window.ComponentRegistry.register('textareaCookies', TextareaCookiesComponent);
+  } else {
+    // Fallback to direct registration if ComponentRegistry is unavailable
+    Formio.Components.addComponent('textareaCookies', TextareaCookiesComponent);
+  }
+
+  // Make it available globally for debugging and manual usage
+  window.TextareaCookiesComponent = TextareaCookiesComponent;
+})();

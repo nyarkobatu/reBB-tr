@@ -272,6 +272,9 @@ $enableTemplateLinkJS = $enableTemplateLink ? 'true' : 'false';
 $existingStyleJS = json_encode($existingFormStyle);
 $siteURL = site_url();
 $isEditModeJS = $editMode && $isOwnForm ? 'true' : 'false';
+$assets_base_path = asset_path('js/');
+
+// Add this inside your PHP file, before the closing body tag
 $GLOBALS['page_js_vars'] = <<<JSVARS
 let existingFormData = $existingSchema;
 let existingFormNamePHP = "$existingFormName";
@@ -283,8 +286,17 @@ let enableTemplateLinkPHP = $enableTemplateLinkJS;
 let existingFormStyle = $existingStyleJS;
 let siteURL = "$siteURL";
 let isEditMode = $isEditModeJS;
+let ASSETS_BASE_PATH = "$assets_base_path";
 JSVARS;
-$GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>';
+
+// Add the component registry first, then builder.js
+$GLOBALS['page_javascript'] = '
+<!-- Component Registry System -->
+<script src="'. asset_path('js/components/components.js') .'?v=' . APP_VERSION . '"></script>
+
+<!-- Main Builder Script - relies on ComponentRegistry -->
+<script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>
+';
 
 // Include the master layout
 require_once ROOT_DIR . '/includes/master.php';

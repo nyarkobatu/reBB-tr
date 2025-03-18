@@ -369,6 +369,7 @@ if (!$dangerousJSDetected || $bypassSecurityCheck) {
     $formTemplateLink = $enableTemplateLink ? json_encode($formTemplateLink, JSON_UNESCAPED_SLASHES) : 'null';
     $enableTemplateTitleJS = $enableTemplateTitle ? 'true' : 'false';
     $enableTemplateLinkJS = $enableTemplateLink ? 'true' : 'false';
+    $assets_base_path = asset_path('js/');
     $GLOBALS['page_js_vars'] = <<<JSVARS
 const formSchema = $formSchema;
 const formTemplate = $formTemplate;
@@ -376,8 +377,17 @@ const formTemplateTitle = $formTemplateTitle;
 const formTemplateLink = $formTemplateLink;
 const enableTemplateTitle = $enableTemplateTitleJS;
 const enableTemplateLink = $enableTemplateLinkJS;
+let ASSETS_BASE_PATH = "$assets_base_path";
 JSVARS;
-    $GLOBALS['page_javascript'] = '<script src="'. asset_path('js/app/form.js') .'?v=' . APP_VERSION . '"></script>';
+
+    // Add the component registry first, then builder.js
+    $GLOBALS['page_javascript'] = '
+    <!-- Component Registry System -->
+    <script src="'. asset_path('js/components/components.js') .'?v=' . APP_VERSION . '"></script>
+
+    <!-- Main Form Script - relies on ComponentRegistry -->
+    <script src="'. asset_path('js/app/form.js') .'?v=' . APP_VERSION . '"></script>
+    ';
 } else {
     // Empty the JavaScript variables when showing the security warning
     $GLOBALS['page_js_vars'] = '';
