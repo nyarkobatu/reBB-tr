@@ -163,7 +163,7 @@ ob_start();
                         <div class="tooltip-content">
                             <p>The Dynamic Title Field allows you to generate custom titles for your form. You can use wildcards to create dynamic and flexible title templates.</p>
                             <div class="tooltip-image">
-                                <img src="<?php echo asset_path('images/form-types/dynamic-title.png'); ?>" 
+                                <img src="<?php echo asset_path('images/form-options/dynamic-title.png'); ?>" 
                                     alt="Dynamic Title Field preview">
                             </div>
                         </div>
@@ -176,13 +176,7 @@ ob_start();
                 </div>
             </div>
             <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
-                <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form, you <b>can</b> use wildcards.</small>
-                <input type='text' id='templateTitle' class='form-control' 
-                    placeholder='Generally used to create dynamic topic names' 
-                    value="<?php echo htmlspecialchars($existingTemplateTitle); ?>">
-            </div>
-            <div class="card-body" id="templateTitleSection" style="<?php echo $enableTemplateTitle ? '' : 'display: none;'; ?>">
-                <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form, you <b>can</b> use wildcards.</small>
+                <small class="form-text text-muted d-block mb-2">Offer generated titles for users to copy and paste a title into their generated form.</small>
                 <input type='text' id='templateTitle' class='form-control' 
                        placeholder='Generally used to create dynamic topic names' 
                        value="<?php echo htmlspecialchars($existingTemplateTitle); ?>">
@@ -192,19 +186,32 @@ ob_start();
         <!-- Template Link Toggle & Section -->
         <div class="card mb-3">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">External Form Link</h5>
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="templateLinkToggle" 
-                           <?php echo $enableTemplateLink ? 'checked' : ''; ?>>
-                    <label class="form-check-label" for="templateLinkToggle">Enable</label>
+                <div class="d-flex align-items-center">
+                        <h5 class="mb-0 me-2">External Link Button</h5>
+                        <div class="style-tooltip">
+                            <i class="bi bi-info-circle"></i>
+                            <div class="tooltip-content">
+                                <p>Offers a link to users as to where they can submit their generated content.</p>
+                                <div class="tooltip-image">
+                                    <img src="<?php echo asset_path('images/form-options/post-content.png'); ?>" 
+                                        alt="Dynamic Title Field preview">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="templateLinkToggle" 
+                                <?php echo $enableTemplateLink ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="templateLinkToggle">Enable</label>
+                        </div>
+                    </div>
+                    <div class="card-body" id="templateLinkSection" style="<?php echo $enableTemplateLink ? '' : 'display: none;'; ?>">
+                        <small class="form-text text-muted d-block mb-2">Offer users a link to post their generated content, you <b>cannot</b> use wildcards.</small>
+                        <input type='text' id='templateLink' class='form-control' 
+                            placeholder='Generally used to offer the user a link as to where to post the generated content' 
+                            value="<?php echo htmlspecialchars($existingTemplateLink); ?>">
+                    </div>
                 </div>
-            </div>
-            <div class="card-body" id="templateLinkSection" style="<?php echo $enableTemplateLink ? '' : 'display: none;'; ?>">
-                <small class="form-text text-muted d-block mb-2">Offer users a link to post their generated content, you <b>cannot</b> use wildcards.</small>
-                <input type='text' id='templateLink' class='form-control' 
-                       placeholder='Generally used to offer the user a link as to where to post the generated content' 
-                       value="<?php echo htmlspecialchars($existingTemplateLink); ?>">
-            </div>
         </div>
     </div>
 
@@ -218,7 +225,7 @@ ob_start();
         <?php endif; ?>
     </div>
 
-    <div id="documentation-link" class="text-center mt-3">
+    <div id="documentation-link" class="text-center mt-3 mb-3">
         <a href="<?php echo SITE_URL; ?>/documentation.php" target="_blank" class="btn btn-info">
             <i class="bi bi-book"></i> Documentation
         </a>
