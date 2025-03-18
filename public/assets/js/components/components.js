@@ -146,8 +146,6 @@ var ComponentRegistry = (function() {
           
           // Store in our registry
           _components[type] = component;
-          
-          console.log('Component registered:', type);
           return true;
         } catch (error) {
           console.error('Error registering component:', type, error);

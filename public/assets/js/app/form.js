@@ -43,27 +43,7 @@ function initializeFormWithComponents() {
 
 // Verify component registration
 function verifyComponentRegistration() {
-    // List of components to verify
-    const componentsToCheck = ['textfieldCookies', 'textareaCookies', 'toggleSwitch', 'unitSection'];
-    
-    componentsToCheck.forEach(function(type) {
-        if (window.ComponentRegistry && ComponentRegistry.hasComponent(type)) {
-            console.log('Component verified:', type);
-        } else {
-            // If not in registry, check direct Formio registration
-            if (Formio.Components.components[type]) {
-                console.log('Component registered with Formio directly:', type);
-            } else {
-                console.warn('Component not registered:', type);
-                
-                // For toggleSwitch specifically, register it directly if needed
-                if (type === 'toggleSwitch' && window.ToggleSwitchComponent) {
-                    console.log('Registering toggleSwitch component directly...');
-                    Formio.Components.addComponent('toggleSwitch', window.ToggleSwitchComponent);
-                }
-            }
-        }
-    });
+    return null;
 }
 
 // Create the form with schema

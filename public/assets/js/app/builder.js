@@ -8,6 +8,44 @@
     let builderInstance;
     let predefinedKeys = new Set();
 
+    // Add this to the beginning of your builder.js file, after the initial variable declarations
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hook into Form.io's component edit form
+        Formio.Components.components.component.editForm = function() {
+        let editForm = Formio.Components.components.component.baseEditForm();
+        
+        // Find the API tab in the edit form
+        const apiTab = editForm.components.find(tab => tab.key === 'api');
+        
+        if (apiTab && apiTab.components) {
+            // Add the Preserve Key checkbox right after the "Property Name" (key) field
+            const keyIndex = apiTab.components.findIndex(comp => comp.key === 'key');
+            
+            if (keyIndex !== -1) {
+            // Create the Preserve Key checkbox component
+            const preserveKeyCheckbox = {
+                type: 'checkbox',
+                input: true,
+                key: 'uniqueKey',
+                weight: apiTab.components[keyIndex].weight + 1, // Position right after the key field
+                label: 'Preserve Key',
+                tooltip: 'When enabled, the key will not be regenerated when the label changes.',
+                customClass: 'preserve-key-checkbox',
+                defaultValue: false
+            };
+            
+            // Insert our new checkbox after the key field
+            apiTab.components.splice(keyIndex + 1, 0, preserveKeyCheckbox);
+            }
+        }
+        
+        return editForm;
+        };
+        
+        // Now the uniqueKey property will be part of the component settings
+        // and will be properly saved and loaded with the form
+    });
+
     function collectKeys(schema, keysSet) {
         // Only add key to predefinedKeys if uniqueKey is true
         if (schema.key && schema.uniqueKey === true) {
@@ -68,6 +106,13 @@
             
             console.log('Initializing builder with ComponentRegistry...');
             
+            // Check if the editor extensions are loaded
+            if (typeof window.editorExtensionsLoaded === 'undefined') {
+                // Set a flag that our editor extensions have been applied
+                // This would be set by editor.js, but we'll check here just in case
+                console.log('Editor extensions not detected, they should be loaded via editor.js');
+            }
+            
             // Initialize the Form.io builder
             Formio.builder(builderElement, existingFormData, builderOptions)
                 .then(builder => {
@@ -85,6 +130,8 @@
                     console.error('Error initializing builder:', error);
                     alert('Error initializing form builder. Please check the console for details.');
                 });
+
+            console.log('Form.io initialized!');
         } catch (error) {
             console.error('Error setting up form builder:', error);
             alert('There was an error setting up the form builder. Please check the console for details.');
