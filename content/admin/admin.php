@@ -65,6 +65,65 @@ if (isset($_POST['delete_form']) && isset($_POST['form_id'])) {
     }
 }
 
+// Handle form verification
+if (isset($_POST['verify_form']) && isset($_POST['form_id'])) {
+    $formId = $_POST['form_id'];
+    $verify = isset($_POST['verify_status']) && $_POST['verify_status'] === '1';
+    $filename = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
+    
+    if (file_exists($filename) && is_readable($filename)) {
+        $formData = json_decode(file_get_contents($filename), true);
+        $formData['verified'] = $verify;
+        
+        if (file_put_contents($filename, json_encode($formData, JSON_PRETTY_PRINT))) {
+            $status = $verify ? "verified" : "unverified";
+            $actionMessage = "Form $formId has been $status successfully.";
+            logAdminAction("$status form: $formId");
+        } else {
+            $actionMessage = "Error: Unable to update verification status for form $formId.";
+            logAdminAction("Failed to update verification status for form: $formId", false);
+        }
+    } else {
+        $actionMessage = "Error: Form $formId not found.";
+        logAdminAction("Failed to find form for verification: $formId", false);
+    }
+}
+
+// Handle form blacklisting
+if (isset($_POST['blacklist_form']) && isset($_POST['form_id'])) {
+    $formId = $_POST['form_id'];
+    $filename = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
+    $blacklistMessage = isset($_POST['blacklist_message']) ? trim($_POST['blacklist_message']) : '';
+    
+    if (file_exists($filename) && is_readable($filename)) {
+        $formData = json_decode(file_get_contents($filename), true);
+        
+        if (empty($blacklistMessage)) {
+            // If message is empty, remove blacklist
+            if (isset($formData['blacklisted'])) {
+                unset($formData['blacklisted']);
+                $actionMessage = "Form $formId has been removed from blacklist.";
+                logAdminAction("Removed form from blacklist: $formId");
+            } else {
+                $actionMessage = "Form $formId was not blacklisted.";
+            }
+        } else {
+            // Set blacklist with message
+            $formData['blacklisted'] = $blacklistMessage;
+            $actionMessage = "Form $formId has been blacklisted successfully.";
+            logAdminAction("Blacklisted form: $formId");
+        }
+        
+        if (!file_put_contents($filename, json_encode($formData, JSON_PRETTY_PRINT))) {
+            $actionMessage = "Error: Unable to update blacklist status for form $formId.";
+            logAdminAction("Failed to update blacklist status for form: $formId", false);
+        }
+    } else {
+        $actionMessage = "Error: Form $formId not found.";
+        logAdminAction("Failed to find form for blacklisting: $formId", false);
+    }
+}
+
 // Handle custom link deletion
 if (isset($_POST['delete_custom_link']) && isset($_POST['custom_link'])) {
     $customLink = $_POST['custom_link'];
@@ -113,6 +172,8 @@ if (is_dir($formsDir)) {
         // Try to get form name and creator info from the file
         $formName = "";
         $createdById = null;
+        $verified = false;
+        $blacklisted = false;
         $fileContent = file_get_contents($filePath);
         $formData = json_decode($fileContent, true);
         if ($formData) {
@@ -121,6 +182,12 @@ if (is_dir($formsDir)) {
             }
             if (isset($formData['createdBy'])) {
                 $createdById = $formData['createdBy'];
+            }
+            if (isset($formData['verified'])) {
+                $verified = (bool)$formData['verified'];
+            }
+            if (isset($formData['blacklisted']) && !empty($formData['blacklisted'])) {
+                $blacklisted = $formData['blacklisted'];
             }
         }
 
@@ -131,7 +198,9 @@ if (is_dir($formsDir)) {
             'modified' => $modificationTime,
             'size' => $fileSize,
             'url' => site_url('form') . '?f=' . $formId,
-            'createdBy' => $createdById
+            'createdBy' => $createdById,
+            'verified' => $verified,
+            'blacklisted' => $blacklisted
         ];
     }
     
@@ -399,6 +468,7 @@ ob_start();
                                 <th>Name</th>
                                 <th>Created</th>
                                 <th>Size</th>
+                                <th>Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -419,6 +489,15 @@ ob_start();
                                             }
                                         ?>
                                     </td>
+                                    <td>
+                                        <?php if ($form['blacklisted']): ?>
+                                            <span class="badge bg-danger">Blacklisted</span>
+                                        <?php elseif ($form['verified']): ?>
+                                            <span class="badge bg-success">Verified</span>
+                                        <?php else: ?>
+                                            <span class="badge bg-secondary">Unverified</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="form-actions">
                                         <a href="<?php echo htmlspecialchars($form['url']); ?>" class="btn btn-sm btn-outline-primary" target="_blank">
                                             <i class="bi bi-eye"></i> View
@@ -433,6 +512,26 @@ ob_start();
                                                 <i class="bi bi-pencil"></i> Use as Template
                                             </a>
                                         <?php endif; ?>
+                                        
+                                        <button type="button" class="btn btn-sm <?php echo $form['verified'] ? 'btn-outline-warning' : 'btn-outline-success'; ?>"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#verifyModal" 
+                                                data-formid="<?php echo htmlspecialchars($form['id']); ?>"
+                                                data-formname="<?php echo htmlspecialchars($form['name'] ?: 'Unnamed Form'); ?>"
+                                                data-verified="<?php echo $form['verified'] ? '1' : '0'; ?>">
+                                            <i class="bi <?php echo $form['verified'] ? 'bi-x-circle' : 'bi-check-circle'; ?>"></i> 
+                                            <?php echo $form['verified'] ? 'Unverify' : 'Verify'; ?>
+                                        </button>
+                                        
+                                        <button type="button" class="btn btn-sm <?php echo $form['blacklisted'] ? 'btn-outline-warning' : 'btn-outline-danger'; ?>"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#blacklistModal" 
+                                                data-formid="<?php echo htmlspecialchars($form['id']); ?>"
+                                                data-formname="<?php echo htmlspecialchars($form['name'] ?: 'Unnamed Form'); ?>"
+                                                data-blacklisted="<?php echo $form['blacklisted'] ? htmlspecialchars($form['blacklisted']) : ''; ?>">
+                                            <i class="bi <?php echo $form['blacklisted'] ? 'bi-unlock' : 'bi-lock'; ?>"></i> 
+                                            <?php echo $form['blacklisted'] ? 'Unblacklist' : 'Blacklist'; ?>
+                                        </button>
                                         
                                         <button type="button" class="btn btn-sm btn-outline-danger" 
                                                 data-bs-toggle="modal" 
@@ -474,6 +573,71 @@ ob_start();
         </div>
     </div>
     
+    <!-- Verify Form Confirmation Modal -->
+    <div class="modal fade" id="verifyModal" tabindex="-1" aria-labelledby="verifyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="verifyModalLabel">Confirm Verification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="verify-form-content">
+                        Are you sure you want to verify the form "<span id="formNameToVerify"></span>"?
+                        <p class="text-info mt-2">
+                            Verified forms bypass JavaScript and sensitive information warnings.
+                        </p>
+                    </div>
+                    <div id="unverify-form-content" style="display:none;">
+                        Are you sure you want to remove verification from the form "<span id="formNameToUnverify"></span>"?
+                        <p class="text-warning mt-2">
+                            Unverified forms will show JavaScript and sensitive information warnings if applicable.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="admin">
+                        <input type="hidden" name="form_id" id="formIdToVerify">
+                        <input type="hidden" name="verify_status" id="verifyStatus" value="1">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="verify_form" class="btn btn-success" id="verifyBtn">Verify</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Blacklist Form Modal -->
+    <div class="modal fade" id="blacklistModal" tabindex="-1" aria-labelledby="blacklistModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="blacklistModalLabel">Blacklist Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="admin" id="blacklistForm">
+                        <input type="hidden" name="form_id" id="formIdToBlacklist">
+                        
+                        <div class="mb-3" id="blacklistMessageGroup">
+                            <label for="blacklistMessage" class="form-label">Blacklist Message:</label>
+                            <textarea class="form-control" id="blacklistMessage" name="blacklist_message" rows="4" placeholder="Enter reason for blacklisting this form..."></textarea>
+                            <div class="form-text">This message will be shown to users who attempt to access the form.</div>
+                        </div>
+                        
+                        <div class="alert alert-info" id="unblacklistMessage" style="display:none;">
+                            <i class="bi bi-info-circle"></i> Removing this form from the blacklist will make it accessible again.
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" name="blacklist_form" form="blacklistForm" class="btn btn-danger" id="blacklistBtn">Blacklist</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <!-- Delete Custom Link Confirmation Modal -->
     <div class="modal fade" id="deleteLinkModal" tabindex="-1" aria-labelledby="deleteLinkModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -509,6 +673,60 @@ document.addEventListener('DOMContentLoaded', function() {
         const modal = $(this);
         modal.find('#formNameToDelete').text(formName);
         modal.find('#formIdToDelete').val(formId);
+    });
+    
+    // Verify modal handler for forms
+    $('#verifyModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const formId = button.data('formid');
+        const formName = button.data('formname');
+        const isVerified = button.data('verified') === '1';
+        
+        const modal = $(this);
+        modal.find('#formNameToVerify').text(formName);
+        modal.find('#formNameToUnverify').text(formName);
+        modal.find('#formIdToVerify').val(formId);
+        
+        // Toggle content and button text based on current verification status
+        if (isVerified) {
+            modal.find('#verify-form-content').hide();
+            modal.find('#unverify-form-content').show();
+            modal.find('#verifyStatus').val('0');
+            modal.find('#verifyBtn').text('Unverify').removeClass('btn-success').addClass('btn-warning');
+            modal.find('#verifyModalLabel').text('Confirm Unverification');
+        } else {
+            modal.find('#verify-form-content').show();
+            modal.find('#unverify-form-content').hide();
+            modal.find('#verifyStatus').val('1');
+            modal.find('#verifyBtn').text('Verify').removeClass('btn-warning').addClass('btn-success');
+            modal.find('#verifyModalLabel').text('Confirm Verification');
+        }
+    });
+    
+    // Blacklist modal handler for forms
+    $('#blacklistModal').on('show.bs.modal', function (event) {
+        const button = $(event.relatedTarget);
+        const formId = button.data('formid');
+        const formName = button.data('formname');
+        const blacklistMessage = button.data('blacklisted');
+        
+        const modal = $(this);
+        modal.find('#formIdToBlacklist').val(formId);
+        
+        // If already blacklisted, show unblacklist UI
+        if (blacklistMessage) {
+            modal.find('#blacklistMessageGroup').hide();
+            modal.find('#unblacklistMessage').show();
+            modal.find('#blacklistMessage').val(''); // Clear the message to remove from blacklist
+            modal.find('#blacklistBtn').text('Remove from Blacklist').removeClass('btn-danger').addClass('btn-warning');
+            modal.find('#blacklistModalLabel').text('Remove Form from Blacklist');
+        } else {
+            modal.find('#blacklistMessageGroup').show();
+            modal.find('#unblacklistMessage').hide();
+            modal.find('#blacklistMessage').val('');
+            modal.find('#blacklistBtn').text('Blacklist').removeClass('btn-warning').addClass('btn-danger');
+            modal.find('#blacklistModalLabel').text('Blacklist Form');
+        }
     });
     
     // Delete modal handler for custom links

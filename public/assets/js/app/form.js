@@ -349,22 +349,3 @@ function copyToClipboard(text) {
       }
   });
 }
-
-function setCookie(name, value, daysToLive = 7) {
-  const date = new Date();
-  date.setTime(date.getTime() + (daysToLive * 24 * 60 * 60 * 1000));
-  const expires = "expires=" + date.toUTCString();
-  document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
-}
-
-function getCookie(name) {
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const cookies = decodedCookie.split(';');
-  for (let cookie of cookies) {
-      cookie = cookie.trim();
-      if (cookie.startsWith(name + "=")) {
-      return cookie.substring(name.length + 1);
-      }
-  }
-  return null;
-}

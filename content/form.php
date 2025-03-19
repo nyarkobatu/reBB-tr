@@ -225,6 +225,9 @@ if ($isJsonRequest) {
     $formStyle = 'default'; // Default value
     $showAlert = false; // Flag to control sensitive information banner display
     $bypassSecurityCheck = isset($_GET['confirm']) && $_GET['confirm'] === '1';
+    $isVerified = false; // Flag to indicate if form is verified
+    $isBlacklisted = false; // Flag to indicate if form is blacklisted
+    $blacklistMessage = ''; // Message to display if form is blacklisted
   
     if (isset($_GET['f'])) {
         $formName = preg_replace('/[^a-zA-Z0-9_\-]/', '', $_GET['f']);
@@ -241,19 +244,23 @@ if ($isJsonRequest) {
             $enableTemplateLink = $formData['enableTemplateLink'] ?? false;
             $formStyle = $formData['formStyle'] ?? 'default';
             $formNameDisplay = $formData['formName'] ?? '';
-            // Enhanced sensitive information detection
-            if ($formSchema) {
+            $isVerified = isset($formData['verified']) && $formData['verified'] === true;
+            $isBlacklisted = isset($formData['blacklisted']) && !empty($formData['blacklisted']);
+            $blacklistMessage = $isBlacklisted ? $formData['blacklisted'] : '';
+            
+            // Enhanced sensitive information detection - skip if form is verified
+            if ($formSchema && !$isVerified) {
                 // Check both the schema and template for sensitive information
                 $showAlert = detectSensitiveInformation($formSchema, $formTemplate);
             }
 
-            // Scan for dangerous JavaScript patterns
-            if ($formSchema) {
+            // Scan for dangerous JavaScript patterns - skip if form is verified
+            if ($formSchema && !$isVerified) {
                 $schemaThreats = scanForDangerousPatterns(json_encode($formSchema), $dangerousPatterns);
                 $detectedThreats = array_merge($detectedThreats, $schemaThreats);
             }
             
-            if ($formTemplate) {
+            if ($formTemplate && !$isVerified) {
                 $templateThreats = scanForDangerousPatterns($formTemplate, $dangerousPatterns);
                 $detectedThreats = array_merge($detectedThreats, $templateThreats);
             }
@@ -267,13 +274,25 @@ if ($isJsonRequest) {
 ob_start();
 ?>
 
-<?php if ($showAlert): ?>
+<?php if ($showAlert && !$isVerified): ?>
 <div class="alert alert-warning">
     <strong>Warning:</strong> This form appears to be requesting sensitive information such as passwords or passcodes. For your security, please do not enter your personal passwords or passcodes into this form unless you are absolutely certain it is legitimate and secure. Be cautious of phishing attempts.
 </div>
 <?php endif; ?>
 
-<?php if ($dangerousJSDetected && !$bypassSecurityCheck): ?>
+<?php if ($isBlacklisted): ?>
+<div class="security-warning-container">
+    <div class="security-warning">
+        <h3><i class="bi bi-shield-exclamation"></i> Form Blocked</h3>
+        <p class="warning-text"><?php echo htmlspecialchars($blacklistMessage); ?></p>
+        <div class="action-buttons">
+            <a href="index.php" class="btn btn-secondary">
+                Return to Home
+            </a>
+        </div>
+    </div>
+</div>
+<?php elseif ($dangerousJSDetected && !$bypassSecurityCheck && !$isVerified): ?>
 <div class="security-warning-container">
     <div class="security-warning">
         <h3><i class="bi bi-exclamation-triangle-fill"></i> Security Warning</h3>
@@ -304,6 +323,11 @@ ob_start();
   </div>
 <?php else: ?>
   <div id="form-container">
+    <?php if ($isVerified): ?>
+    <a href="<?php echo site_url('docs'); ?>?doc=verified-forms.md" class="verified-badge" title="Learn about verified forms">
+        <i class="bi bi-check-circle-fill"></i> Verified Form
+    </a>
+    <?php endif; ?>
     <?php if (!empty($formNameDisplay)): ?>
       <h2 class="text-center mb-4"><?= htmlspecialchars($formNameDisplay) ?></h2>
     <?php endif; ?>
@@ -349,13 +373,46 @@ $formStyle = in_array($formStyle, $allowedStyles) ? $formStyle : 'default';
 
 $formStyleCSS = '<link rel="stylesheet" href="' . asset_path("css/forms/{$formStyle}.css") . '?v=' . APP_VERSION . '">' . PHP_EOL;
 $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path("css/forms/{$formStyle}-dark.css") . '?v=' . APP_VERSION . '">' . PHP_EOL;
-if ($dangerousJSDetected && !$bypassSecurityCheck) {
+if (($dangerousJSDetected && !$bypassSecurityCheck && !$isVerified) || $isBlacklisted) {
     $formStyleCSS .= '<link rel="stylesheet" href="' . asset_path("css/security-warning.css") . '?v=' . APP_VERSION . '">';
 }
+// Add verified form badge styles
+$formStyleCSS .= '
+<style>
+.verified-badge {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background-color: #198754;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.verified-badge:hover {
+    background-color: #146c43;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    color: white;
+}
+.verified-badge i {
+    font-size: 1rem;
+}
+#form-container {
+    position: relative;
+}
+</style>';
 $GLOBALS['page_css'] = $formStyleCSS;
 
 // Add page-specific JavaScript
-if (!$dangerousJSDetected || $bypassSecurityCheck) {
+if ((!$dangerousJSDetected || $bypassSecurityCheck || $isVerified) && !$isBlacklisted) {
     $formSchema = json_encode(
         $formSchema, 
         JSON_PRETTY_PRINT | 
@@ -384,6 +441,9 @@ JSVARS;
     $GLOBALS['page_javascript'] = '
     <!-- Component Registry System -->
     <script src="'. asset_path('js/components/components.js') .'?v=' . APP_VERSION . '"></script>
+
+    <!-- Custom Script Functions -->
+    <script src="'. asset_path('js/app/custom.js') .'?v=' . APP_VERSION . '"></script>
 
     <!-- Main Form Script - relies on ComponentRegistry -->
     <script src="'. asset_path('js/app/form.js') .'?v=' . APP_VERSION . '"></script>

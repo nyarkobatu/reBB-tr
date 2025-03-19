@@ -297,6 +297,9 @@ $GLOBALS['page_javascript'] = '
 <!-- Custom Form.io Editor Extensions -->
 <script src="'. asset_path('js/app/editor.js') .'?v=' . APP_VERSION . '"></script>
 
+<!-- Custom Script Functions - No Script Execution -->
+<script src="'. asset_path('js/app/custom.no.js') .'?v=' . APP_VERSION . '"></script>
+
 <!-- Main Builder Script - relies on ComponentRegistry -->
 <script src="'. asset_path('js/app/builder.js') .'?v=' . APP_VERSION . '"></script>
 ';
