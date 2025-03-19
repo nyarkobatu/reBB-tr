@@ -12,6 +12,187 @@ auth()->requireRole('admin', 'login');
 // Since we've passed the auth check, we can safely get the current user
 $currentUser = auth()->getUser();
 
+// Handle log viewing functionality
+if (isset($_GET['logs']) && !empty($_GET['logs'])) {
+    $logType = $_GET['logs'];
+    $logFile = '';
+    
+    switch ($logType) {
+        case 'admin':
+            $logFile = STORAGE_DIR . '/logs/admin_activity.log';
+            $logTitle = 'Admin Activity Logs';
+            break;
+        case 'forms':
+            $logFile = STORAGE_DIR . '/logs/form_submissions.log';
+            $logTitle = 'Form Submission Logs';
+            break;
+        case 'docs':
+            $logFile = STORAGE_DIR . '/logs/documentation_activity.log';
+            $logTitle = 'Documentation Activity Logs';
+            break;
+        default:
+            // Invalid log type, redirect back to admin
+            redirect('admin');
+            exit;
+    }
+    
+    // Check if log file exists
+    if (!file_exists($logFile)) {
+        // Define the page content to be yielded in the master layout
+        ob_start();
+        echo '<div class="container-admin">';
+        echo '<div class="page-header">';
+        echo '<h1>' . $logTitle . '</h1>';
+        echo '<div><a href="admin" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Admin</a></div>';
+        echo '</div>';
+        echo '<div class="alert alert-info">No log entries found. The log file does not exist yet.</div>';
+        echo '</div>';
+        $GLOBALS['page_content'] = ob_get_clean();
+        $GLOBALS['page_title'] = $logTitle;
+        $GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/admin.css') .'?v=' . APP_VERSION . '">';
+        
+        // Include the master layout
+        require_once ROOT_DIR . '/includes/master.php';
+        exit;
+    }
+    
+    // Read log file content (last 1000 lines to avoid memory issues with very large logs)
+    $logContent = '';
+    $file = new SplFileObject($logFile);
+    $file->seek(PHP_INT_MAX); // Seek to the end of file
+    $totalLines = $file->key(); // Get total line count
+    
+    // Calculate starting line (last 1000 lines or beginning of file)
+    $startLine = max(0, $totalLines - 1000);
+    $file->seek($startLine);
+    
+    // Read lines
+    $logLines = [];
+    while (!$file->eof()) {
+        $line = $file->fgets();
+        if (trim($line) !== '') {
+            $logLines[] = $line;
+        }
+    }
+    
+    // Close file
+    $file = null;
+    
+    // Define the page content to be yielded in the master layout
+    ob_start();
+    ?>
+    <div class="container-admin">
+        <div class="page-header">
+            <h1><?php echo $logTitle; ?></h1>
+            <div>
+                <a href="admin" class="btn btn-outline-secondary"><i class="bi bi-arrow-left"></i> Back to Admin</a>
+                <a href="?logs=<?php echo $logType; ?>" class="btn btn-outline-secondary ms-2"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
+                <button id="downloadLogBtn" class="btn btn-outline-primary ms-2"><i class="bi bi-download"></i> Download</button>
+            </div>
+        </div>
+        
+        <?php if (empty($logLines)): ?>
+            <div class="alert alert-info">No log entries found.</div>
+        <?php else: ?>
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Log Entries</h4>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="autoScrollToggle" checked>
+                            <label class="form-check-label" for="autoScrollToggle">Auto-scroll to bottom</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        Showing last <?php echo count($logLines); ?> log entries (newest at the bottom).
+                        <?php if (count($logLines) >= 1000): ?>
+                            <strong>Note:</strong> Only the last 1000 lines are displayed to improve performance.
+                        <?php endif; ?>
+                    </div>
+                    
+                    <div class="log-container" id="logContainer">
+                        <pre class="log-content"><?php 
+                            foreach ($logLines as $line) {
+                                // Colorize based on log status
+                                if (strpos($line, '[SUCCESS]') !== false) {
+                                    echo '<span class="log-success">' . htmlspecialchars($line) . '</span>';
+                                } elseif (strpos($line, '[FAILED]') !== false) {
+                                    echo '<span class="log-error">' . htmlspecialchars($line) . '</span>';
+                                } else {
+                                    echo htmlspecialchars($line);
+                                }
+                            }
+                        ?></pre>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const logContainer = document.getElementById('logContainer');
+                    const autoScrollToggle = document.getElementById('autoScrollToggle');
+                    const downloadLogBtn = document.getElementById('downloadLogBtn');
+                    
+                    // Auto-scroll to bottom on page load
+                    if (autoScrollToggle.checked) {
+                        logContainer.scrollTop = logContainer.scrollHeight;
+                    }
+                    
+                    // Download log file
+                    downloadLogBtn.addEventListener('click', function() {
+                        const logContent = document.querySelector('.log-content').innerText;
+                        const blob = new Blob([logContent], { type: 'text/plain' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = '<?php echo $logType; ?>_log_<?php echo date('Y-m-d'); ?>.txt';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    });
+                });
+            </script>
+            
+            <style>
+                .log-container {
+                    max-height: 600px;
+                    overflow-y: auto;
+                    background-color: #f8f9fa;
+                    border: 1px solid #dee2e6;
+                    border-radius: 4px;
+                    padding: 10px;
+                }
+                
+                .log-content {
+                    font-family: monospace;
+                    font-size: 0.9rem;
+                    white-space: pre-wrap;
+                    margin: 0;
+                }
+                
+                .log-success {
+                    color: #198754;
+                }
+                
+                .log-error {
+                    color: #dc3545;
+                }
+            </style>
+        <?php endif; ?>
+    </div>
+    <?php
+    $GLOBALS['page_content'] = ob_get_clean();
+    $GLOBALS['page_title'] = $logTitle;
+    $GLOBALS['page_css'] = '<link rel="stylesheet" href="'. asset_path('css/pages/admin.css') .'?v=' . APP_VERSION . '">';
+    
+    // Include the master layout
+    require_once ROOT_DIR . '/includes/master.php';
+    exit;
+}
+
 // Initialize variables
 $actionMessage = '';
 $forms = [];

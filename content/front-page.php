@@ -25,10 +25,10 @@ ob_start();
             <div class="description">
                 <p>Create custom forms without any coding knowledge. Generate structured HTML/BBCode content with a simple drag-and-drop interface.</p>
                 <ul>
-                    <li><i class="bi bi-check-circle"></i> Easy form creation</li>
-                    <li><i class="bi bi-check-circle"></i> Shareable unique URLs</li>
+                    <li><i class="bi bi-check-circle"></i> Simple form creation</li>
+                    <li><i class="bi bi-check-circle"></i> Shareable URLs to direct form generation</li>
                     <li><i class="bi bi-check-circle"></i> No login required</li>
-                    <li><i class="bi bi-check-circle"></i> Minimalistic form styles</li>
+                    <li><i class="bi bi-check-circle"></i> Extensive documentation</li>
                 </ul>
             </div>
             
