@@ -353,6 +353,9 @@
     }
 
     function getComponentKeys(component) {
+        // Check if wildcard generation is disabled for this component
+        if (component.disableWildcard === true) return [];
+        
         if (component.type === 'button' && component.action === 'submit') return [];
         let keys = [];
     

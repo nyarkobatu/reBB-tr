@@ -146,14 +146,14 @@ function setupFormEventHandlers(form) {
             }
         });
         
-        // Process the template with our updated data
-        const generatedOutput = processTemplate(formTemplate, submissionCopy);
+        // Process the template with our updated data, passing the form schema
+        const generatedOutput = processTemplate(formTemplate, submissionCopy, form.form);
         outputField.value = generatedOutput;
         
         // Process template title if it's enabled and exists
         if (typeof enableTemplateTitle !== 'undefined' && enableTemplateTitle && 
             typeof formTemplateTitle !== 'undefined' && formTemplateTitle) {
-            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy);
+            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy, form.form);
             generatedTitleField.value = generatedTitle;
             templateTitleContainer.style.display = 'block';
         }
@@ -164,7 +164,7 @@ function setupFormEventHandlers(form) {
 }
 
 // Process template with data
-function processTemplate(template, data) {
+function processTemplate(template, data, formSchema) {
     // Create a recursive decode function to handle multiple levels of HTML entity encoding
     function decodeHTMLEntities(text) {
         const textArea = document.createElement('textarea');
@@ -177,6 +177,47 @@ function processTemplate(template, data) {
             return decodeHTMLEntities(decoded);
         }
         return decoded;
+    }
+
+    // Filter out data from components with disableWildcard=true
+    function filterDisabledWildcards(data, schema) {
+        if (!schema || !schema.components) return data;
+        
+        const filteredData = {...data};
+        const disabledKeys = new Set();
+        
+        // Recursive function to find all components with disableWildcard=true
+        function findDisabledWildcards(components) {
+            components.forEach(component => {
+                if (component.disableWildcard === true && component.key) {
+                    disabledKeys.add(component.key);
+                }
+                
+                // Process nested components
+                if (component.components) {
+                    findDisabledWildcards(component.components);
+                }
+                
+                // Process columns
+                if (component.columns) {
+                    component.columns.forEach(col => {
+                        if (col.components) {
+                            findDisabledWildcards(col.components);
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Start the search from the top-level components
+        findDisabledWildcards(schema.components);
+        
+        // Remove disabled keys from the data
+        disabledKeys.forEach(key => {
+            delete filteredData[key];
+        });
+        
+        return filteredData;
     }
 
     // Process survey components to create individual question wildcards
@@ -215,8 +256,11 @@ function processTemplate(template, data) {
     // Decode the template before processing it
     template = decodeHTMLEntities(template);
 
+    // Filter out data from components with disableWildcard=true
+    let filteredData = formSchema ? filterDisabledWildcards(data, formSchema) : data;
+
     // Process survey data to create individual question wildcards
-    data = processSurveyData(data);
+    filteredData = processSurveyData(filteredData);
   
     let processedTemplate = '';
     let currentIndex = 0;
@@ -226,7 +270,7 @@ function processTemplate(template, data) {
     while ((match = customEntryRegex.exec(template)) !== null) {
         const componentId = match[1];
         const sectionContent = match[2];
-        let componentData = data[componentId] || [];
+        let componentData = filteredData[componentId] || [];
         
         processedTemplate += template.substring(currentIndex, match.index);
         
@@ -272,11 +316,11 @@ function processTemplate(template, data) {
                 
                 processedTemplate += rowContent;
             });
-        } else if (componentId in data) {
+        } else if (componentId in filteredData) {
             // Handle non-datagrid fields
             let content = sectionContent;
             content = content.replace(/\{(\w+)\}/g, (placeholder, key) => {
-                return data[key] !== undefined ? data[key] : '';
+                return filteredData[key] !== undefined ? filteredData[key] : '';
             });
             processedTemplate += content;
         }
@@ -289,7 +333,7 @@ function processTemplate(template, data) {
     // Process regular placeholders outside of START/END blocks
     // Always replace undefined or null values with empty string instead of keeping the placeholder
     processedTemplate = processedTemplate.replace(/\{(\w+)\}/g, (match, key) => {
-        return (data[key] !== undefined && data[key] !== null) ? data[key] : '';
+        return (filteredData[key] !== undefined && filteredData[key] !== null) ? filteredData[key] : '';
     });
     
     return processedTemplate;

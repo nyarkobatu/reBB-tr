@@ -3,7 +3,7 @@
  * 
  * This file modifies the Form.io component editor to:
  * 1. Add a "Preserve Key" checkbox in the API tab
- * 2. Add a new "Custom" tab with demo content
+ * 2. Add a "Disable wildcard generation" checkbox in the API tab
  */
 
 (function() {
@@ -45,38 +45,23 @@
                     
                     // Insert the checkbox after the key field
                     apiPanel.components.splice(keyFieldIndex + 1, 0, preserveKeyCheckbox);
+                    
+                    // Create the Disable Wildcard checkbox
+                    const disableWildcardCheckbox = {
+                        type: 'checkbox',
+                        input: true,
+                        key: 'disableWildcard',
+                        label: 'Disable wildcard generation',
+                        tooltip: 'When enabled, this component will not generate wildcards in the template system.',
+                        weight: apiPanel.components[keyFieldIndex].weight + 2, // Position after preserve key checkbox
+                        defaultValue: false
+                    };
+                    
+                    // Insert the disable wildcard checkbox after the preserve key checkbox
+                    apiPanel.components.splice(keyFieldIndex + 2, 0, disableWildcardCheckbox);
                 }
             }
         }
-        
-        /*
-        if (apiTab) {
-            // Create a new custom tab
-            const customTab = {
-                key: 'custom',
-                label: 'Custom',
-                weight: 70, // Position after other tabs
-                components: [
-                    {
-                        type: 'htmlelement',
-                        tag: 'div',
-                        content: '<h3>Hello World</h3><p>This is a custom tab in the component editor.</p>',
-                        className: 'custom-tab-content'
-                    },
-                    {
-                        type: 'textfield',
-                        key: 'customField',
-                        label: 'Custom Field',
-                        placeholder: 'This is just a demo field',
-                        input: true
-                    }
-                ]
-            };
-            
-            
-            // Add the custom tab to the tabs component
-            apiTab.components.push(customTab);
-        }*/
         
         return editForm;
     };
@@ -111,6 +96,7 @@
                         if (keyFieldIndex !== -1) {
                             // Check if Preserve Key already exists
                             const preserveKeyExists = apiTab.components.some(c => c.key === 'uniqueKey');
+                            const disableWildcardExists = apiTab.components.some(c => c.key === 'disableWildcard');
                             
                             if (!preserveKeyExists) {
                                 // Add the Preserve Key checkbox
@@ -127,37 +113,26 @@
                                 // Insert after the key field
                                 apiTab.components.splice(keyFieldIndex + 1, 0, preserveKeyCheckbox);
                             }
+                            
+                            if (!disableWildcardExists) {
+                                // Add the Disable Wildcard checkbox (after Preserve Key)
+                                const disableWildcardCheckbox = {
+                                    type: 'checkbox',
+                                    input: true,
+                                    key: 'disableWildcard',
+                                    label: 'Disable wildcard generation',
+                                    tooltip: 'When enabled, this component will not generate wildcards in the template system.',
+                                    weight: apiTab.components[keyFieldIndex].weight + 2,
+                                    defaultValue: false
+                                };
+                                
+                                // Insert after the preserve key checkbox
+                                const preserveKeyIndex = apiTab.components.findIndex(c => c.key === 'uniqueKey');
+                                const insertIndex = preserveKeyIndex !== -1 ? preserveKeyIndex + 1 : keyFieldIndex + 1;
+                                apiTab.components.splice(insertIndex, 0, disableWildcardCheckbox);
+                            }
                         }
                     }
-                    
-                    // Check if the custom tab already exists
-                    /*
-                    const customTabExists = tabsComponent.components.some(c => c.key === 'custom');
-                    
-                    if (!customTabExists) {
-                        // Add the custom tab
-                        tabsComponent.components.push({
-                            key: 'custom',
-                            label: 'Custom',
-                            weight: 70,
-                            components: [
-                                {
-                                    type: 'htmlelement',
-                                    tag: 'div',
-                                    content: '<h3>Hello World</h3><p>This is a custom tab in the component editor.</p>',
-                                    className: 'custom-tab-content'
-                                },
-                                {
-                                    type: 'textfield',
-                                    key: 'customField',
-                                    label: 'Custom Field',
-                                    placeholder: 'This is just a demo field',
-                                    input: true
-                                }
-                            ]
-                        });
-                    }*/
-                   
                 }
                 
                 return editForm;
