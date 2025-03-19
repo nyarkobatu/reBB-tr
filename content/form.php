@@ -384,7 +384,7 @@ $formStyleCSS .= '
     top: 15px;
     right: 15px;
     background-color: #198754;
-    color: white;
+    color: white !important;
     padding: 5px 10px;
     border-radius: 20px;
     font-size: 0.8rem;
