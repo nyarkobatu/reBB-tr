@@ -861,7 +861,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const button = $(event.relatedTarget);
         const formId = button.data('formid');
         const formName = button.data('formname');
-        const isVerified = button.data('verified') === '1';
+        
+        // Get the verified status directly from the HTML attribute
+        const isVerified = button.attr('data-verified') === '1';
         
         const modal = $(this);
         modal.find('#formNameToVerify').text(formName);
@@ -889,7 +891,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const button = $(event.relatedTarget);
         const formId = button.data('formid');
         const formName = button.data('formname');
-        const blacklistMessage = button.data('blacklisted');
+        const blacklistMessage = button.attr('data-blacklisted');
         
         const modal = $(this);
         modal.find('#formIdToBlacklist').val(formId);
