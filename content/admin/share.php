@@ -60,7 +60,7 @@ if (isset($_POST['create_account'])) {
  * @return string Secure password
  */
 function generateSecurePassword($length = 12) {
-    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+';
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%*';
     $password = '';
     
     // Ensure we have at least one of each character type
