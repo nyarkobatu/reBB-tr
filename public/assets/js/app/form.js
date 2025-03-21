@@ -133,8 +133,8 @@ function setupFormEventHandlers(form) {
         // Clone the data to prevent any issues with form reset
         const submissionCopy = JSON.parse(JSON.stringify(submission.data));
         
-        // Find and process all date inputs in the form
-        document.querySelectorAll('input[type="hidden"][value*="T00:00:00"]').forEach(hiddenInput => {
+        // Find and process all date inputs in the form - look for any ISO format date (contains 'T' and possibly 'Z')
+        document.querySelectorAll('input[type="hidden"][value*="T"]').forEach(hiddenInput => {
             const key = hiddenInput.name.replace('data[', '').replace(']', '');
             
             // Find the visible input next to this hidden input
