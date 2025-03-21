@@ -353,9 +353,6 @@
     }
 
     function getComponentKeys(component) {
-        // Check if wildcard generation is disabled for this component
-        if (component.disableWildcard === true) return [];
-        
         if (component.type === 'button' && component.action === 'submit') return [];
         let keys = [];
     
@@ -374,6 +371,22 @@
                         const shortValue = question.value.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
                         // Add question number (1-based index)
                         keys.push(`${component.key}_${shortValue}${index + 1}`);
+                    }
+                });
+            }
+        }
+    
+        // NEW: Special handling for select components to generate option-specific wildcards
+        if (component.type === 'selectboxes' && component.key) {
+            console.log("pass")
+            // Check if the component has data.values (options array)
+            if (component.values && component.values && Array.isArray(component.values)) {
+                component.values.forEach(option => {
+                    if (option.value) {
+                        // Create a wildcard for each option
+                        // Format: componentKey_optionValue (sanitized)
+                        const optionKey = String(option.value).substring(0, 15).replace(/[^A-Za-z0-9_]/g, '');
+                        keys.push(`${component.key}_${optionKey}`);
                     }
                 });
             }

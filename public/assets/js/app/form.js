@@ -133,27 +133,17 @@ function setupFormEventHandlers(form) {
         // Clone the data to prevent any issues with form reset
         const submissionCopy = JSON.parse(JSON.stringify(submission.data));
         
-        // Find and process all date inputs in the form
-        document.querySelectorAll('input[type="hidden"][value*="T00:00:00"]').forEach(hiddenInput => {
-            const key = hiddenInput.name.replace('data[', '').replace(']', '');
-            
-            // Find the visible input next to this hidden input
-            const visibleInput = hiddenInput.nextElementSibling;
-            
-            if (visibleInput && visibleInput.classList.contains('input') && key in submissionCopy) {
-                // Replace the ISO date with the displayed date value
-                submissionCopy[key] = visibleInput.value;
-            }
-        });
+        // Format date fields according to their component configuration
+        formatDateFields(submissionCopy, form.form.components);
         
-        // Process the template with our updated data, passing the form schema
-        const generatedOutput = processTemplate(formTemplate, submissionCopy, form.form);
+        // Process the template with our updated data
+        const generatedOutput = processTemplate(formTemplate, submissionCopy);
         outputField.value = generatedOutput;
         
         // Process template title if it's enabled and exists
         if (typeof enableTemplateTitle !== 'undefined' && enableTemplateTitle && 
             typeof formTemplateTitle !== 'undefined' && formTemplateTitle) {
-            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy, form.form);
+            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy);
             generatedTitleField.value = generatedTitle;
             templateTitleContainer.style.display = 'block';
         }
@@ -161,10 +151,250 @@ function setupFormEventHandlers(form) {
         trackFormUsage(true);
         form.emit('submitDone');
     });
+
+    /**
+     * Format date fields according to their component configuration
+     * @param {Object} data - The form submission data
+     * @param {Array} components - The form components configuration
+     */
+    function formatDateFields(data, components) {
+        // Recursively process all components
+        function processComponents(components) {
+            if (!components || !Array.isArray(components)) return;
+            
+            components.forEach(component => {
+                // Process date/time components
+                if (component.type === 'datetime' && component.key && data[component.key]) {
+                    // Get the format from the component config
+                    const format = component.format || 'MM/dd/yyyy';
+                    
+                    try {
+                        // Parse the ISO date string
+                        const dateValue = data[component.key];
+                        const date = new Date(dateValue);
+                        
+                        if (!isNaN(date.getTime())) {
+                            // Format the date according to the component's format
+                            data[component.key] = formatDate(date, format);
+                        }
+                    } catch (e) {
+                        console.warn(`Error formatting date for ${component.key}:`, e);
+                    }
+                }
+                
+                // Recursively process nested components
+                if (component.components) {
+                    processComponents(component.components);
+                }
+                
+                // Process columns
+                if (component.columns) {
+                    component.columns.forEach(column => {
+                        if (column.components) {
+                            processComponents(column.components);
+                        }
+                    });
+                }
+                
+                // Process rows
+                if (component.rows) {
+                    component.rows.forEach(row => {
+                        if (Array.isArray(row)) {
+                            row.forEach(cell => {
+                                if (cell && cell.components) {
+                                    processComponents(cell.components);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        // Process all components in the form
+        processComponents(components);
+        
+        // Also look for date fields in datagrids
+        Object.keys(data).forEach(key => {
+            if (Array.isArray(data[key])) {
+                data[key].forEach(row => {
+                    if (row && typeof row === 'object') {
+                        // Find date components in this datagrid
+                        const dateFields = findDateFieldsInDatagrid(key, components);
+                        
+                        // Format each date field in the row
+                        dateFields.forEach(dateField => {
+                            if (row[dateField.key] && typeof row[dateField.key] === 'string') {
+                                try {
+                                    const date = new Date(row[dateField.key]);
+                                    if (!isNaN(date.getTime())) {
+                                        row[dateField.key] = formatDate(date, dateField.format || 'MM/dd/yyyy');
+                                    }
+                                } catch (e) {
+                                    console.warn(`Error formatting date in datagrid row:`, e);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    /**
+     * Find date field components within a datagrid
+     * @param {string} datagridKey - The key of the datagrid component
+     * @param {Array} components - All form components
+     * @returns {Array} Array of date field configurations
+     */
+    function findDateFieldsInDatagrid(datagridKey, components) {
+        const dateFields = [];
+        
+        function findDatagrid(components) {
+            if (!components || !Array.isArray(components)) return null;
+            
+            for (const component of components) {
+                if (component.type === 'datagrid' && component.key === datagridKey) {
+                    return component;
+                }
+                
+                // Check nested components
+                if (component.components) {
+                    const found = findDatagrid(component.components);
+                    if (found) return found;
+                }
+                
+                // Check columns
+                if (component.columns) {
+                    for (const column of component.columns) {
+                        if (column.components) {
+                            const found = findDatagrid(column.components);
+                            if (found) return found;
+                        }
+                    }
+                }
+            }
+            
+            return null;
+        }
+        
+        const datagrid = findDatagrid(components);
+        
+        if (datagrid && datagrid.components) {
+            // Find all datetime components in the datagrid
+            function collectDateFields(components) {
+                if (!components || !Array.isArray(components)) return;
+                
+                components.forEach(component => {
+                    if (component.type === 'datetime') {
+                        dateFields.push({
+                            key: component.key,
+                            format: component.format || 'MM/dd/yyyy'
+                        });
+                    }
+                    
+                    // Check nested components
+                    if (component.components) {
+                        collectDateFields(component.components);
+                    }
+                    
+                    // Check columns
+                    if (component.columns) {
+                        component.columns.forEach(column => {
+                            if (column.components) {
+                                collectDateFields(column.components);
+                            }
+                        });
+                    }
+                });
+            }
+            
+            collectDateFields(datagrid.components);
+        }
+        
+        return dateFields;
+    }
+
+    /**
+     * Format a date according to the specified format string
+     * @param {Date} date - The date to format
+     * @param {string} format - The format string (e.g., 'MM/dd/yyyy')
+     * @returns {string} The formatted date string
+     */
+    function formatDate(date, format) {
+        // Month names for 'MMMM' format
+        const monthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+        
+        // Short month names for 'MMM' format
+        const shortMonthNames = [
+            'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+            'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+        ];
+        
+        // Day names for 'EEEE' format
+        const dayNames = [
+            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
+        ];
+        
+        // Short day names for 'EEE' format
+        const shortDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        
+        // Get date components
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const day = date.getDate();
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const seconds = date.getSeconds();
+        const dayOfWeek = date.getDay();
+        
+        // Handle common format patterns
+        return format
+            // Year formats
+            .replace(/yyyy/g, year)
+            .replace(/yy/g, (year % 100).toString().padStart(2, '0'))
+            
+            // Month formats
+            .replace(/MMMM/g, monthNames[month])
+            .replace(/MMM/g, shortMonthNames[month])
+            .replace(/MM/g, (month + 1).toString().padStart(2, '0'))
+            .replace(/M/g, month + 1)
+            
+            // Day formats
+            .replace(/dd/g, day.toString().padStart(2, '0'))
+            .replace(/d/g, day)
+            
+            // Day of week formats
+            .replace(/EEEE/g, dayNames[dayOfWeek])
+            .replace(/EEE/g, shortDayNames[dayOfWeek])
+            
+            // Hour formats (12-hour)
+            .replace(/hh/g, (hours % 12 || 12).toString().padStart(2, '0'))
+            .replace(/h/g, hours % 12 || 12)
+            
+            // Hour formats (24-hour)
+            .replace(/HH/g, hours.toString().padStart(2, '0'))
+            .replace(/H/g, hours)
+            
+            // Minute formats
+            .replace(/mm/g, minutes.toString().padStart(2, '0'))
+            .replace(/m/g, minutes)
+            
+            // Second formats
+            .replace(/ss/g, seconds.toString().padStart(2, '0'))
+            .replace(/s/g, seconds)
+            
+            // AM/PM
+            .replace(/a/g, hours < 12 ? 'am' : 'pm')
+            .replace(/A/g, hours < 12 ? 'AM' : 'PM');
+    }
 }
 
 // Process template with data
-function processTemplate(template, data, formSchema) {
+function processTemplate(template, data) {
     // Create a recursive decode function to handle multiple levels of HTML entity encoding
     function decodeHTMLEntities(text) {
         const textArea = document.createElement('textarea');
@@ -179,45 +409,50 @@ function processTemplate(template, data, formSchema) {
         return decoded;
     }
 
-    // Filter out data from components with disableWildcard=true
-    function filterDisabledWildcards(data, schema) {
-        if (!schema || !schema.components) return data;
+    // Process all form data to expand options for select boxes and other components
+    function processFormData(formData) {
+        const processedData = {...formData};
         
-        const filteredData = {...data};
-        const disabledKeys = new Set();
-        
-        // Recursive function to find all components with disableWildcard=true
-        function findDisabledWildcards(components) {
-            components.forEach(component => {
-                if (component.disableWildcard === true && component.key) {
-                    disabledKeys.add(component.key);
-                }
+        // Process all values in the data object
+        Object.keys(formData).forEach(key => {
+            const value = formData[key];
+            
+            // Handle selectboxes component - {"option1": true, "option2": false}
+            if (value && typeof value === 'object' && !Array.isArray(value)) {
+                const keys = Object.keys(value);
                 
-                // Process nested components
-                if (component.components) {
-                    findDisabledWildcards(component.components);
-                }
+                // Check if this is a selectboxes component (has boolean values)
+                const allBooleanValues = keys.length > 0 && 
+                    keys.every(optionKey => typeof value[optionKey] === 'boolean');
                 
-                // Process columns
-                if (component.columns) {
-                    component.columns.forEach(col => {
-                        if (col.components) {
-                            findDisabledWildcards(col.components);
-                        }
+                if (allBooleanValues) {
+                    // 1. Create individual wildcards for each option
+                    keys.forEach(optionKey => {
+                        const wildcard = `${key}_${optionKey}`;
+                        // If the option is selected (true), set the wildcard to the option key
+                        // Otherwise, set it to empty string
+                        processedData[wildcard] = value[optionKey] ? optionKey : '';
                     });
+                    
+                    // 2. Set the main component value to a space-separated list of selected options
+                    processedData[key] = keys
+                        .filter(optionKey => value[optionKey])
+                        .join(' ');
                 }
-            });
-        }
-        
-        // Start the search from the top-level components
-        findDisabledWildcards(schema.components);
-        
-        // Remove disabled keys from the data
-        disabledKeys.forEach(key => {
-            delete filteredData[key];
+                // Handle single select with value/label properties
+                else if (value.value !== undefined) {
+                    processedData[key] = value.value;
+                }
+            }
+            // Handle arrays (multi-select components)
+            else if (Array.isArray(value)) {
+                processedData[key] = value
+                    .map(item => typeof item === 'object' && item.value ? item.value : item)
+                    .join(' ');
+            }
         });
         
-        return filteredData;
+        return processedData;
     }
 
     // Process survey components to create individual question wildcards
@@ -230,23 +465,31 @@ function processTemplate(template, data, formSchema) {
             
             // If the value is an object and not an array, it might be a survey component
             if (value && typeof value === 'object' && !Array.isArray(value)) {
-                // Get the question values and find out how many questions there are
-                const questionKeys = Object.keys(value);
+                // Skip objects that we've already determined are selectboxes
+                const keys = Object.keys(value);
+                const allBooleanValues = keys.length > 0 && 
+                    keys.every(optionKey => typeof value[optionKey] === 'boolean');
                 
-                questionKeys.forEach((questionKey, index) => {
-                    // Only create keys for questions that have answers (not undefined, null, or empty)
-                    if (value[questionKey] !== undefined && value[questionKey] !== null && value[questionKey] !== '') {
-                        // Create the traditional combined key for backward compatibility
-                        const traditionalKey = `${key}_${questionKey}`;
-                        processedData[traditionalKey] = value[questionKey];
-                        
-                        // Create the new shortened key format with question number
-                        // Extract the base question key (without long text)
-                        const shortKey = questionKey.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
-                        const numberedKey = `${key}_${shortKey}${index + 1}`;
-                        processedData[numberedKey] = value[questionKey];
-                    }
-                });
+                // Only process if it's not a selectboxes component
+                if (!allBooleanValues) {
+                    // Get the question values and find out how many questions there are
+                    const questionKeys = Object.keys(value);
+                    
+                    questionKeys.forEach((questionKey, index) => {
+                        // Only create keys for questions that have answers (not undefined, null, or empty)
+                        if (value[questionKey] !== undefined && value[questionKey] !== null && value[questionKey] !== '') {
+                            // Create the traditional combined key for backward compatibility
+                            const traditionalKey = `${key}_${questionKey}`;
+                            processedData[traditionalKey] = value[questionKey];
+                            
+                            // Create the new shortened key format with question number
+                            // Extract the base question key (without long text)
+                            const shortKey = questionKey.substring(0, 15).replace(/[^A-Za-z0-9]/g, '');
+                            const numberedKey = `${key}_${shortKey}${index + 1}`;
+                            processedData[numberedKey] = value[questionKey];
+                        }
+                    });
+                }
             }
         });
         
@@ -256,11 +499,9 @@ function processTemplate(template, data, formSchema) {
     // Decode the template before processing it
     template = decodeHTMLEntities(template);
 
-    // Filter out data from components with disableWildcard=true
-    let filteredData = formSchema ? filterDisabledWildcards(data, formSchema) : data;
-
-    // Process survey data to create individual question wildcards
-    filteredData = processSurveyData(filteredData);
+    // Process input data
+    data = processFormData(data);
+    data = processSurveyData(data);
   
     let processedTemplate = '';
     let currentIndex = 0;
@@ -270,7 +511,7 @@ function processTemplate(template, data, formSchema) {
     while ((match = customEntryRegex.exec(template)) !== null) {
         const componentId = match[1];
         const sectionContent = match[2];
-        let componentData = filteredData[componentId] || [];
+        let componentData = data[componentId] || [];
         
         processedTemplate += template.substring(currentIndex, match.index);
         
@@ -302,25 +543,62 @@ function processTemplate(template, data, formSchema) {
                 // Handle case where rowData is null or undefined
                 if (!processedRowData) processedRowData = {};
                 
-                rowContent = rowContent.replace(/\{(\w+)\}/g, (placeholder, key) => {
+                // Process row data to expand select boxes
+                const expandedRowData = {};
+                Object.keys(processedRowData).forEach(key => {
                     const value = processedRowData[key];
                     
+                    // Process select boxes in the same way as we did for the main data
+                    if (value && typeof value === 'object' && !Array.isArray(value)) {
+                        const keys = Object.keys(value);
+                        const allBooleanValues = keys.length > 0 && 
+                            keys.every(optionKey => typeof value[optionKey] === 'boolean');
+                        
+                        if (allBooleanValues) {
+                            // Create individual option wildcards
+                            keys.forEach(optionKey => {
+                                expandedRowData[`${key}_${optionKey}`] = value[optionKey] ? optionKey : '';
+                            });
+                            
+                            // Set main value to space-separated list
+                            expandedRowData[key] = keys
+                                .filter(optionKey => value[optionKey])
+                                .join(' ');
+                        } else {
+                            expandedRowData[key] = value.value || value;
+                        }
+                    } else {
+                        expandedRowData[key] = value;
+                    }
+                });
+                
+                rowContent = rowContent.replace(/\{(\w+)\}/g, (placeholder, key) => {
+                    // Try the expanded data first
+                    if (key in expandedRowData) {
+                        return expandedRowData[key];
+                    }
+                    
+                    // Then try the original row data
+                    if (key in processedRowData) {
+                        return processedRowData[key];
+                    }
+                    
                     // If value is undefined but this is a valid field key, treat as empty string
-                    if (value === undefined && fieldKeys.has(key)) {
+                    if (fieldKeys.has(key)) {
                         return '';
                     }
                     
-                    // Return empty string for undefined values, otherwise return the value
-                    return value !== undefined ? value : '';
+                    // For any other placeholder, return empty string
+                    return '';
                 });
                 
                 processedTemplate += rowContent;
             });
-        } else if (componentId in filteredData) {
+        } else if (componentId in data) {
             // Handle non-datagrid fields
             let content = sectionContent;
             content = content.replace(/\{(\w+)\}/g, (placeholder, key) => {
-                return filteredData[key] !== undefined ? filteredData[key] : '';
+                return key in data ? data[key] : '';
             });
             processedTemplate += content;
         }
@@ -333,7 +611,7 @@ function processTemplate(template, data, formSchema) {
     // Process regular placeholders outside of START/END blocks
     // Always replace undefined or null values with empty string instead of keeping the placeholder
     processedTemplate = processedTemplate.replace(/\{(\w+)\}/g, (match, key) => {
-        return (filteredData[key] !== undefined && filteredData[key] !== null) ? filteredData[key] : '';
+        return (data[key] !== undefined && data[key] !== null) ? data[key] : '';
     });
     
     return processedTemplate;
