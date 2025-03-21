@@ -465,6 +465,7 @@ ob_start();
         <div>
             <span class="text-muted me-3">Welcome, <?php echo htmlspecialchars($currentUser['username']); ?></span>
             <a href="<?php echo site_url('analytics'); ?>" class="btn btn-primary"><i class="bi bi-graph-up"></i> Analytics</a>
+            <a href="<?php echo site_url('admin/lists'); ?>" class="btn btn-outline-primary"><i class="bi bi-collection"></i> User Lists</a>
             <a href="?" class="btn btn-outline-secondary me-2"><i class="bi bi-arrow-clockwise"></i> Refresh</a>
             <a href="<?php echo site_url('logout'); ?>" class="btn btn-outline-danger"><i class="bi bi-box-arrow-right"></i> Logout</a>
         </div>

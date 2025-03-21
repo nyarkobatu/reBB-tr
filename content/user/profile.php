@@ -118,6 +118,9 @@ ob_start();
             <a href="<?php echo site_url(); ?>" class="btn btn-outline-secondary me-2">
                 <i class="bi bi-house"></i> Home
             </a>
+            <a href="<?php echo site_url('lists'); ?>" class="btn btn-outline-primary me-2">
+                <i class="bi bi-collection"></i> Form Lists
+            </a>
             <a href="<?php echo site_url('account'); ?>" class="btn btn-outline-info me-2">
                 <i class="bi bi-gear"></i> Account Settings
             </a>

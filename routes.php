@@ -14,6 +14,7 @@ legacy('form.php', 'form');
 legacy('builder.php', 'builder');
 legacy('documentation.php', 'docs');
 legacy('edit.php', 'edit');
+legacy('list.php', 'list');
 
 
 // ===================================
@@ -50,6 +51,14 @@ get('/form', function() {
 get('/form/:id', function($params) {
     $_GET['f'] = $params['id']; // Store ID in GET param for backward compatibility
     view('form');
+});
+
+// ===================================
+// List Routes - For viewing and using lists
+// ===================================
+// List
+get('/list', function() {
+    view('list');
 });
 
 // ===================================
@@ -172,6 +181,11 @@ any('/account', function() {
     view('user/account');
 });
 
+// List management
+any('/lists', function() {
+    view('user/lists');
+});
+
 // ===================================
 // Admin & Management Routes
 // ===================================
@@ -188,6 +202,11 @@ any('/admin/users', function() {
 // Account sharing
 any('/admin/share', function() {
     view('admin/share');
+});
+
+// List Management Admin Page
+any('/admin/lists', function() {
+    view('admin/lists');
 });
 
 // Analytics dashboard

@@ -218,8 +218,11 @@ try {
                 'auto_cache' => false,
                 'timeout' => false
             ]);
-            
-            $userData['custom_links_count'] = 0;
+
+            $linkStore = $linkStore->findBy([
+                ['user_id', '=', $user['_id']]
+            ]);
+            $userData['custom_links_count'] = count($linkStore);
         } catch (\Exception $e) {
             $userData['custom_links_count'] = 0;
         }
