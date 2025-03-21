@@ -366,6 +366,7 @@ ob_start();
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role" <?php echo $editingUser['_id'] === $currentUser['_id'] ? 'disabled' : ''; ?>>
                                     <option value="user" <?php echo $editingUser['role'] === 'user' ? 'selected' : ''; ?>>User</option>
+                                    <option value="trusted" <?php echo $editingUser['role'] === 'trusted' ? 'selected' : ''; ?>>Trusted</option>
                                     <option value="editor" <?php echo $editingUser['role'] === 'editor' ? 'selected' : ''; ?>>Editor</option>
                                     <option value="admin" <?php echo $editingUser['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
                                 </select>
@@ -404,6 +405,7 @@ ob_start();
                                 <label for="role" class="form-label">Role</label>
                                 <select class="form-select" id="role" name="role">
                                     <option value="user">User</option>
+                                    <option value="trusted">Trusted</option>
                                     <option value="editor">Editor</option>
                                     <option value="admin">Admin</option>
                                 </select>
@@ -442,6 +444,11 @@ ob_start();
                             <li>Create new documentation entries</li>
                             <li>Modify existing documentation entries</li>
                             <li>Delete documentation entries</li>
+                        </ul>
+
+                        <p><strong>Trusted users</strong> can:</p>
+                        <ul class="mb-3">
+                            <li>Create forms that get automatically verified</li>
                         </ul>
                         
                         <p><strong>Regular users</strong> can:</p>

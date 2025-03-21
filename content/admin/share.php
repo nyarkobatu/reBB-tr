@@ -130,11 +130,12 @@ ob_start();
                             <label for="role" class="form-label">Role</label>
                             <select class="form-select" id="role" name="role">
                                 <option value="user">User</option>
+                                <option value="trusted">Trusted</option>
                                 <option value="editor">Editor</option>
                                 <option value="admin">Admin</option>
                             </select>
                             <div class="form-text">
-                                <strong>Admin:</strong> Full system access. <strong>User:</strong> Can create/manage forms.
+                                <strong>Admin:</strong> Full system access. <strong>User:</strong> Can create/manage forms. <strong>Trusted:</strong> Can create verified forms. <strong>Editor:</strong> Can modify documentation.
                             </div>
                         </div>
                         

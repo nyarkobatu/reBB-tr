@@ -30,6 +30,11 @@ if (!is_dir($logsDir)) {
     mkdir($logsDir, 0755, true);
 }
 
+// Check if user is logged in as admin
+function isTrusted() {
+    return (auth()->hasRole('editor') || auth()->hasRole('trusted') || auth()->hasRole('admin'));
+}
+
 // Debug IP variables - to help troubleshoot issues
 if (defined('DEBUG_MODE') && DEBUG_MODE) {
     $raw_remote_addr = $_SERVER['REMOTE_ADDR'] ?? 'Not available';
@@ -156,9 +161,13 @@ if ($requestType === 'schema') {
     $editingFormId = isset($requestData['editingForm']) ? $requestData['editingForm'] : '';
     
     $createdBy = null;
+    $verified = false;
     if(auth()->isLoggedIn()) {
         $currentUser = auth()->getUser();
         $createdBy = $currentUser['_id'];
+        if(isTrusted()) {
+            $verified = true;
+        }
     }
     
     // Get the template title and link fields with toggle states
@@ -240,6 +249,7 @@ if ($requestType === 'schema') {
             'enableTemplateLink' => $enableTemplateLink,
             'formStyle' => $formStyle,
             'createdBy' => $formCreator, // Maintain original creator
+            'verified' => $verified,
             'created' => $existingFormData['created'] ?? time(), // Maintain original creation time
             'updated' => time() // Add update timestamp
         ], JSON_PRETTY_PRINT);
@@ -328,6 +338,7 @@ if ($requestType === 'schema') {
             'enableTemplateLink' => $enableTemplateLink,
             'formStyle' => $formStyle,
             'createdBy' => $createdBy,
+            'verified' => $verified,
             'created' => time()
         ], JSON_PRETTY_PRINT);
 
