@@ -133,17 +133,27 @@ function setupFormEventHandlers(form) {
         // Clone the data to prevent any issues with form reset
         const submissionCopy = JSON.parse(JSON.stringify(submission.data));
         
-        // Format date fields according to their component configuration
-        formatDateFields(submissionCopy, form.form.components);
+        // Find and process all date inputs in the form
+        document.querySelectorAll('input[type="hidden"][value*="T00:00:00"]').forEach(hiddenInput => {
+            const key = hiddenInput.name.replace('data[', '').replace(']', '');
+            
+            // Find the visible input next to this hidden input
+            const visibleInput = hiddenInput.nextElementSibling;
+            
+            if (visibleInput && visibleInput.classList.contains('input') && key in submissionCopy) {
+                // Replace the ISO date with the displayed date value
+                submissionCopy[key] = visibleInput.value;
+            }
+        });
         
-        // Process the template with our updated data
-        const generatedOutput = processTemplate(formTemplate, submissionCopy);
+        // Process the template with our updated data, passing the form schema
+        const generatedOutput = processTemplate(formTemplate, submissionCopy, form.form);
         outputField.value = generatedOutput;
         
         // Process template title if it's enabled and exists
         if (typeof enableTemplateTitle !== 'undefined' && enableTemplateTitle && 
             typeof formTemplateTitle !== 'undefined' && formTemplateTitle) {
-            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy);
+            const generatedTitle = processTemplate(formTemplateTitle, submissionCopy, form.form);
             generatedTitleField.value = generatedTitle;
             templateTitleContainer.style.display = 'block';
         }
@@ -151,246 +161,6 @@ function setupFormEventHandlers(form) {
         trackFormUsage(true);
         form.emit('submitDone');
     });
-
-    /**
-     * Format date fields according to their component configuration
-     * @param {Object} data - The form submission data
-     * @param {Array} components - The form components configuration
-     */
-    function formatDateFields(data, components) {
-        // Recursively process all components
-        function processComponents(components) {
-            if (!components || !Array.isArray(components)) return;
-            
-            components.forEach(component => {
-                // Process date/time components
-                if (component.type === 'datetime' && component.key && data[component.key]) {
-                    // Get the format from the component config
-                    const format = component.format || 'MM/dd/yyyy';
-                    
-                    try {
-                        // Parse the ISO date string
-                        const dateValue = data[component.key];
-                        const date = new Date(dateValue);
-                        
-                        if (!isNaN(date.getTime())) {
-                            // Format the date according to the component's format
-                            data[component.key] = formatDate(date, format);
-                        }
-                    } catch (e) {
-                        console.warn(`Error formatting date for ${component.key}:`, e);
-                    }
-                }
-                
-                // Recursively process nested components
-                if (component.components) {
-                    processComponents(component.components);
-                }
-                
-                // Process columns
-                if (component.columns) {
-                    component.columns.forEach(column => {
-                        if (column.components) {
-                            processComponents(column.components);
-                        }
-                    });
-                }
-                
-                // Process rows
-                if (component.rows) {
-                    component.rows.forEach(row => {
-                        if (Array.isArray(row)) {
-                            row.forEach(cell => {
-                                if (cell && cell.components) {
-                                    processComponents(cell.components);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-        
-        // Process all components in the form
-        processComponents(components);
-        
-        // Also look for date fields in datagrids
-        Object.keys(data).forEach(key => {
-            if (Array.isArray(data[key])) {
-                data[key].forEach(row => {
-                    if (row && typeof row === 'object') {
-                        // Find date components in this datagrid
-                        const dateFields = findDateFieldsInDatagrid(key, components);
-                        
-                        // Format each date field in the row
-                        dateFields.forEach(dateField => {
-                            if (row[dateField.key] && typeof row[dateField.key] === 'string') {
-                                try {
-                                    const date = new Date(row[dateField.key]);
-                                    if (!isNaN(date.getTime())) {
-                                        row[dateField.key] = formatDate(date, dateField.format || 'MM/dd/yyyy');
-                                    }
-                                } catch (e) {
-                                    console.warn(`Error formatting date in datagrid row:`, e);
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    /**
-     * Find date field components within a datagrid
-     * @param {string} datagridKey - The key of the datagrid component
-     * @param {Array} components - All form components
-     * @returns {Array} Array of date field configurations
-     */
-    function findDateFieldsInDatagrid(datagridKey, components) {
-        const dateFields = [];
-        
-        function findDatagrid(components) {
-            if (!components || !Array.isArray(components)) return null;
-            
-            for (const component of components) {
-                if (component.type === 'datagrid' && component.key === datagridKey) {
-                    return component;
-                }
-                
-                // Check nested components
-                if (component.components) {
-                    const found = findDatagrid(component.components);
-                    if (found) return found;
-                }
-                
-                // Check columns
-                if (component.columns) {
-                    for (const column of component.columns) {
-                        if (column.components) {
-                            const found = findDatagrid(column.components);
-                            if (found) return found;
-                        }
-                    }
-                }
-            }
-            
-            return null;
-        }
-        
-        const datagrid = findDatagrid(components);
-        
-        if (datagrid && datagrid.components) {
-            // Find all datetime components in the datagrid
-            function collectDateFields(components) {
-                if (!components || !Array.isArray(components)) return;
-                
-                components.forEach(component => {
-                    if (component.type === 'datetime') {
-                        dateFields.push({
-                            key: component.key,
-                            format: component.format || 'MM/dd/yyyy'
-                        });
-                    }
-                    
-                    // Check nested components
-                    if (component.components) {
-                        collectDateFields(component.components);
-                    }
-                    
-                    // Check columns
-                    if (component.columns) {
-                        component.columns.forEach(column => {
-                            if (column.components) {
-                                collectDateFields(column.components);
-                            }
-                        });
-                    }
-                });
-            }
-            
-            collectDateFields(datagrid.components);
-        }
-        
-        return dateFields;
-    }
-
-    /**
-     * Format a date according to the specified format string
-     * @param {Date} date - The date to format
-     * @param {string} format - The format string (e.g., 'MM/dd/yyyy')
-     * @returns {string} The formatted date string
-     */
-    function formatDate(date, format) {
-        // Month names for 'MMMM' format
-        const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-        
-        // Short month names for 'MMM' format
-        const shortMonthNames = [
-            'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-            'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
-        ];
-        
-        // Day names for 'EEEE' format
-        const dayNames = [
-            'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
-        ];
-        
-        // Short day names for 'EEE' format
-        const shortDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        
-        // Get date components
-        const year = date.getFullYear();
-        const month = date.getMonth();
-        const day = date.getDate();
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
-        const dayOfWeek = date.getDay();
-        
-        // Handle common format patterns
-        return format
-            // Year formats
-            .replace(/yyyy/g, year)
-            .replace(/yy/g, (year % 100).toString().padStart(2, '0'))
-            
-            // Month formats
-            .replace(/MMMM/g, monthNames[month])
-            .replace(/MMM/g, shortMonthNames[month])
-            .replace(/MM/g, (month + 1).toString().padStart(2, '0'))
-            .replace(/M/g, month + 1)
-            
-            // Day formats
-            .replace(/dd/g, day.toString().padStart(2, '0'))
-            .replace(/d/g, day)
-            
-            // Day of week formats
-            .replace(/EEEE/g, dayNames[dayOfWeek])
-            .replace(/EEE/g, shortDayNames[dayOfWeek])
-            
-            // Hour formats (12-hour)
-            .replace(/hh/g, (hours % 12 || 12).toString().padStart(2, '0'))
-            .replace(/h/g, hours % 12 || 12)
-            
-            // Hour formats (24-hour)
-            .replace(/HH/g, hours.toString().padStart(2, '0'))
-            .replace(/H/g, hours)
-            
-            // Minute formats
-            .replace(/mm/g, minutes.toString().padStart(2, '0'))
-            .replace(/m/g, minutes)
-            
-            // Second formats
-            .replace(/ss/g, seconds.toString().padStart(2, '0'))
-            .replace(/s/g, seconds)
-            
-            // AM/PM
-            .replace(/a/g, hours < 12 ? 'am' : 'pm')
-            .replace(/A/g, hours < 12 ? 'AM' : 'PM');
-    }
 }
 
 // Process template with data
