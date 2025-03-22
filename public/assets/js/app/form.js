@@ -180,6 +180,7 @@ function processTemplate(template, data) {
     }
 
     // Process all form data to expand options for select boxes and other components
+    // But ONLY for non-datagrid fields
     function processFormData(formData) {
         const processedData = {...formData};
         
@@ -187,8 +188,13 @@ function processTemplate(template, data) {
         Object.keys(formData).forEach(key => {
             const value = formData[key];
             
+            // Skip processing arrays (which might be datagrids)
+            if (Array.isArray(value)) {
+                return;
+            }
+            
             // Handle selectboxes component - {"option1": true, "option2": false}
-            if (value && typeof value === 'object' && !Array.isArray(value)) {
+            if (value && typeof value === 'object') {
                 const keys = Object.keys(value);
                 
                 // Check if this is a selectboxes component (has boolean values)
@@ -214,12 +220,6 @@ function processTemplate(template, data) {
                     processedData[key] = value.value;
                 }
             }
-            // Handle arrays (multi-select components)
-            else if (Array.isArray(value)) {
-                processedData[key] = value
-                    .map(item => typeof item === 'object' && item.value ? item.value : item)
-                    .join(' ');
-            }
         });
         
         return processedData;
@@ -233,8 +233,13 @@ function processTemplate(template, data) {
         Object.keys(formData).forEach(key => {
             const value = formData[key];
             
-            // If the value is an object and not an array, it might be a survey component
-            if (value && typeof value === 'object' && !Array.isArray(value)) {
+            // Skip arrays (which might be datagrids)
+            if (Array.isArray(value)) {
+                return;
+            }
+            
+            // If the value is an object, it might be a survey component
+            if (value && typeof value === 'object') {
                 // Skip objects that we've already determined are selectboxes
                 const keys = Object.keys(value);
                 const allBooleanValues = keys.length > 0 && 
@@ -269,7 +274,7 @@ function processTemplate(template, data) {
     // Decode the template before processing it
     template = decodeHTMLEntities(template);
 
-    // Process input data
+    // Process input data for non-datagrid fields
     data = processFormData(data);
     data = processSurveyData(data);
   
@@ -286,6 +291,7 @@ function processTemplate(template, data) {
         processedTemplate += template.substring(currentIndex, match.index);
         
         if (Array.isArray(componentData)) {
+            // REVERT TO THE SIMPLE APPROACH FOR DATAGRIDS
             
             // HACK: Skip the first row of each datagrid
             if (componentData.length > 0) {
@@ -300,66 +306,22 @@ function processTemplate(template, data) {
                 }
             });
             
-            // Process rows (skipping the first one)
+            // Process rows (skipping the first one) - USING THE OLD SIMPLE APPROACH
             componentData.forEach((rowData, index) => {
                 let rowContent = sectionContent;
-                let processedRowData = rowData;
                 
                 // Convert empty arrays to empty objects
                 if (Array.isArray(rowData) && rowData.length === 0) {
-                    processedRowData = {};
+                    rowData = {};
                 }
                 
                 // Handle case where rowData is null or undefined
-                if (!processedRowData) processedRowData = {};
+                if (!rowData) rowData = {};
                 
-                // Process row data to expand select boxes
-                const expandedRowData = {};
-                Object.keys(processedRowData).forEach(key => {
-                    const value = processedRowData[key];
-                    
-                    // Process select boxes in the same way as we did for the main data
-                    if (value && typeof value === 'object' && !Array.isArray(value)) {
-                        const keys = Object.keys(value);
-                        const allBooleanValues = keys.length > 0 && 
-                            keys.every(optionKey => typeof value[optionKey] === 'boolean');
-                        
-                        if (allBooleanValues) {
-                            // Create individual option wildcards
-                            keys.forEach(optionKey => {
-                                expandedRowData[`${key}_${optionKey}`] = value[optionKey] ? optionKey : '';
-                            });
-                            
-                            // Set main value to space-separated list
-                            expandedRowData[key] = keys
-                                .filter(optionKey => value[optionKey])
-                                .join(' ');
-                        } else {
-                            expandedRowData[key] = value.value || value;
-                        }
-                    } else {
-                        expandedRowData[key] = value;
-                    }
-                });
-                
+                // SIMPLE DIRECT REPLACEMENT WITHOUT ANY EXTRA PROCESSING
                 rowContent = rowContent.replace(/\{(\w+)\}/g, (placeholder, key) => {
-                    // Try the expanded data first
-                    if (key in expandedRowData) {
-                        return expandedRowData[key];
-                    }
-                    
-                    // Then try the original row data
-                    if (key in processedRowData) {
-                        return processedRowData[key];
-                    }
-                    
-                    // If value is undefined but this is a valid field key, treat as empty string
-                    if (fieldKeys.has(key)) {
-                        return '';
-                    }
-                    
-                    // For any other placeholder, return empty string
-                    return '';
+                    // Direct access to rowData
+                    return rowData[key] !== undefined ? rowData[key] : '';
                 });
                 
                 processedTemplate += rowContent;
@@ -379,7 +341,6 @@ function processTemplate(template, data) {
     processedTemplate += template.substring(currentIndex);
     
     // Process regular placeholders outside of START/END blocks
-    // Always replace undefined or null values with empty string instead of keeping the placeholder
     processedTemplate = processedTemplate.replace(/\{(\w+)\}/g, (match, key) => {
         return (data[key] !== undefined && data[key] !== null) ? data[key] : '';
     });
