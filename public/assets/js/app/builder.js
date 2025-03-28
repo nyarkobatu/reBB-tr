@@ -564,6 +564,7 @@
         // Check if this is an edit operation
         isEditMode = typeof isEditMode !== 'undefined' && isEditMode;
         const editingForm = document.getElementById('editingForm')?.value;
+        const formWidth = parseInt(document.getElementById('formWidthInput').value, 10);
 
         try {
             const response = await fetch('ajax', {
@@ -578,6 +579,7 @@
                     enableTemplateTitle: enableTemplateTitle,
                     enableTemplateLink: enableTemplateLink,
                     formName: formName,
+                    formWidth: formWidth,
                     formStyle: formStyle,
                     editMode: isEditMode,
                     editingForm: editingForm
@@ -641,5 +643,19 @@
         });
         // Initialize form style from existing data
         initFormStyle();
+    }
+
+    document.getElementById('formWidthSlider').addEventListener('input', function() {
+        document.getElementById('formWidthInput').value = this.value;
+    });
+    
+    document.getElementById('formWidthInput').addEventListener('input', function() {
+        document.getElementById('formWidthSlider').value = this.value;
+    });
+    
+    // Load existing value if available
+    if (existingFormWidth) {
+        document.getElementById('formWidthSlider').value = existingFormWidth;
+        document.getElementById('formWidthInput').value = existingFormWidth;
     }
 })();

@@ -234,6 +234,9 @@ if ($requestType === 'schema') {
             echo json_encode(['success' => false, 'error' => 'You do not have permission to edit this form.']);
             exit;
         }
+
+        $formWidth = isset($requestData['formWidth']) ? (int)$requestData['formWidth'] : 45;
+        $formWidth = max(20, min(100, $formWidth)); // Limit between 20-100%
         
         // User has permission, proceed with update
         // Keep the original creation data but update everything else
@@ -247,6 +250,7 @@ if ($requestType === 'schema') {
             'templateLink' => $templateLink,
             'enableTemplateTitle' => $enableTemplateTitle,
             'enableTemplateLink' => $enableTemplateLink,
+            'formWidth' => $formWidth,
             'formStyle' => $formStyle,
             'createdBy' => $formCreator, // Maintain original creator
             'verified' => $verified,
@@ -324,6 +328,9 @@ if ($requestType === 'schema') {
             echo json_encode(['success' => false, 'error' => 'Failed to generate a unique form ID. Please try again.']);
             exit;
         }
+
+        $formWidth = isset($requestData['formWidth']) ? (int)$requestData['formWidth'] : 35;
+        $formWidth = max(20, min(100, $formWidth)); // Limit between 20-100%
         
         $filename = $formsDir . '/' . $randomString . '_schema.json';
         $fileContent = json_encode([
@@ -338,6 +345,7 @@ if ($requestType === 'schema') {
             'enableTemplateLink' => $enableTemplateLink,
             'formStyle' => $formStyle,
             'createdBy' => $createdBy,
+            'formWidth' => $formWidth,
             'verified' => $verified,
             'created' => time()
         ], JSON_PRETTY_PRINT);

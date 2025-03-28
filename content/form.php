@@ -247,6 +247,11 @@ if ($isJsonRequest) {
             $isVerified = isset($formData['verified']) && $formData['verified'] === true;
             $isBlacklisted = isset($formData['blacklisted']) && !empty($formData['blacklisted']);
             $blacklistMessage = $isBlacklisted ? $formData['blacklisted'] : '';
+            if (isset($formData['formWidth']) && is_numeric($formData['formWidth'])) {
+                $formWidth = max(20, min(100, (int)$formData['formWidth']));
+            } else {
+                $formWidth = 45;
+            }
             
             // Enhanced sensitive information detection - skip if form is verified
             if ($formSchema && !$isVerified) {
@@ -407,6 +412,19 @@ $formStyleCSS .= '
 }
 #form-container {
     position: relative;
+}
+</style>';
+$formStyleCSS .= '
+<style>
+#form-container {
+    max-width: ' . $formWidth . '%;
+    margin-left: auto;
+    margin-right: auto;
+}
+@media (max-width: 768px) {
+    #form-container {
+        max-width: 95%; /* Responsive adjustment for mobile */
+    }
 }
 </style>';
 $GLOBALS['page_css'] = $formStyleCSS;

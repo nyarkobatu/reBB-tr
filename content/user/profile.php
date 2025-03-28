@@ -17,6 +17,41 @@ $actionMessage = '';
 $actionMessageType = 'info';
 $userForms = [];
 
+// Handle unlinking a form from user
+if (isset($_POST['unlink_form']) && isset($_POST['form_id'])) {
+    $formId = $_POST['form_id'];
+    
+    try {
+        // Initialize the SleekDB store for user forms
+        $dbPath = ROOT_DIR . '/db';
+        $userFormsStore = new \SleekDB\Store('user_forms', $dbPath, [
+            'auto_cache' => false,
+            'timeout' => false
+        ]);
+        
+        // Find the user-form relationship
+        $userForm = $userFormsStore->findOneBy([
+            ['user_id', '=', $currentUser['_id']],
+            'AND',
+            ['form_id', '=', $formId]
+        ]);
+        
+        if ($userForm) {
+            // Delete the relationship entry
+            $userFormsStore->deleteById($userForm['_id']);
+            
+            $actionMessage = "Form has been unlinked from your account.";
+            $actionMessageType = 'success';
+        } else {
+            $actionMessage = "Form not found or doesn't belong to you.";
+            $actionMessageType = 'danger';
+        }
+    } catch (\Exception $e) {
+        $actionMessage = "Error unlinking form: " . $e->getMessage();
+        $actionMessageType = 'danger';
+    }
+}
+
 // Access the forms database
 try {
     // Initialize the SleekDB store for user forms
@@ -302,6 +337,11 @@ ob_start();
                                                         data-formname="<?php echo htmlspecialchars($form['form_name'] ?: 'Unnamed Form'); ?>">
                                                     <i class="bi bi-link"></i> Custom Link
                                                 </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger unlink-form-btn"
+                                                        data-formid="<?php echo htmlspecialchars($form['form_id']); ?>"
+                                                        data-formname="<?php echo htmlspecialchars($form['form_name'] ?: 'Unnamed Form'); ?>">
+                                                    <i class="bi bi-x-circle"></i> Delete
+                                                </button>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -468,6 +508,31 @@ ob_start();
         </div>
     </div>
 
+    <!-- Unlink Form Confirmation Modal -->
+    <div class="modal fade" id="unlinkFormModal" tabindex="-1" aria-labelledby="unlinkFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="unlinkFormModalLabel">Remove Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to remove "<span id="form-name-to-unlink"></span>" from your forms?</p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-info-circle"></i> This will only remove the form from your account. The form itself will still exist and be accessible via direct link or to other users if shared.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="<?php echo site_url('profile'); ?>">
+                        <input type="hidden" name="form_id" id="form-id-to-unlink">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" name="unlink_form" class="btn btn-danger">Remove</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -532,6 +597,22 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+    
+    // Unlink form modal handler
+    const unlinkButtons = document.querySelectorAll('.unlink-form-btn');
+    
+    unlinkButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const formId = this.getAttribute('data-formid');
+            const formName = this.getAttribute('data-formname');
+            
+            document.getElementById('form-id-to-unlink').value = formId;
+            document.getElementById('form-name-to-unlink').textContent = formName;
+            
+            const unlinkFormModal = new bootstrap.Modal(document.getElementById('unlinkFormModal'));
+            unlinkFormModal.show();
+        });
+    });
     
     // Load custom links when tab is shown
     const linksTab = document.getElementById('links-tab');

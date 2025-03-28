@@ -15,6 +15,7 @@ $enableTemplateLink = false;  // New variable for link toggle
 $existingFormStyle = 'default'; // Default style
 $editMode = isset($_GET['edit_mode']) && $_GET['edit_mode'] === 'true';
 $formCreator = null;
+$formWidth = 45;
 $isOwnForm = false;
 
 if (isset($_GET['f']) && !empty($_GET['f'])) {
@@ -33,6 +34,7 @@ if (isset($_GET['f']) && !empty($_GET['f'])) {
             $enableTemplateTitle = isset($formData['enableTemplateTitle']) ? $formData['enableTemplateTitle'] : false;
             $enableTemplateLink = isset($formData['enableTemplateLink']) ? $formData['enableTemplateLink'] : false;
             $existingFormStyle = isset($formData['formStyle']) ? $formData['formStyle'] : 'default';
+            $formWidth = isset($formData['formWidth']) ? $formData['formWidth'] : 45;
             $formCreator = isset($formData['createdBy']) ? $formData['createdBy'] : null;
             
             // Check if the current user is the creator of this form
@@ -152,6 +154,33 @@ ob_start();
         <!-- New Template Title and Link Fields with Toggles -->
         <div id='template-extra-container' style="margin-top: 20px;">
         <h3>Additional Form Options:</h3>
+
+        <!-- Custom Form Width Slider -->
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <h5 class="mb-0 me-2">Custom Form Width</h5>
+                    <div class="style-tooltip">
+                        <i class="bi bi-info-circle"></i>
+                        <div class="tooltip-content">
+                            <p>Adjust the width of your form to better fit your needs. A narrower form works well for simple forms, while wider forms are better for complex layouts.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <small class="form-text text-muted d-block mb-2">Set the maximum width for your form (default: 45%)</small>
+                <div class="d-flex align-items-center">
+                    <input type="range" class="form-range me-2" id="formWidthSlider" 
+                        min="20" max="100" step="5" value="<?php echo $formWidth; ?>">
+                    <div class="input-group" style="width: 120px;">
+                        <input type="number" class="form-control" id="formWidthInput" 
+                            min="20" max="100" step="5" value="<?php echo $formWidth; ?>">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         
         <!-- Template Title Toggle & Section -->
         <div class="card mb-3">
@@ -212,8 +241,8 @@ ob_start();
                             value="<?php echo htmlspecialchars($existingTemplateLink); ?>">
                     </div>
                 </div>
+            </div>
         </div>
-    </div>
 
     <div id='button-container'>
         <?php if ($editMode && $isOwnForm): ?>

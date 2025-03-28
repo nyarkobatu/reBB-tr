@@ -675,3 +675,29 @@ body.dark-mode .btn-info:active {
 body.dark-mode .text-muted {
     color: #888 !important;
 }
+
+/* Dark mode slider styling */
+.dark-mode #formWidthSlider {
+    background: transparent; /* Make slider background transparent */
+}
+.dark-mode #formWidthSlider::-webkit-slider-thumb {
+    background-color: #6c757d;
+}
+.dark-mode #formWidthSlider::-moz-range-thumb {
+    background-color: #6c757d;
+}
+.dark-mode #formWidthSlider::-ms-thumb {
+    background-color: #6c757d;
+}
+.dark-mode #formWidthSlider::-webkit-slider-runnable-track {
+    background-color: rgba(255, 255, 255, 0.1); /* Very subtle light overlay */
+    border: 1px solid rgba(255, 255, 255, 0.1); /* Subtle border */
+}
+.dark-mode #formWidthSlider::-moz-range-track {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.dark-mode #formWidthSlider::-ms-track {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}

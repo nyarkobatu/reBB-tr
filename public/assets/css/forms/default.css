@@ -4,7 +4,6 @@
 
 /* Form container spacing */
 #form-container {
-    max-width: 800px;
     margin: 40px auto;
     padding: 20px;
     flex-grow: 1;

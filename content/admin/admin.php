@@ -270,6 +270,30 @@ if (isset($_POST['verify_form']) && isset($_POST['form_id'])) {
     }
 }
 
+// Handle form verification (but via GET)
+if (isset($_GET['verify_form']) && isset($_GET['form_id'])) {
+    $formId = $_GET['form_id'];
+    $verify = isset($_GET['verify_status']) && $_GET['verify_status'] === '1';
+    $filename = STORAGE_DIR . '/forms/' . $formId . '_schema.json';
+    
+    if (file_exists($filename) && is_readable($filename)) {
+        $formData = json_decode(file_get_contents($filename), true);
+        $formData['verified'] = $verify;
+        
+        if (file_put_contents($filename, json_encode($formData, JSON_PRETTY_PRINT))) {
+            $status = $verify ? "verified" : "unverified";
+            $actionMessage = "Form $formId has been $status successfully.";
+            logAdminAction("$status form: $formId");
+        } else {
+            $actionMessage = "Error: Unable to update verification status for form $formId.";
+            logAdminAction("Failed to update verification status for form: $formId", false);
+        }
+    } else {
+        $actionMessage = "Error: Form $formId not found.";
+        logAdminAction("Failed to find form for verification: $formId", false);
+    }
+}
+
 // Handle form blacklisting
 if (isset($_POST['blacklist_form']) && isset($_POST['form_id'])) {
     $formId = $_POST['form_id'];
