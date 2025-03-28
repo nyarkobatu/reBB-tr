@@ -537,16 +537,18 @@ if (isset($_GET['edit']) && !empty($_GET['edit'])) {
             $editingListItems = $listItemStore->findBy([
                 ['list_id', '=', $editingListId]
             ], ['display_order' => 'asc']);
-            
-            // Load form information for each item
-            foreach ($editingListItems as &$item) {
+
+            // Load form information for each item - FIXED VERSION
+            // Change from foreach ($editingListItems as &$item) to use an index
+            foreach ($editingListItems as $key => $item) {
                 $formPath = STORAGE_DIR . '/forms/' . $item['form_id'] . '_schema.json';
                 
                 if (file_exists($formPath)) {
                     $formData = json_decode(file_get_contents($formPath), true);
-                    $item['form_name'] = isset($formData['formName']) ? $formData['formName'] : 'Unnamed Form';
+                    $editingListItems[$key]['form_name'] = isset($formData['formName']) ? $formData['formName'] : 'Unnamed Form';
                 } else {
-                    $item['form_name'] = 'Unknown Form';
+                    $editingListItems[$key]['form_name'] = 'Unknown Form';
+                    $editingListItems[$key]['not_found'] = true;
                 }
             }
         } else {

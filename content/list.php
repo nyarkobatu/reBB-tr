@@ -55,27 +55,28 @@ if (!isset($_GET['l']) || empty($_GET['l'])) {
                 $listItems = $listItemStore->findBy([
                     ['list_id', '=', $listId]
                 ], ['display_order' => 'asc']);
-                
-                // Load form information for each item
-                foreach ($listItems as &$item) {
+
+                // Load form information for each item - FIXED VERSION
+                // Change from foreach ($listItems as &$item) to use an index
+                foreach ($listItems as $key => $item) {
                     $formPath = STORAGE_DIR . '/forms/' . $item['form_id'] . '_schema.json';
                     
                     if (file_exists($formPath)) {
                         $formData = json_decode(file_get_contents($formPath), true);
-                        $item['form_name'] = isset($formData['formName']) ? $formData['formName'] : 'Unnamed Form';
+                        $listItems[$key]['form_name'] = isset($formData['formName']) ? $formData['formName'] : 'Unnamed Form';
                         
                         // If there's a verified status, add it to the item
                         if (isset($formData['verified'])) {
-                            $item['verified'] = $formData['verified'];
+                            $listItems[$key]['verified'] = $formData['verified'];
                         }
                         
                         // If there's a blacklisted status, add it to the item
                         if (isset($formData['blacklisted']) && !empty($formData['blacklisted'])) {
-                            $item['blacklisted'] = $formData['blacklisted'];
+                            $listItems[$key]['blacklisted'] = $formData['blacklisted'];
                         }
                     } else {
-                        $item['form_name'] = 'Unknown Form';
-                        $item['not_found'] = true;
+                        $listItems[$key]['form_name'] = 'Unknown Form';
+                        $listItems[$key]['not_found'] = true;
                     }
                 }
                 
